@@ -15,7 +15,7 @@ public class EpubServer extends RouterNanoHTTPD {
         super(8080);
     }
 
-    public void addEpub(String containerPath, EpubContainer epubContainer) {
+    public void addEpub(String containerPath) {
         addRoute(containerPath, EpubHandler.class);
     }
 }
