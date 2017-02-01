@@ -5,5 +5,20 @@ package com.codetoart.r2_streamer.model.publication.rendition;
  */
 
 public enum RenditionOrientation {
-    AUTO, LANDSCAPE, PORTRAIT
+    AUTO("auto"), LANDSCAPE("landscape"), PORTRAIT("portrait");
+
+    String value;
+
+    RenditionOrientation(String value) {
+        this.value = value;
+    }
+
+    public static RenditionOrientation valueOfEnum(String name) {
+        for (RenditionOrientation layout : RenditionOrientation.values()) {
+            if (layout.value.equals(name)) {
+                return layout;
+            }
+        }
+        throw new IllegalArgumentException(name);
+    }
 }

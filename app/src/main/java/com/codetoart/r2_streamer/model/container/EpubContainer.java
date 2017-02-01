@@ -15,14 +15,14 @@ import java.util.zip.ZipFile;
 
 public class EpubContainer implements Container {
     private static String TAG = "EpubContainer";
-    private String mEpubFilePath;
-    private ZipFile mZipFile;
+    private String epubFilePath;
+    private ZipFile zipFile;
 
     public EpubContainer(String epubFilePath) throws IOException {
-        this.mEpubFilePath = epubFilePath;
-        mZipFile = new ZipFile(mEpubFilePath);
+        this.epubFilePath = epubFilePath;
+        zipFile = new ZipFile(epubFilePath);
 
-        Log.d(TAG, "Reading epub: " + mEpubFilePath);
+        Log.d(TAG, "Reading epub: " + epubFilePath);
     }
 
     @Override
@@ -30,19 +30,18 @@ public class EpubContainer implements Container {
         Log.d(TAG, "Reading file: " + relativePath);
 
         try {
-            ZipEntry zipEntry = mZipFile.getEntry(relativePath);
-            InputStream is = mZipFile.getInputStream(zipEntry);
+            ZipEntry zipEntry = zipFile.getEntry(relativePath);
+            InputStream is = zipFile.getInputStream(zipEntry);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
 
             while ((line = br.readLine()) != null) {
-                sb.append(line).append('\n');
+                sb.append(line);        //.append('\n');
             }
             Log.d(TAG, sb.toString());
 
             return sb.toString();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,6 +50,6 @@ public class EpubContainer implements Container {
 
     @Override
     public int rawDataSize() {
-        return mZipFile.size();
+        return zipFile.size();
     }
 }

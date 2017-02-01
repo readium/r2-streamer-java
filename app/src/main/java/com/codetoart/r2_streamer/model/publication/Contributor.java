@@ -5,19 +5,16 @@ package com.codetoart.r2_streamer.model.publication;
  */
 
 public class Contributor {
-    private String name;
-    private String sortAs;
-    private String identifier;
-    private String role;
+    public String name;
+    public String sortAs;
+    public String identifier;
+    public String role;
 
     public Contributor() {
     }
 
-    public Contributor(String name, String sortAs, String identifier, String role) {
+    public Contributor(String name) {
         this.name = name;
-        this.sortAs = sortAs;
-        this.identifier = identifier;
-        this.role = role;
     }
 
     public String getName() {
@@ -32,7 +29,7 @@ public class Contributor {
         return sortAs;
     }
 
-    public void setmSortAs(String sortAs) {
+    public void setSortAs(String sortAs) {
         this.sortAs = sortAs;
     }
 

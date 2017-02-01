@@ -1,35 +1,35 @@
 package com.codetoart.r2_streamer.model.publication;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Shrikant on 25-Jan-17.
  */
 
 public class Link {
-    private String href;
-    private String[] rel;
-    private String typeLink;
-    private int height;
-    private int width;
-    private String title;
-    private String[] properties;
-    private Date duration;
-    private boolean templated;
+    public String href;
+    public List<String> rel;
+    //public String[] rel;
+    public String typeLink;
+    public int height;
+    public int width;
+    public String title;
+    public List<String> properties;
+    //public String[] properties;
+    public Date duration;
+    public boolean templated;
 
     public Link() {
+        this.rel = new ArrayList<String>();
+        this.properties = new ArrayList<String>();
     }
 
-    public Link(String href, String[] rel, String typeLink, int height, int width, String title, String[] properties, Date duration, boolean templated) {
+    public Link(String href, List<String> rel, String typeLink) {
         this.href = href;
         this.rel = rel;
         this.typeLink = typeLink;
-        this.height = height;
-        this.width = width;
-        this.title = title;
-        this.properties = properties;
-        this.duration = duration;
-        this.templated = templated;
     }
 
     public String getHref() {
@@ -40,11 +40,11 @@ public class Link {
         this.href = href;
     }
 
-    public String[] getRel() {
+    public List<String> getRel() {
         return rel;
     }
 
-    public void setRel(String[] rel) {
+    public void setRel(List<String> rel) {
         this.rel = rel;
     }
 
@@ -80,11 +80,11 @@ public class Link {
         this.title = title;
     }
 
-    public String[] getProperties() {
+    public List<String> getProperties() {
         return properties;
     }
 
-    public void setProperties(String[] properties) {
+    public void setProperties(List<String> properties) {
         this.properties = properties;
     }
 

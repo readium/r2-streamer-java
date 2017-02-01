@@ -5,5 +5,20 @@ package com.codetoart.r2_streamer.model.publication.rendition;
  */
 
 public enum RenditionSpread {
-    AUTO, LANDSCAPE, PORTRAIT, BOTH, NONE
+    AUTO("auto"), LANDSCAPE("landscape"), PORTRAIT("portrait"), BOTH("both"), NONE("none");
+
+    String value;
+
+    RenditionSpread(String value) {
+        this.value = value;
+    }
+
+    public static RenditionSpread valueOfEnum(String name) {
+        for (RenditionSpread layout : RenditionSpread.values()) {
+            if (layout.value.equals(name)) {
+                return layout;
+            }
+        }
+        throw new IllegalArgumentException(name);
+    }
 }

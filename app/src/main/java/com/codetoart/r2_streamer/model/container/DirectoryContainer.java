@@ -15,11 +15,11 @@ import java.io.InputStreamReader;
 
 public class DirectoryContainer implements Container {
     private static String TAG = "DirectoryContainer";
-    private String mRootPath;
+    private String rootPath;
 
     public DirectoryContainer(String rootPath) {
-        this.mRootPath = rootPath;
-        File epubDirectoryFile = new File(mRootPath);
+        this.rootPath = rootPath;
+        File epubDirectoryFile = new File(rootPath);
         if (!epubDirectoryFile.exists()) {
             Log.e(TAG, "No such directory exists at path: " + epubDirectoryFile);
             return;
@@ -30,7 +30,7 @@ public class DirectoryContainer implements Container {
 
     @Override
     public String rawData(String relativePath) throws NullPointerException {
-        String filePath = mRootPath.concat(relativePath);
+        String filePath = rootPath.concat(relativePath);
         File epubFile = new File(filePath);
 
         if (epubFile != null && epubFile.exists()) {
@@ -43,7 +43,7 @@ public class DirectoryContainer implements Container {
                 String line;
 
                 while ((line = br.readLine()) != null) {
-                    sb.append(line).append('\n');
+                    sb.append(line);        //.append('\n');
                 }
                 Log.d(TAG, sb.toString());
 

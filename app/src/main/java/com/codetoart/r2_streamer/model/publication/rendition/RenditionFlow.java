@@ -5,5 +5,20 @@ package com.codetoart.r2_streamer.model.publication.rendition;
  */
 
 public enum RenditionFlow {
-    PAGINATED, CONTINUOUS, DOCUMENT, FIXED
+    PAGINATED("paginated"), CONTINUOUS("continuous"), DOCUMENT("document"), FIXED("fixed");
+
+    String value;
+
+    RenditionFlow(String value) {
+        this.value = value;
+    }
+
+    public static RenditionFlow valueOfEnum(String name) {
+        for (RenditionFlow layout : RenditionFlow.values()) {
+            if (layout.value.equals(name)) {
+                return layout;
+            }
+        }
+        throw new IllegalArgumentException(name);
+    }
 }

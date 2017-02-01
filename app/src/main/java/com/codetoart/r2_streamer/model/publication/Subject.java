@@ -5,19 +5,16 @@ package com.codetoart.r2_streamer.model.publication;
  */
 
 public class Subject {
-    private String name;
-    private String sortAs;
-    private String scheme;
-    private String code;
+    public String name;
+    public String sortAs;
+    public String scheme;
+    public String code;
 
     public Subject() {
     }
 
-    public Subject(String name, String sortAs, String scheme, String code) {
+    public Subject(String name) {
         this.name = name;
-        this.sortAs = sortAs;
-        this.scheme = scheme;
-        this.code = code;
     }
 
     public String getName() {

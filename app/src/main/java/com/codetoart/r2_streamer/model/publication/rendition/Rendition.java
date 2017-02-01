@@ -5,11 +5,11 @@ package com.codetoart.r2_streamer.model.publication.rendition;
  */
 
 public class Rendition {
-    private RenditionLayout layout;
-    private RenditionFlow flow;
-    private RenditionOrientation orientation;
-    private RenditionSpread spread;
-    private String viewport;
+    public RenditionLayout layout;
+    public RenditionFlow flow;
+    public RenditionOrientation orientation;
+    public RenditionSpread spread;
+    public String viewport;
 
     public Rendition() {
     }

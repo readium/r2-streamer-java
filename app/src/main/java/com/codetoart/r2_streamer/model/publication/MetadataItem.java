@@ -7,10 +7,10 @@ import java.util.List;
  */
 
 public class MetadataItem {
-    private String property;
-    private String value;
-    //private List<MetadataItem> children;
-    private MetadataItem[] children;
+    public String property;
+    public String value;
+    //public List<MetadataItem> children;
+    public MetadataItem[] children;
 
     public MetadataItem() {
     }

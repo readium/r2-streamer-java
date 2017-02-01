@@ -2,65 +2,84 @@ package com.codetoart.r2_streamer.model.publication;
 
 import com.codetoart.r2_streamer.model.publication.rendition.Rendition;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Shrikant on 25-Jan-17.
  */
 
 public class MetaData {
-    private String title;
-    private String identifier;
+    public String title;
+    public String identifier;
 
-    //private List<Contributor> authors;
-    private Contributor[] authors;
-    //private List<Contributor> translators;
-    private Contributor[] translators;
-    //private List<Contributor> editors;
-    private Contributor[] editors;
-    //private List<Contributor> artists;
-    private Contributor[] artists;
-    //private List<Contributor> illustrators;
-    private Contributor[] illustrators;
-    //private List<Contributor> letterers;
-    private Contributor[] letterers;
-    //private List<Contributor> pencilers;
-    private Contributor[] pencilers;
-    //private List<Contributor> colorists;
-    private Contributor[] colorists;
-    //private List<Contributor> inkers;
-    private Contributor[] inkers;
-    //private List<Contributor> narrators;
-    private Contributor[] narrators;
-    //private List<Contributor> contributors;
-    private Contributor[] contributors;
-    //private List<Contributor> publishers;
-    private Contributor[] publishers;
-    //private List<Contributor> imprints;
-    private Contributor[] imprints;
+    public List<Contributor> creators;
+    //public Contributor[] authors;
+    public List<Contributor> translators;
+    //public Contributor[] translators;
+    public List<Contributor> editors;
+    //public Contributor[] editors;
+    public List<Contributor> artists;
+    //public Contributor[] artists;
+    public List<Contributor> illustrators;
+    //public Contributor[] illustrators;
+    public List<Contributor> letterers;
+    //public Contributor[] letterers;
+    public List<Contributor> pencilers;
+    //public Contributor[] pencilers;
+    public List<Contributor> colorists;
+    //public Contributor[] colorists;
+    public List<Contributor> inkers;
+    //public Contributor[] inkers;
+    public List<Contributor> narrators;
+    //public Contributor[] narrators;
+    public List<Contributor> contributors;
+    //public Contributor[] contributors;
+    public List<Contributor> publishers;
+    //public Contributor[] publishers;
+    public List<Contributor> imprints;
+    //public Contributor[] imprints;
 
-    private String languages;
-    private Date modified;
-    private Date publicationDate;
-    private String description;
-    private String direction;
-    private Rendition rendition;
-    private String source;
-    private String[] epubType;
-    private String rights;
-    //private List<Subject> subjects;
-    private Subject[] subjects;
+    public List<String> languages;
+    public Date modified;
+    public Date publicationDate;
+    public String description;
+    public String direction;
+    public Rendition rendition;
+    public String source;
+    public String[] epubType;
+    public List<String> rights;
+    public List<Subject> subjects;
+    //public Subject[] subjects;
 
     //private List<MetadataItem> otherMetadata;
-    private MetadataItem[] otherMetadata;
+    public MetadataItem[] otherMetadata;
 
     public MetaData() {
+        this.rendition = new Rendition();
+        this.creators = new ArrayList<Contributor>();
+        this.translators = new ArrayList<Contributor>();
+        this.editors = new ArrayList<Contributor>();
+        this.artists = new ArrayList<Contributor>();
+        this.illustrators = new ArrayList<Contributor>();
+        this.letterers = new ArrayList<Contributor>();
+        this.pencilers = new ArrayList<Contributor>();
+        this.colorists = new ArrayList<Contributor>();
+        this.inkers = new ArrayList<Contributor>();
+        this.narrators = new ArrayList<Contributor>();
+        this.contributors = new ArrayList<Contributor>();
+        this.publishers = new ArrayList<Contributor>();
+        this.imprints = new ArrayList<Contributor>();
+        this.languages = new ArrayList<String>();
+        this.rights = new ArrayList<String>();
+        this.subjects = new ArrayList<Subject>();
     }
 
-    public MetaData(String title, String identifier, Contributor[] authors, Contributor[] translators, Contributor[] editors, Contributor[] artists, Contributor[] illustrators, Contributor[] letterers, Contributor[] pencilers, Contributor[] colorists, Contributor[] inkers, Contributor[] narrators, Contributor[] contributors, Contributor[] publishers, Contributor[] imprints, String languages, Date modified, Date publicationDate, String description, String direction, Rendition rendition, String source, String[] epubType, String rights, Subject[] subjects, MetadataItem[] otherMetadata) {
+    public MetaData(String title, String identifier, List<Contributor> creators, List<Contributor> translators, List<Contributor> editors, List<Contributor> artists, List<Contributor> illustrators, List<Contributor> letterers, List<Contributor> pencilers, List<Contributor> colorists, List<Contributor> inkers, List<Contributor> narrators, List<Contributor> contributors, List<Contributor> publishers, List<Contributor> imprints, List<String> languages, Date modified, Date publicationDate, String description, String direction, Rendition rendition, String source, String[] epubType, List<String> rights, List<Subject> subjects, MetadataItem[] otherMetadata) {
         this.title = title;
         this.identifier = identifier;
-        this.authors = authors;
+        this.creators = creators;
         this.translators = translators;
         this.editors = editors;
         this.artists = artists;
@@ -77,7 +96,7 @@ public class MetaData {
         this.modified = modified;
         this.publicationDate = publicationDate;
         this.description = description;
-        this.direction = direction;     // = "default";
+        this.direction = "default";     // = direction;
         this.rendition = rendition;
         this.source = source;
         this.epubType = epubType;
@@ -102,115 +121,115 @@ public class MetaData {
         this.identifier = identifier;
     }
 
-    public Contributor[] getAuthors() {
-        return authors;
+    public List<Contributor> getCreators() {
+        return creators;
     }
 
-    public void setAuthors(Contributor[] authors) {
-        this.authors = authors;
+    public void setCreators(List<Contributor> creators) {
+        this.creators = creators;
     }
 
-    public Contributor[] getTranslators() {
+    public List<Contributor> getTranslators() {
         return translators;
     }
 
-    public void setTranslators(Contributor[] translators) {
+    public void setTranslators(List<Contributor> translators) {
         this.translators = translators;
     }
 
-    public Contributor[] getEditors() {
+    public List<Contributor> getEditors() {
         return editors;
     }
 
-    public void setEditors(Contributor[] editors) {
+    public void setEditors(List<Contributor> editors) {
         this.editors = editors;
     }
 
-    public Contributor[] getArtists() {
+    public List<Contributor> getArtists() {
         return artists;
     }
 
-    public void setArtists(Contributor[] artists) {
+    public void setArtists(List<Contributor> artists) {
         this.artists = artists;
     }
 
-    public Contributor[] getIllustrators() {
+    public List<Contributor> getIllustrators() {
         return illustrators;
     }
 
-    public void setIllustrators(Contributor[] illustrators) {
+    public void setIllustrators(List<Contributor> illustrators) {
         this.illustrators = illustrators;
     }
 
-    public Contributor[] getLetterers() {
+    public List<Contributor> getLetterers() {
         return letterers;
     }
 
-    public void setLetterers(Contributor[] letterers) {
+    public void setLetterers(List<Contributor> letterers) {
         this.letterers = letterers;
     }
 
-    public Contributor[] getPencilers() {
+    public List<Contributor> getPencilers() {
         return pencilers;
     }
 
-    public void setPencilers(Contributor[] pencilers) {
+    public void setPencilers(List<Contributor> pencilers) {
         this.pencilers = pencilers;
     }
 
-    public Contributor[] getColorists() {
+    public List<Contributor> getColorists() {
         return colorists;
     }
 
-    public void setColorists(Contributor[] colorists) {
+    public void setColorists(List<Contributor> colorists) {
         this.colorists = colorists;
     }
 
-    public Contributor[] getInkers() {
+    public List<Contributor> getInkers() {
         return inkers;
     }
 
-    public void setInkers(Contributor[] inkers) {
+    public void setInkers(List<Contributor> inkers) {
         this.inkers = inkers;
     }
 
-    public Contributor[] getNarrators() {
+    public List<Contributor> getNarrators() {
         return narrators;
     }
 
-    public void setNarrators(Contributor[] narrators) {
+    public void setNarrators(List<Contributor> narrators) {
         this.narrators = narrators;
     }
 
-    public Contributor[] getContributors() {
+    public List<Contributor> getContributors() {
         return contributors;
     }
 
-    public void setContributors(Contributor[] contributors) {
+    public void setContributors(List<Contributor> contributors) {
         this.contributors = contributors;
     }
 
-    public Contributor[] getPublishers() {
+    public List<Contributor> getPublishers() {
         return publishers;
     }
 
-    public void setPublishers(Contributor[] publishers) {
+    public void setPublishers(List<Contributor> publishers) {
         this.publishers = publishers;
     }
 
-    public Contributor[] getImprints() {
+    public List<Contributor> getImprints() {
         return imprints;
     }
 
-    public void setImprints(Contributor[] imprints) {
+    public void setImprints(List<Contributor> imprints) {
         this.imprints = imprints;
     }
 
-    public String getLanguages() {
+    public List<String> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(String languages) {
+    public void setLanguages(List<String> languages) {
         this.languages = languages;
     }
 
@@ -270,19 +289,19 @@ public class MetaData {
         this.epubType = epubType;
     }
 
-    public String getRights() {
+    public List<String> getRights() {
         return rights;
     }
 
-    public void setRights(String rights) {
+    public void setRights(List<String> rights) {
         this.rights = rights;
     }
 
-    public Subject[] getSubjects() {
+    public List<Subject> getSubjects() {
         return subjects;
     }
 
-    public void setSubjects(Subject[] subjects) {
+    public void setSubjects(List<Subject> subjects) {
         this.subjects = subjects;
     }
 
