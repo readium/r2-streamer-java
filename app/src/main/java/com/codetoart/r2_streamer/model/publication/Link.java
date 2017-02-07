@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by Shrikant on 25-Jan-17.
+ * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
 public class Link {
@@ -26,9 +26,9 @@ public class Link {
         this.properties = new ArrayList<String>();
     }
 
-    public Link(String href, List<String> rel, String typeLink) {
+    public Link(String href, String rel, String typeLink) {
         this.href = href;
-        this.rel = rel;
+        this.rel.add(rel);
         this.typeLink = typeLink;
     }
 

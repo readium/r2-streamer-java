@@ -35,15 +35,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Created by Shrikant on 27-Jan-17.
+ * Created by Shrikant Badwaik on 27-Jan-17.
  */
 
 public class EpubParser {
-    private static String TAG = "EpubParser";
+    private final String TAG = "EpubParser";
 
     private Container container;        //can be either EpubContainer or DirectoryContainer
     private EpubPublication publication;
-    private String rootFile;
     //private String epubVersion;
 
     public EpubParser(Container container) {
@@ -51,10 +50,11 @@ public class EpubParser {
     }
 
     public EpubPublication parseEpubFile() {
+        String rootFile;
         try {
             if (isMimeTypeValid()) {
                 rootFile = parseContainer();
-                publication = parseOpfFile(rootFile);
+                this.publication = parseOpfFile(rootFile);
                 return publication;
             }
         } catch (EpubParserException e) {
@@ -63,7 +63,7 @@ public class EpubParser {
         return null;
     }
 
-    public boolean isMimeTypeValid() throws EpubParserException {
+    private boolean isMimeTypeValid() throws EpubParserException {
         String mimeTypeData = container.rawData("mimetype");
 
         if (mimeTypeData.equals("application/epub+zip")) {
@@ -75,7 +75,7 @@ public class EpubParser {
         }
     }
 
-    public String parseContainer() throws EpubParserException {
+    private String parseContainer() throws EpubParserException {
         String containerPath = "META-INF/container.xml";
         String containerData = container.rawData(containerPath);
 
@@ -122,7 +122,7 @@ public class EpubParser {
         return null;
     }
 
-    public EpubPublication parseOpfFile(String rootFile) throws EpubParserException {
+    private EpubPublication parseOpfFile(String rootFile) throws EpubParserException {
         String opfData = container.rawData(rootFile);
         if (opfData == null) {
             Log.e(TAG, "File is missing: " + rootFile);
@@ -134,14 +134,17 @@ public class EpubParser {
             throw new EpubParserException("Error while parsing");
         }
 
-        publication = new EpubPublication();
+        this.publication = new EpubPublication();
         publication.internalData.put("type", "epub");
         publication.internalData.put("rootfile", rootFile);
 
         MetaData metaData = new MetaData();
+
+        //title
         metaData.title = parseMainTitle(document);
         Log.d(TAG, "Title: " + metaData.getTitle());
 
+        //identifier
         metaData.identifier = parseUniqueIdentifier(document);
         Log.d(TAG, "Identifier: " + metaData.getIdentifier());
 
@@ -160,7 +163,7 @@ public class EpubParser {
                 Date modifiedDate = dateFormat.parse(dateElement.getTextContent());
                 metaData.modified = modifiedDate;
 
-                Log.d(TAG, "Modified Date: "+ dateFormat.format(modifiedDate));
+                Log.d(TAG, "Modified Date: " + dateFormat.format(modifiedDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -466,13 +469,15 @@ public class EpubParser {
                 }
 
                 String id = itemElement.getAttribute("id");
-                if (id == coverId) {
+                if (id.equals(coverId)) {
                     link.rel.add("cover");
                     //publication.links.add(link);
                 }
                 publication.links.add(link);
                 manifestLinks.put(id, link);
             }
+
+            Log.d(TAG, "Links count: " + publication.links.size());
         }
 
         NodeList itemRefs = document.getElementsByTagName("itemref");
@@ -485,8 +490,10 @@ public class EpubParser {
                     manifestLinks.remove(id);
                 }
             }
+            Log.d(TAG, "Spine count: " + publication.spine.size());
         }
 
         publication.resources.addAll(manifestLinks.values());
+        Log.d(TAG, "Resources count: " + publication.resources.size());
     }
 }

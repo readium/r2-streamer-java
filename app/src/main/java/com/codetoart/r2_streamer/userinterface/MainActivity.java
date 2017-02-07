@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.codetoart.r2_streamer.R;
+import com.codetoart.r2_streamer.model.container.DirectoryContainer;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.parser.EpubParser;
 import com.codetoart.r2_streamer.parser.EpubParserException;
@@ -15,7 +16,7 @@ import com.codetoart.r2_streamer.server.EpubServer;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-    private static String TAG = "MainActivity";
+    private final String TAG = "MainActivity";
     private EpubServer mEpubServer;
 
     @Override
@@ -38,17 +39,22 @@ public class MainActivity extends AppCompatActivity {
         EpubContainer container = new EpubContainer(path + "/Download/demoFile.epub");
         container.rawData("chapter21.html");            //instead hardcoding path, use webview url path
 
-        int size = container.rawDataSize();
+        int size = container.rawDataSize("chapter21.html");
         Log.d(TAG, "Epub File Size: " + size);
 
         /*DirectoryContainer dc = new DirectoryContainer(path + "/Download/demoTest/");
-        dc.rawData("chapter10.html");*/
+        dc.rawData("chapter10.html");
+        int size = dc.rawDataSize("chapter10.html");
+        Log.d(TAG, "File Size: " + size);*/
     }
 
     public void test(View view) throws IOException, EpubParserException {
-        //mEpubServer.addEpub("/test");
-        EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/internallinks.epub"));
-        p.parseEpubFile();
+        String path = Environment.getExternalStorageDirectory().getPath();
+        DirectoryContainer dc = new DirectoryContainer(path + "/Download/demoTest/");
+        mEpubServer.addEpub(dc, path + "/Download/demoTest/chapter10.html");
+
+        /*EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/internallinks.epub"));
+        p.parseEpubFile();*/
     }
 
     @Override

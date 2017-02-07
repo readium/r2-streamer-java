@@ -1,12 +1,14 @@
 package com.codetoart.r2_streamer.model.publication;
 
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Shrikant on 25-Jan-17.
+ * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
 public class EpubPublication {
@@ -15,6 +17,7 @@ public class EpubPublication {
     public List<Link> links;
     //public Link[] links;
 
+    public List<Link> matchingLinks;
     public List<Link> spine;
     //public Link[] spine;
 
@@ -44,15 +47,17 @@ public class EpubPublication {
     public Link coverLink;
 
     public EpubPublication() {
+        this.matchingLinks = new ArrayList<Link>();
         this.links = new ArrayList<Link>();
         this.spine = new ArrayList<Link>();
         this.resources = new ArrayList<Link>();
         this.internalData = new HashMap<String, String>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> spine, List<Link> resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
+    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spine, List<Link> resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
         this.metadata = metadata;
         this.links = links;
+        this.matchingLinks = matchingLinks;
         this.spine = spine;
         this.resources = resources;
         this.TOC = TOC;
@@ -83,16 +88,29 @@ public class EpubPublication {
         this.coverLink = coverLink;
     }*/
 
-    /*public Link getCoverLink() {
-        return getLinkWithCover("cover");
+    public Link getCoverLink() {
+        return getLink("cover");
     }
 
-    public Link getLinkWithCover(String rel){
-        String matchingLink = links.get()
+    @Nullable
+    private Link getLink(String coverPath) {
+        for (int i = 0; i < links.size(); i++) {
+            if (links.get(i).rel.equals(coverPath)) {
+                return links.get(i);
+            }
+        }
+        return null;
     }
 
-    public Link getResourceLink(String resourcePath){
-
-    }*/
+    public Link getResourceLink(String resourcePath) {
+        matchingLinks.addAll(spine);
+        matchingLinks.addAll(resources);              //spine and resources are already present in links.
+        for (int i = 0; i < matchingLinks.size(); i++) {
+            if (matchingLinks.get(i).href.equals(resourcePath)) {
+                return links.get(i);
+            }
+        }
+        return null;
+    }
 
 }

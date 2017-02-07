@@ -2,6 +2,9 @@ package com.codetoart.r2_streamer.model.container;
 
 import android.util.Log;
 
+import com.codetoart.r2_streamer.streams.ZipStream;
+import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,24 +13,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * Created by Shrikant on 24-Jan-17.
+ * Created by Shrikant Badwaik on 24-Jan-17.
  */
 
 public class EpubContainer implements Container {
-    private static String TAG = "EpubContainer";
+    private final String TAG = "EpubContainer";
     private String epubFilePath;
     private ZipFile zipFile;
 
     public EpubContainer(String epubFilePath) throws IOException {
         this.epubFilePath = epubFilePath;
-        zipFile = new ZipFile(epubFilePath);
+        this.zipFile = new ZipFile(epubFilePath);
 
-        Log.d(TAG, "Reading epub: " + epubFilePath);
+        Log.d(TAG, "Reading epub at path: " + epubFilePath);
     }
 
     @Override
     public String rawData(String relativePath) throws NullPointerException {
-        Log.d(TAG, "Reading file: " + relativePath);
+        Log.d(TAG, "Reading file at path: " + relativePath);
 
         try {
             ZipEntry zipEntry = zipFile.getEntry(relativePath);
@@ -39,7 +42,7 @@ public class EpubContainer implements Container {
             while ((line = br.readLine()) != null) {
                 sb.append(line);        //.append('\n');
             }
-            Log.d(TAG, sb.toString());
+            Log.d(TAG, "Reading data: " + sb.toString());
 
             return sb.toString();
         } catch (IOException e) {
@@ -49,7 +52,21 @@ public class EpubContainer implements Container {
     }
 
     @Override
-    public int rawDataSize() {
-        return zipFile.size();
+    public int rawDataSize(String relativePath) {
+        ZipEntry zipEntry = zipFile.getEntry(relativePath);
+        return ((int) zipEntry.getSize());
+    }
+
+    @Override
+    public SeekableInputStream rawDataInputStream(String relativePath) throws NullPointerException {
+        try {
+            SeekableInputStream inputStream = new ZipStream(epubFilePath, relativePath);
+            if (inputStream != null) {
+                return inputStream;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -3,7 +3,7 @@ package com.codetoart.r2_streamer.model.publication;
 import java.util.List;
 
 /**
- * Created by Shrikant on 25-Jan-17.
+ * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
 public class MetadataItem {

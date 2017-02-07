@@ -1,7 +1,7 @@
 package com.codetoart.r2_streamer.parser;
 
 /**
- * Created by Shrikant on 27-Jan-17.
+ * Created by Shrikant Badwaik on 27-Jan-17.
  */
 
 public class EpubParserException extends Exception {

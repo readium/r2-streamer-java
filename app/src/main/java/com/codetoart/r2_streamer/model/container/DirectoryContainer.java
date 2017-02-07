@@ -2,6 +2,9 @@ package com.codetoart.r2_streamer.model.container;
 
 import android.util.Log;
 
+import com.codetoart.r2_streamer.streams.FileStream;
+import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,11 +13,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Created by Shrikant on 24-Jan-17.
+ * Created by Shrikant Badwaik on 24-Jan-17.
  */
 
 public class DirectoryContainer implements Container {
-    private static String TAG = "DirectoryContainer";
+    private final String TAG = "DirectoryContainer";
     private String rootPath;
 
     public DirectoryContainer(String rootPath) {
@@ -45,7 +48,7 @@ public class DirectoryContainer implements Container {
                 while ((line = br.readLine()) != null) {
                     sb.append(line);        //.append('\n');
                 }
-                Log.d(TAG, sb.toString());
+                Log.d(TAG, "Reading Data: " + sb.toString());
 
                 return sb.toString();
             } catch (IOException e) {
@@ -58,7 +61,19 @@ public class DirectoryContainer implements Container {
     }
 
     @Override
-    public int rawDataSize() {
-        return 0;
+    public int rawDataSize(String relativePath) {
+        String filePath = rootPath.concat(relativePath);
+        File epubFile = new File(filePath);
+        return ((int) epubFile.length());
+    }
+
+    @Override
+    public SeekableInputStream rawDataInputStream(String relativePath) throws NullPointerException {
+        String filePath = rootPath.concat(relativePath);
+        SeekableInputStream inputStream = new FileStream(filePath);
+        if (inputStream != null) {
+            return inputStream;
+        }
+        return null;
     }
 }
