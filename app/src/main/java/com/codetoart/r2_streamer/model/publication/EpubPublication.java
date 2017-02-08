@@ -2,6 +2,7 @@ package com.codetoart.r2_streamer.model.publication;
 
 import android.support.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class EpubPublication {
+public class EpubPublication implements Serializable {
     public MetaData metadata;
 
     public List<Link> links;

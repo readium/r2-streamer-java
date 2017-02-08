@@ -7,9 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.codetoart.r2_streamer.R;
-import com.codetoart.r2_streamer.model.container.DirectoryContainer;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
-import com.codetoart.r2_streamer.parser.EpubParser;
 import com.codetoart.r2_streamer.parser.EpubParserException;
 import com.codetoart.r2_streamer.server.EpubServer;
 
@@ -50,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void test(View view) throws IOException, EpubParserException {
         String path = Environment.getExternalStorageDirectory().getPath();
-        DirectoryContainer dc = new DirectoryContainer(path + "/Download/demoTest/");
-        mEpubServer.addEpub(dc, path + "/Download/demoTest/chapter10.html");
+        EpubContainer ec = new EpubContainer(path + "/Download/georgiacfi.epub");
+        mEpubServer.addEpub(ec, path + "/Download/georgiacfi.epub");
 
         /*EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/internallinks.epub"));
         p.parseEpubFile();*/

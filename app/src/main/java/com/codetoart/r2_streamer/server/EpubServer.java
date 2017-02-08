@@ -1,25 +1,39 @@
 package com.codetoart.r2_streamer.server;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.codetoart.r2_streamer.model.container.Container;
+import com.codetoart.r2_streamer.model.publication.EpubPublication;
+import com.codetoart.r2_streamer.parser.EpubParser;
 import com.codetoart.r2_streamer.server.handler.EpubHandler;
 
-import fi.iki.elonen.router.RouterNanoHTTPDPooled;
+import fi.iki.elonen.router.RouterNanoHTTPD;
 
 /**
  * Created by Shrikant Badwaik on 20-Jan-17.
  */
 
-public class EpubServer extends RouterNanoHTTPDPooled {
-    private final String TAG = "EpubServer";
+public class EpubServer extends RouterNanoHTTPD {
+    private static final String CONTAINER_DATA = "Container";
+    private static final String PUBLICATION_DATA = "Publication";
 
     public EpubServer() {
         super(8080);
     }
 
     public void addEpub(Container container, String filePath) {
-        Log.d(TAG, filePath);
-        addRoute(filePath, new EpubHandler(container, filePath));
+        EpubPublication publication = parse(container);
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(CONTAINER_DATA, container);
+        bundle.putSerializable(PUBLICATION_DATA, publication);
+
+        addRoute(filePath + "/spineHandler", EpubHandler.class, bundle);
+    }
+
+    private EpubPublication parse(Container container) {
+        EpubParser parser = new EpubParser(container);
+        return parser.parseEpubFile();
     }
 }
