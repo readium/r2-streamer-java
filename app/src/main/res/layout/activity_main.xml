@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
@@ -12,15 +13,20 @@
     tools:context="com.codetoart.r2_streamer.userinterface.MainActivity">
 
     <Button
-        android:onClick="unzip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="unzip"
         android:text="Unzip" />
 
     <Button
-        android:onClick="test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test"/>
+        android:onClick="test"
+        android:text="Test" />
+
+    <ListView
+        android:id="@+id/spineList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

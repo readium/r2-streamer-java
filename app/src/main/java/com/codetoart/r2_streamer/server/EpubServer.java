@@ -1,12 +1,12 @@
 package com.codetoart.r2_streamer.server;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.parser.EpubParser;
-import com.codetoart.r2_streamer.server.handler.EpubHandler;
+import com.codetoart.r2_streamer.server.handler.HtmlHandler;
+import com.codetoart.r2_streamer.server.handler.SpineHandler;
 
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
@@ -29,7 +29,12 @@ public class EpubServer extends RouterNanoHTTPD {
         bundle.putSerializable(CONTAINER_DATA, container);
         bundle.putSerializable(PUBLICATION_DATA, publication);
 
-        addRoute(filePath + "/spineHandler", EpubHandler.class, bundle);
+        addRoute(filePath, SpineHandler.class, bundle);
+        addRoute(filePath + "/spineHandler", SpineHandler.class, bundle);
+
+        for (int spineIndex = 0; spineIndex < publication.spine.size(); spineIndex++) {
+            addRoute(filePath + "/" + publication.spine.get(spineIndex).href, HtmlHandler.class, bundle);
+        }
     }
 
     private EpubPublication parse(Container container) {

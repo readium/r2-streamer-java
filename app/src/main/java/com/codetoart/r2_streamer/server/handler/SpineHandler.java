@@ -27,16 +27,17 @@ import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
  * Created by Shrikant Badwaik on 24-Jan-17.
  */
 
-public class EpubHandler extends DefaultHandler {
+public class SpineHandler extends DefaultHandler {
     private static final String CONTAINER_DATA = "Container";
     private static final String PUBLICATION_DATA = "Publication";
-    private final String TAG = "EpubHandler";
+    private final String TAG = "SpineHandler";
 
     private Container container;
     private EpubPublication publication;
     private Bundle bundle;
+    private Response response;
 
-    public EpubHandler() {
+    public SpineHandler() {
     }
 
     @Override
@@ -57,7 +58,6 @@ public class EpubHandler extends DefaultHandler {
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         try {
-            Response response = null;
             Method method = session.getMethod();
             String uri = session.getUri();
             Log.d(TAG, "Method: " + method + ", Url: " + uri);
@@ -67,14 +67,14 @@ public class EpubHandler extends DefaultHandler {
             publication = (EpubPublication) bundle.get(PUBLICATION_DATA);
 
             if (uri.endsWith("/spineHandler")) {
-                JSONArray jsonArray = new JSONArray();
+                JSONArray spineArray = new JSONArray();
                 for (Link link : publication.spine) {
                     JSONObject spineObject = new JSONObject();
                     spineObject.put("href", link.getHref());
                     spineObject.put("typeLink", link.getTypeLink());
-                    jsonArray.put(spineObject);
+                    spineArray.put(spineObject);
                 }
-                response = NanoHTTPD.newFixedLengthResponse(jsonArray.toString());
+                response = NanoHTTPD.newFixedLengthResponse(spineArray.toString());
             }
             return response;
         } catch (JSONException e) {

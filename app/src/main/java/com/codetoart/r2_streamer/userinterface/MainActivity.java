@@ -1,27 +1,49 @@
 package com.codetoart.r2_streamer.userinterface;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.codetoart.r2_streamer.R;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.parser.EpubParserException;
 import com.codetoart.r2_streamer.server.EpubServer;
 
-import java.io.IOException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private final String TAG = "MainActivity";
     private EpubServer mEpubServer;
+    private ListView listView;
+    private ArrayAdapter<String> adapter;
+    private List<String> spines = new ArrayList<>();
+    private EpubContainer ec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        listView = (ListView) findViewById(R.id.spineList);
         try {
             mEpubServer = new EpubServer();
             mEpubServer.start();
@@ -51,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         EpubContainer ec = new EpubContainer(path + "/Download/georgiacfi.epub");
         mEpubServer.addEpub(ec, path + "/Download/georgiacfi.epub");
 
-        /*EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/internallinks.epub"));
-        p.parseEpubFile();*/
+        String urlString = "http://127.0.0.1:8080/storage/emulated/0/Download/georgiacfi.epub/spineHandler";
+        new SpineList().execute(urlString);
     }
 
     @Override
@@ -63,5 +85,90 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "Server has been stopped");
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        //String urlString = "http://127.0.0.1:8080/storage/emulated/0/Download/georgiacfi.epub/" + spines.get(position);
+
+        /*Uri uri = Uri.parse(urlString);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);*/
+
+        //new HtmlTask().execute(urlString);
+    }
+
+    class SpineList extends AsyncTask<String, Void, JSONArray> {
+        @Override
+        protected JSONArray doInBackground(String... urls) {
+            try {
+                String strUrl = urls[0];
+                URL url = new URL(strUrl);
+                URLConnection conn = url.openConnection();
+                InputStream stream = conn.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                JSONArray jsonArray = new JSONArray(sb.toString());
+                return jsonArray;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray jsonArray) {
+            super.onPostExecute(jsonArray);
+
+            try {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    spines.add(jsonObject.getString("href"));
+                }
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, spines);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(MainActivity.this);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    class HtmlTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                String strUrl = urls[0];
+                URL url = new URL(strUrl);
+                URLConnection conn = url.openConnection();
+                InputStream stream = conn.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                return sb.toString();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String string) {
+            super.onPostExecute(string);
+        }
     }
 }
