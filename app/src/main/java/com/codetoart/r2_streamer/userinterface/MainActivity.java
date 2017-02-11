@@ -25,7 +25,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -70,11 +69,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void test(View view) throws IOException, EpubParserException {
         String path = Environment.getExternalStorageDirectory().getPath();
-        EpubContainer ec = new EpubContainer(path + "/Download/georgiacfi.epub");
-        mEpubServer.addEpub(ec, path + "/Download/georgiacfi.epub");
+        EpubContainer ec = new EpubContainer(path + "/Download/TheSilverChair.epub");
+        mEpubServer.addEpub(ec, "/TheSilverChair.epub");
 
-        String urlString = "http://127.0.0.1:8080/storage/emulated/0/Download/georgiacfi.epub/spineHandler";
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spineHandler";
         new SpineList().execute(urlString);
+
+        /*EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/haruk.epub"));
+        p.parseEpubFile();*/
     }
 
     @Override
@@ -89,20 +91,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        //String urlString = "http://127.0.0.1:8080/storage/emulated/0/Download/georgiacfi.epub/" + spines.get(position);
-
-        /*Uri uri = Uri.parse(urlString);
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + spines.get(position);
+        Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);*/
-
-        //new HtmlTask().execute(urlString);
+        startActivity(intent);
     }
 
     class SpineList extends AsyncTask<String, Void, JSONArray> {
         @Override
         protected JSONArray doInBackground(String... urls) {
+            String strUrl = urls[0];
+
             try {
-                String strUrl = urls[0];
                 URL url = new URL(strUrl);
                 URLConnection conn = url.openConnection();
                 InputStream stream = conn.getInputStream();
@@ -113,8 +113,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     sb.append(line);
                 }
 
-                JSONArray jsonArray = new JSONArray(sb.toString());
-                return jsonArray;
+                return new JSONArray(sb.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -138,37 +137,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    class HtmlTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... urls) {
-            try {
-                String strUrl = urls[0];
-                URL url = new URL(strUrl);
-                URLConnection conn = url.openConnection();
-                InputStream stream = conn.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-
-                return sb.toString();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String string) {
-            super.onPostExecute(string);
         }
     }
 }

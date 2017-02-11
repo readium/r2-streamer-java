@@ -7,12 +7,6 @@ import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.server.ResponseStatus;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -52,35 +46,24 @@ public class HtmlHandler extends RouterNanoHTTPD.DefaultHandler {
 
     @Override
     public NanoHTTPD.Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
-        //try {
-            NanoHTTPD.Method method = session.getMethod();
-            String uri = session.getUri();
-            Log.d(TAG, "Method: " + method + ", Url: " + uri);
+        NanoHTTPD.Method method = session.getMethod();
+        String uri = session.getUri();
+        Log.d(TAG, "Method: " + method + ", Url: " + uri);
 
-            this.bundle = uriResource.initParameter(Bundle.class);
-            container = (Container) bundle.get(CONTAINER_DATA);
-            publication = (EpubPublication) bundle.get(PUBLICATION_DATA);
+        this.bundle = uriResource.initParameter(Bundle.class);
+        container = (Container) bundle.get(CONTAINER_DATA);
+        publication = (EpubPublication) bundle.get(PUBLICATION_DATA);
 
-            String data = container.rawData(uri);
+        int offset = uri.indexOf(".epub/", 0);
+        int startIndex = offset + 6;
+        String filePath = uri.substring(startIndex);
+        String data = container.rawData(filePath);
 
-            /*InputStream is = new FileInputStream(uri);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }*/
-
-            response = NanoHTTPD.newFixedLengthResponse(data);
-
+        response = NanoHTTPD.newFixedLengthResponse(data);
+        if (response != null) {
             return response;
-        /*} catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } else {
             return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
-        }*/
-        //return null;
+        }
     }
 }

@@ -94,9 +94,11 @@ public class EpubParser {
     @Nullable
     private String containerXmlParser(String containerData) throws EpubParserException {           //parsing container.xml
         try {
+            String xml = containerData.replaceAll("[^\\x20-\\x7e]", "").trim();         //in case encoding problem
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(containerData)));
+            Document document = builder.parse(new InputSource(new StringReader(xml)));
             document.getDocumentElement().normalize();
             if (document == null) {
                 throw new EpubParserException("Error while parsing container.xml");
@@ -123,6 +125,7 @@ public class EpubParser {
     }
 
     private EpubPublication parseOpfFile(String rootFile) throws EpubParserException {
+
         String opfData = container.rawData(rootFile);
         if (opfData == null) {
             Log.e(TAG, "File is missing: " + rootFile);
@@ -277,7 +280,7 @@ public class EpubParser {
             }
         }
 
-        parseSpineAndResources(document, publication, coverId);
+        parseSpineAndResources(document, publication, coverId, rootFile);
 
         return publication;
     }
@@ -437,7 +440,11 @@ public class EpubParser {
         return null;
     }
 
-    private void parseSpineAndResources(Document document, EpubPublication publication, String coverId) {
+    private void parseSpineAndResources(Document document, EpubPublication publication, String coverId, String rootFile) {
+        int startIndex = 0;
+        int endIndex = rootFile.indexOf("/");
+        String packageName = rootFile.substring(startIndex, endIndex);
+
         Map<String, Link> manifestLinks = new HashMap<String, Link>();
 
         NodeList items = document.getElementsByTagName("item");
@@ -451,7 +458,7 @@ public class EpubParser {
                     Attr attr = (Attr) nodeMap.item(j);
                     switch (attr.getNodeName()) {
                         case "href":
-                            link.href = attr.getNodeValue();
+                            link.href = packageName + "/" + attr.getNodeValue();
                             break;
                         case "media-type":
                             link.typeLink = attr.getNodeValue();
