@@ -16,7 +16,7 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
  * Created by Shrikant Badwaik on 10-Feb-17.
  */
 
-public class HtmlHandler extends RouterNanoHTTPD.DefaultHandler {
+public class xHtmlHandler extends RouterNanoHTTPD.DefaultHandler {
     private static final String CONTAINER_DATA = "Container";
     private static final String PUBLICATION_DATA = "Publication";
     private final String TAG = "HtmlHandler";
@@ -26,7 +26,7 @@ public class HtmlHandler extends RouterNanoHTTPD.DefaultHandler {
     private Bundle bundle;
     private NanoHTTPD.Response response;
 
-    public HtmlHandler() {
+    public xHtmlHandler() {
     }
 
     @Override

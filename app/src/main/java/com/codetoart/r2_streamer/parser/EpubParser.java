@@ -408,13 +408,13 @@ public class EpubParser {
         Contributor contributor = new Contributor(element.getTextContent());
         if (contributor != null) {
             if (element.hasAttribute("opf:role")) {
-                String role = element.getAttribute("opf:role");     //opf:role
+                String role = element.getAttribute("opf:role");
                 if (role != null) {
                     contributor.role = role;
                 }
             }
             if (element.hasAttribute("opf:file-as")) {
-                String sortAs = element.getAttribute("opf:file-as");    //opf:file-as
+                String sortAs = element.getAttribute("opf:file-as");
                 if (sortAs != null) {
                     contributor.sortAs = sortAs;
                 }
@@ -484,7 +484,7 @@ public class EpubParser {
                 manifestLinks.put(id, link);
             }
 
-            Log.d(TAG, "Links count: " + publication.links.size());
+            Log.d(TAG, "Link count: " + publication.links.size());
         }
 
         NodeList itemRefs = document.getElementsByTagName("itemref");
@@ -493,14 +493,14 @@ public class EpubParser {
                 Element itemRefElement = (Element) itemRefs.item(i);
                 String id = itemRefElement.getAttribute("idref");
                 if (manifestLinks.containsKey(id)) {
-                    publication.spine.add(manifestLinks.get(id));
+                    publication.spines.add(manifestLinks.get(id));
                     manifestLinks.remove(id);
                 }
             }
-            Log.d(TAG, "Spine count: " + publication.spine.size());
+            Log.d(TAG, "Spine count: " + publication.spines.size());
         }
 
         publication.resources.addAll(manifestLinks.values());
-        Log.d(TAG, "Resources count: " + publication.resources.size());
+        Log.d(TAG, "Resource count: " + publication.resources.size());
     }
 }

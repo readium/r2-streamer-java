@@ -1,10 +1,8 @@
 package com.codetoart.r2_streamer.server.handler;
 
-import android.os.Bundle;
 import android.util.Log;
 
-import com.codetoart.r2_streamer.model.container.Container;
-import com.codetoart.r2_streamer.model.publication.EpubPublication;
+import com.codetoart.r2_streamer.fetcher.EpubFetcher;
 import com.codetoart.r2_streamer.model.publication.Link;
 import com.codetoart.r2_streamer.server.ResponseStatus;
 
@@ -27,17 +25,12 @@ import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
  * Created by Shrikant Badwaik on 24-Jan-17.
  */
 
-public class SpineHandler extends DefaultHandler {
-    private static final String CONTAINER_DATA = "Container";
-    private static final String PUBLICATION_DATA = "Publication";
-    private final String TAG = "SpineHandler";
-
-    private Container container;
-    private EpubPublication publication;
-    private Bundle bundle;
+public class EpubHandler extends DefaultHandler {
+    private static final String SPINE_HANDLE = "/spineHandle";
+    private static final String TAG = "EpubHandler";
     private Response response;
 
-    public SpineHandler() {
+    public EpubHandler() {
     }
 
     @Override
@@ -57,29 +50,29 @@ public class SpineHandler extends DefaultHandler {
 
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
+        Method method = session.getMethod();
+        String uri = session.getUri();
+        Log.d(TAG, "Method: " + method + ", Url: " + uri);
+
         try {
-            Method method = session.getMethod();
-            String uri = session.getUri();
-            Log.d(TAG, "Method: " + method + ", Url: " + uri);
+            EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
 
-            this.bundle = uriResource.initParameter(Bundle.class);
-            container = (Container) bundle.get(CONTAINER_DATA);
-            publication = (EpubPublication) bundle.get(PUBLICATION_DATA);
-
-            if (uri.endsWith("/spineHandler")) {
+            if (uri.endsWith(SPINE_HANDLE)) {
                 JSONArray spineArray = new JSONArray();
-                for (Link link : publication.spine) {
+                for (Link link : fetcher.publication.spines) {
                     JSONObject spineObject = new JSONObject();
-                    spineObject.put("href", link.getHref());
-                    spineObject.put("typeLink", link.getTypeLink());
-                    spineArray.put(spineObject);
+                    if (link.getTypeLink().equals("application/xhtml+xml")) {
+                        spineObject.put("href", link.getHref());
+                        spineObject.put("typeLink", link.getTypeLink());
+                        spineArray.put(spineObject);
+                    }
                 }
                 response = NanoHTTPD.newFixedLengthResponse(spineArray.toString());
             }
-            return response;
         } catch (JSONException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         }
+        return response;
     }
 }

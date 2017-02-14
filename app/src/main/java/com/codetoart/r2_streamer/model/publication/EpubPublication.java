@@ -2,7 +2,6 @@ package com.codetoart.r2_streamer.model.publication;
 
 import android.support.annotation.Nullable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +11,14 @@ import java.util.Map;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class EpubPublication implements Serializable {
+public class EpubPublication {
     public MetaData metadata;
 
     public List<Link> links;
     //public Link[] links;
 
     public List<Link> matchingLinks;
-    public List<Link> spine;
+    public List<Link> spines;
     //public Link[] spine;
 
     public List<Link> resources;
@@ -50,16 +49,16 @@ public class EpubPublication implements Serializable {
     public EpubPublication() {
         this.matchingLinks = new ArrayList<Link>();
         this.links = new ArrayList<Link>();
-        this.spine = new ArrayList<Link>();
+        this.spines = new ArrayList<Link>();
         this.resources = new ArrayList<Link>();
         this.internalData = new HashMap<String, String>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spine, List<Link> resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
+    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
         this.metadata = metadata;
         this.links = links;
         this.matchingLinks = matchingLinks;
-        this.spine = spine;
+        this.spines = spines;
         this.resources = resources;
         this.TOC = TOC;
         this.pageList = pageList;
@@ -103,15 +102,17 @@ public class EpubPublication implements Serializable {
         return null;
     }
 
-    public Link getResourceLink(String resourcePath) {
-        matchingLinks.addAll(spine);
+    public Link getResourceMimeType(String resourcePath) {
+        matchingLinks.addAll(spines);
         matchingLinks.addAll(resources);              //spine and resources are already present in links.
         for (int i = 0; i < matchingLinks.size(); i++) {
             if (matchingLinks.get(i).href.equals(resourcePath)) {
-                return links.get(i);
+                return matchingLinks.get(i);
             }
         }
+        matchingLinks.removeAll(resources);
+        matchingLinks.removeAll(spines);
+
         return null;
     }
-
 }

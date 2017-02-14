@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.codetoart.r2_streamer.R;
+import com.codetoart.r2_streamer.model.container.DirectoryContainer;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.parser.EpubParserException;
 import com.codetoart.r2_streamer.server.EpubServer;
@@ -33,10 +34,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private final String TAG = "MainActivity";
     private EpubServer mEpubServer;
+
     private ListView listView;
     private ArrayAdapter<String> adapter;
-    private List<String> spines = new ArrayList<>();
-    private EpubContainer ec;
+    private List<String> manifestItemList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +70,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void test(View view) throws IOException, EpubParserException {
         String path = Environment.getExternalStorageDirectory().getPath();
-        EpubContainer ec = new EpubContainer(path + "/Download/TheSilverChair.epub");
-        mEpubServer.addEpub(ec, "/TheSilverChair.epub");
+        DirectoryContainer dc = new DirectoryContainer(path + "/Download/moby-dick/");
+        //EpubContainer ec = new EpubContainer(path + "/Download/pageblanche.epub");
+        mEpubServer.addEpub(dc, "/moby-dick");
 
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spineHandler";
-        new SpineList().execute(urlString);
-
-        /*EpubParser p = new EpubParser(new EpubContainer(Environment.getExternalStorageDirectory().getPath() + "/Download/haruk.epub"));
-        p.parseEpubFile();*/
+        String urlString = "http://127.0.0.1:8080/moby-dick/spineHandle";
+        new SpineListTask().execute(urlString);
     }
 
     @Override
@@ -91,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + spines.get(position);
+        String urlString = "http://127.0.0.1:8080/moby-dick/" + manifestItemList.get(position);
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
 
-    class SpineList extends AsyncTask<String, Void, JSONArray> {
+    class SpineListTask extends AsyncTask<String, Void, JSONArray> {
         @Override
         protected JSONArray doInBackground(String... urls) {
             String strUrl = urls[0];
@@ -105,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 URL url = new URL(strUrl);
                 URLConnection conn = url.openConnection();
-                InputStream stream = conn.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+                InputStream is = conn.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -129,9 +128,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    spines.add(jsonObject.getString("href"));
+                    manifestItemList.add(jsonObject.getString("href"));
                 }
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, spines);
+                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, manifestItemList);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(MainActivity.this);
             } catch (JSONException e) {

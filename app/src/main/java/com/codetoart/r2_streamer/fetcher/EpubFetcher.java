@@ -5,7 +5,8 @@ import android.util.Log;
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.model.publication.Link;
-import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream;
+
+import java.io.InputStream;
 
 /**
  * Created by Shrikant Badwaik on 27-Jan-17.
@@ -13,8 +14,8 @@ import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream
 
 public class EpubFetcher implements Fetcher {
     private final String TAG = "EpubFetcher";
-    private Container container;
-    private EpubPublication publication;
+    public Container container;
+    public EpubPublication publication;
     private String rootFileDirectory;
 
     public EpubFetcher(Container container, EpubPublication publication) throws EpubFetcherException {
@@ -31,49 +32,46 @@ public class EpubFetcher implements Fetcher {
 
     @Override
     public String getData(String path) throws EpubFetcherException {
-        Link assetLink = publication.getResourceLink(path);
+        Link assetLink = publication.getResourceMimeType(path);
         if (assetLink == null) {
             Log.e(TAG, path + " file is missing");
             throw new EpubFetcherException(path + " file is missing");
         }
-        String epubPath = rootFileDirectory.concat(path);
-        String containerData = container.rawData(epubPath);
-        if (containerData == null) {
-            Log.e(TAG, epubPath + " file is missing");
-            throw new EpubFetcherException(epubPath + " file is missing");
+        String data = container.rawData(path);
+        if (data == null) {
+            Log.e(TAG, path + " file is missing");
+            throw new EpubFetcherException(path + " file is missing");
         }
-        return containerData;
+        return data;
     }
 
     @Override
     public int getDataSize(String path) throws EpubFetcherException {
-        Link assetLink = publication.getResourceLink(path);
+        Link assetLink = publication.getResourceMimeType(path);
         if (assetLink == null) {
             Log.e(TAG, path + " file is missing");
             throw new EpubFetcherException(path + " file is missing");
         }
-        String epubPath = rootFileDirectory.concat(path);
-        int dataSize = container.rawDataSize(epubPath);
+        int dataSize = container.rawDataSize(path);
         if (dataSize == 0) {
-            Log.e(TAG, epubPath + "file is missing");
-            throw new EpubFetcherException(epubPath + "file is missing");
+            Log.e(TAG, path + "file is missing");
+            throw new EpubFetcherException(path + "file is missing");
         }
         return dataSize;
     }
 
     @Override
-    public SeekableInputStream getDataStream(String path) throws EpubFetcherException {
-        Link assetLink = publication.getResourceLink(path);
+    public InputStream getDataInputStream(String path) throws EpubFetcherException {
+        Link assetLink = publication.getResourceMimeType(path);
         if (assetLink == null) {
             Log.e(TAG, path + " file is missing");
             throw new EpubFetcherException(path + " file is missing");
         }
-        String epubPath = rootFileDirectory.concat(path);
-        SeekableInputStream inputStream = container.rawDataInputStream(epubPath);
-        if (inputStream == null) {
-            Log.e(TAG, epubPath + "file is missing");
-            throw new EpubFetcherException(epubPath + "file is missing");
+        InputStream dataInputStream = container.rawDataInputStream(path);
+        if (dataInputStream == null) {
+            Log.e(TAG, path + "file is missing");
+            throw new EpubFetcherException(path + "file is missing");
         }
-        return inputStream;
+        return dataInputStream;
     }
 }

@@ -1,12 +1,12 @@
 package com.codetoart.r2_streamer.server;
 
-import android.os.Bundle;
-
+import com.codetoart.r2_streamer.fetcher.EpubFetcher;
+import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.parser.EpubParser;
-import com.codetoart.r2_streamer.server.handler.HtmlHandler;
-import com.codetoart.r2_streamer.server.handler.SpineHandler;
+import com.codetoart.r2_streamer.server.handler.EpubHandler;
+import com.codetoart.r2_streamer.server.handler.ManifestItemHandler;
 
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
@@ -15,22 +15,22 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
  */
 
 public class EpubServer extends RouterNanoHTTPD {
-    private static final String CONTAINER_DATA = "Container";
-    private static final String PUBLICATION_DATA = "Publication";
+    private static final String SPINE_HANDLE = "/spineHandle";
 
     public EpubServer() {
         super(8080);
     }
 
     public void addEpub(Container container, String filePath) {
-        EpubPublication publication = parse(container);
+        try {
+            EpubPublication publication = parse(container);
+            EpubFetcher fetcher = new EpubFetcher(container, publication);
 
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(CONTAINER_DATA, container);
-        bundle.putSerializable(PUBLICATION_DATA, publication);
-
-        addRoute(filePath + "/spineHandler", SpineHandler.class, bundle);
-        addRoute(filePath + "/(.*)", HtmlHandler.class, bundle);
+            addRoute(filePath + SPINE_HANDLE, EpubHandler.class, fetcher);
+            addRoute(filePath + "/(.*)", ManifestItemHandler.class, fetcher);
+        } catch (EpubFetcherException e) {
+            e.printStackTrace();
+        }
     }
 
     private EpubPublication parse(Container container) {

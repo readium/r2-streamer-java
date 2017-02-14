@@ -2,9 +2,6 @@ package com.codetoart.r2_streamer.model.container;
 
 import android.util.Log;
 
-import com.codetoart.r2_streamer.streams.ZipStream;
-import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +55,18 @@ public class EpubContainer implements Container {
     }
 
     @Override
+    public InputStream rawDataInputStream(String relativePath) throws NullPointerException {
+        try {
+            ZipEntry zipEntry = zipFile.getEntry(relativePath);
+            InputStream inputStream = zipFile.getInputStream(zipEntry);
+            return inputStream;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /*@Override
     public SeekableInputStream rawDataInputStream(String relativePath) throws NullPointerException {
         try {
             SeekableInputStream inputStream = new ZipStream(epubFilePath, relativePath);
@@ -68,5 +77,5 @@ public class EpubContainer implements Container {
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 }

@@ -1,6 +1,6 @@
 package com.codetoart.r2_streamer.fetcher;
 
-import com.codetoart.r2_streamer.streams.seekableinputstream.SeekableInputStream;
+import java.io.InputStream;
 
 /**
  * Created by Shrikant Badwaik on 30-Jan-17.
@@ -11,5 +11,5 @@ public interface Fetcher {
 
     int getDataSize(String path) throws EpubFetcherException;
 
-    SeekableInputStream getDataStream(String path) throws EpubFetcherException;
+    InputStream getDataInputStream(String path) throws EpubFetcherException;
 }
