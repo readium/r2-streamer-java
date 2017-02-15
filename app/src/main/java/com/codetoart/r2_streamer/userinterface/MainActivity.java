@@ -70,11 +70,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void test(View view) throws IOException, EpubParserException {
         String path = Environment.getExternalStorageDirectory().getPath();
-        DirectoryContainer dc = new DirectoryContainer(path + "/Download/moby-dick/");
-        //EpubContainer ec = new EpubContainer(path + "/Download/pageblanche.epub");
-        mEpubServer.addEpub(dc, "/moby-dick");
+        DirectoryContainer dc = new DirectoryContainer(path + "/Download/sharedculture/");
+        //EpubContainer ec = new EpubContainer(path + "/Download/audioBook.epub");
+        mEpubServer.addEpub(dc, "/sharedculture");
 
-        String urlString = "http://127.0.0.1:8080/moby-dick/spineHandle";
+        String urlString = "http://127.0.0.1:8080/sharedculture/spineHandle";
         new SpineListTask().execute(urlString);
     }
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/moby-dick/" + manifestItemList.get(position);
+        String urlString = "http://127.0.0.1:8080/sharedculture/" + manifestItemList.get(position);
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);

@@ -16,6 +16,7 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
 
 public class EpubServer extends RouterNanoHTTPD {
     private static final String SPINE_HANDLE = "/spineHandle";
+    private static final String MANIFEST_ITEM_HANDLE = "/(.*)";
 
     public EpubServer() {
         super(8080);
@@ -27,7 +28,7 @@ public class EpubServer extends RouterNanoHTTPD {
             EpubFetcher fetcher = new EpubFetcher(container, publication);
 
             addRoute(filePath + SPINE_HANDLE, EpubHandler.class, fetcher);
-            addRoute(filePath + "/(.*)", ManifestItemHandler.class, fetcher);
+            addRoute(filePath + MANIFEST_ITEM_HANDLE, ManifestItemHandler.class, fetcher);
         } catch (EpubFetcherException e) {
             e.printStackTrace();
         }
