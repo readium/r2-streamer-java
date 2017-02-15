@@ -62,11 +62,7 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
             String mimeType = link.getTypeLink();
 
             InputStream inputStream = fetcher.getDataInputStream(filePath);
-            //response = serveFile(header, filePath, mimeType);
-
             response = serveResponse(session, inputStream, mimeType);
-            //response = NanoHTTPD.newFixedLengthResponse(Status.OK, mimeType, inputStream, inputStream.available());
-            //response = NanoHTTPD.newChunkedResponse(Status.OK, mimeType, inputStream);
         } catch (EpubFetcherException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
@@ -140,15 +136,15 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
     }
 
     private Response createResponse(Response.Status status, String mimeType, InputStream message) {
-        Response res = NanoHTTPD.newChunkedResponse(status, mimeType, message);
-        res.addHeader("Accept-Ranges", "bytes");
-        return res;
+        Response response = NanoHTTPD.newChunkedResponse(status, mimeType, message);
+        response.addHeader("Accept-Ranges", "bytes");
+        return response;
     }
 
     private Response createResponse(Response.Status status, String mimeType, String message) {
-        Response res = NanoHTTPD.newFixedLengthResponse(status, mimeType, message);
-        res.addHeader("Accept-Ranges", "bytes");
-        return res;
+        Response response = NanoHTTPD.newFixedLengthResponse(status, mimeType, message);
+        response.addHeader("Accept-Ranges", "bytes");
+        return response;
     }
 
     private Response getResponse(String message) {
