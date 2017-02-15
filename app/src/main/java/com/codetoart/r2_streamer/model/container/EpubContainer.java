@@ -1,11 +1,10 @@
 package com.codetoart.r2_streamer.model.container;
 
-import android.app.Application;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,7 +61,16 @@ public class EpubContainer implements Container {
         try {
             ZipEntry zipEntry = zipFile.getEntry(relativePath);
             InputStream inputStream = zipFile.getInputStream(zipEntry);
-            return inputStream;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            int reader;
+            byte[] byteArray = new byte[inputStream.available()];
+            while ((reader = inputStream.read(byteArray, 0, byteArray.length)) != -1) {
+                byteArrayOutputStream.write(byteArray, 0, reader);
+            }
+
+            byte[] streamArray = byteArrayOutputStream.toByteArray();
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(streamArray);
+            return byteArrayInputStream;
         } catch (IOException e) {
             e.printStackTrace();
         }

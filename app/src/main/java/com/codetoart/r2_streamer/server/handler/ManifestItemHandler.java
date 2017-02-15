@@ -47,7 +47,6 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
 
     @Override
     public NanoHTTPD.Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
-        Map<String, String> header = session.getHeaders();
         NanoHTTPD.Method method = session.getMethod();
         String uri = session.getUri();
         Log.d(TAG, "Method: " + method + ", Url: " + uri);

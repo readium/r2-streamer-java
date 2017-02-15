@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private EpubServer mEpubServer;
 
     private ListView listView;
-    private ArrayAdapter<String> adapter;
     private List<String> manifestItemList = new ArrayList<>();
 
     @Override
@@ -61,18 +60,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         int size = container.rawDataSize("chapter21.html");
         Log.d(TAG, "Epub File Size: " + size);
-
-        /*DirectoryContainer dc = new DirectoryContainer(path + "/Download/demoTest/");
-        dc.rawData("chapter10.html");
-        int size = dc.rawDataSize("chapter10.html");
-        Log.d(TAG, "File Size: " + size);*/
     }
 
     public void test(View view) throws IOException, EpubParserException {
         String path = Environment.getExternalStorageDirectory().getPath();
-        //DirectoryContainer dc = new DirectoryContainer(path + "/Download/sharedculture/");
-        EpubContainer ec = new EpubContainer(path + "/Download/audioBook.epub");
-        mEpubServer.addEpub(ec, "/audioBook.epub");
+        //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/sharedculture/");
+        EpubContainer epubContainer = new EpubContainer(path + "/Download/audioBook.epub");
+        mEpubServer.addEpub(epubContainer, "/audioBook.epub");
 
         String urlString = "http://127.0.0.1:8080/audioBook.epub/spineHandle";
         new SpineListTask().execute(urlString);
@@ -103,16 +97,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             try {
                 URL url = new URL(strUrl);
-                URLConnection conn = url.openConnection();
-                InputStream is = conn.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
+                URLConnection urlConnection = url.openConnection();
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
                 String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line);
                 }
 
-                return new JSONArray(sb.toString());
+                return new JSONArray(stringBuilder.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -126,12 +120,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             super.onPostExecute(jsonArray);
 
             try {
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (int index = 0; index < jsonArray.length(); index++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(index);
                     manifestItemList.add(jsonObject.getString("href"));
                 }
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, manifestItemList);
-                listView.setAdapter(adapter);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, manifestItemList);
+                listView.setAdapter(arrayAdapter);
                 listView.setOnItemClickListener(MainActivity.this);
             } catch (JSONException e) {
                 e.printStackTrace();
