@@ -5,6 +5,7 @@ import android.util.Log;
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
 import com.codetoart.r2_streamer.model.publication.Link;
 import com.codetoart.r2_streamer.server.ResponseStatus;
+import com.codetoart.r2_streamer.util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,10 +61,10 @@ public class EpubHandler extends DefaultHandler {
             if (uri.endsWith(SPINE_HANDLE)) {
                 JSONArray spineArray = new JSONArray();
                 for (Link link : fetcher.publication.spines) {
-                    JSONObject spineObject = new JSONObject();
                     if (link.getTypeLink().equals("application/xhtml+xml")) {
-                        spineObject.put("href", link.getHref());
-                        spineObject.put("typeLink", link.getTypeLink());
+                        JSONObject spineObject = new JSONObject();
+                        spineObject.put(Constants.HREF, link.getHref());
+                        spineObject.put(Constants.TYPE_LINK, link.getTypeLink());
                         spineArray.put(spineObject);
                     }
                 }

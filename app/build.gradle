@@ -17,6 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'libs/jackson-core-asl-1.5.0.jar'
+        exclude 'libs/jackson-mapper-asl-1.5.0.jar'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
@@ -27,5 +34,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'org.nanohttpd:nanohttpd:2.3.1'
     compile 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+    compile 'org.codehaus.jackson:jackson-mapper-asl:1.5.0'
+    compile 'org.jsoup:jsoup:1.10.2'
     testCompile 'junit:junit:4.12'
 }

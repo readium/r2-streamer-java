@@ -114,11 +114,7 @@ public class EpubParser {
                 Log.d(TAG, "Root file: " + opfFile);
                 return opfFile;                    //returns opf file
             }
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -297,11 +293,7 @@ public class EpubParser {
             }
 
             return document;
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -445,7 +437,7 @@ public class EpubParser {
         int endIndex = rootFile.indexOf("/");
         String packageName = rootFile.substring(startIndex, endIndex);
 
-        Map<String, Link> manifestLinks = new HashMap<String, Link>();
+        Map<String, Link> manifestLinks = new HashMap<>();
 
         NodeList items = document.getElementsByTagName("item");
         if (items != null) {

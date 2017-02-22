@@ -5,10 +5,14 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by Shrikant Badwaik on 24-Jan-17.
@@ -66,13 +70,25 @@ public class DirectoryContainer implements Container {
     }
 
     @Override
-    public InputStream rawDataInputStream(String relativePath) throws NullPointerException {
+    public InputStream rawDataInputStream(final String relativePath) throws NullPointerException {
         try {
-            String filePath = rootPath.concat(relativePath);
+            /*String filePath = rootPath.concat(relativePath);
             File directoryFile = new File(filePath);
             InputStream inputStream = new FileInputStream(directoryFile);
-            return inputStream;
-        } catch (FileNotFoundException e) {
+            return inputStream;*/
+
+            Callable<InputStream> callable = new Callable<InputStream>() {
+                @Override
+                public InputStream call() throws Exception {
+                    String filePath = rootPath.concat(relativePath);
+                    File directoryFile = new File(filePath);
+                    return new FileInputStream(directoryFile);
+                }
+            };
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            Future<InputStream> future = executorService.submit(callable);
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;

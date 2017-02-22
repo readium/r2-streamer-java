@@ -12,11 +12,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.codetoart.r2_streamer.userinterface.MainActivity">
 
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter text to search"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="unzip"
-        android:text="Unzip" />
+        android:onClick="search"
+        android:text="search" />
 
     <Button
         android:layout_width="wrap_content"

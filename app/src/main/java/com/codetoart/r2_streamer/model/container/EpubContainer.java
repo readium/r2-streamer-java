@@ -1,5 +1,6 @@
 package com.codetoart.r2_streamer.model.container;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -8,6 +9,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -57,21 +64,44 @@ public class EpubContainer implements Container {
     }
 
     @Override
-    public InputStream rawDataInputStream(String relativePath) throws NullPointerException {
+    public InputStream rawDataInputStream(final String relativePath) throws NullPointerException {
         try {
-            ZipEntry zipEntry = zipFile.getEntry(relativePath);
-            InputStream inputStream = zipFile.getInputStream(zipEntry);
+            //ZipEntry zipEntry = zipFile.getEntry(relativePath);
+            /*InputStream inputStream = zipFile.getInputStream(zipEntry);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            int reader;
-            byte[] byteArray = new byte[inputStream.available()];
-            while ((reader = inputStream.read(byteArray, 0, byteArray.length)) != -1) {
-                byteArrayOutputStream.write(byteArray, 0, reader);
+            int bytesRead;
+            byte[] byteArray = new byte[4069];
+            while ((bytesRead = inputStream.read(byteArray)) != -1){
+                byteArrayOutputStream.write(byteArray, 0, bytesRead);
             }
 
+            byteArrayOutputStream.flush();
             byte[] streamArray = byteArrayOutputStream.toByteArray();
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(streamArray);
-            return byteArrayInputStream;
-        } catch (IOException e) {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(streamArray);*/
+
+            Callable<ByteArrayInputStream> callable = new Callable<ByteArrayInputStream>() {
+                @Override
+                public ByteArrayInputStream call() throws Exception {
+                    ZipEntry zipEntry = zipFile.getEntry(relativePath);
+                    InputStream inputStream = zipFile.getInputStream(zipEntry);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    long BUFFER_SIZE = 16 * 1024;
+                    byte[] byteArray = new byte[(int) BUFFER_SIZE];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(byteArray)) != -1){
+                        byteArrayOutputStream.write(byteArray, 0, bytesRead);
+                    }
+
+                    byteArrayOutputStream.flush();
+                    byte[] streamArray = byteArrayOutputStream.toByteArray();
+                    return new ByteArrayInputStream(streamArray);
+                }
+            };
+
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            Future<ByteArrayInputStream> future = executorService.submit(callable);
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;

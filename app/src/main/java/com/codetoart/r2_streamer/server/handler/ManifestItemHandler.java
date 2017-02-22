@@ -12,9 +12,13 @@ import java.io.InputStream;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
+import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD;
+import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 
 import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
 
@@ -25,7 +29,6 @@ import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
 public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
     private static final String TAG = "ManifestItemHandler";
     private Response response;
-    private EpubFetcher fetcher;
 
     public ManifestItemHandler() {
     }
@@ -41,18 +44,18 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
     }
 
     @Override
-    public NanoHTTPD.Response.IStatus getStatus() {
+    public IStatus getStatus() {
         return Status.NOT_ACCEPTABLE;
     }
 
     @Override
-    public NanoHTTPD.Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
-        NanoHTTPD.Method method = session.getMethod();
+    public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
+        Method method = session.getMethod();
         String uri = session.getUri();
         Log.d(TAG, "Method: " + method + ", Url: " + uri);
 
         try {
-            fetcher = uriResource.initParameter(EpubFetcher.class);
+            EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
 
             int offset = uri.indexOf("/", 0);
             int startIndex = uri.indexOf("/", offset + 1);
@@ -69,7 +72,7 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
         return response;
     }
 
-    private Response serveResponse(NanoHTTPD.IHTTPSession session, InputStream inputStream, String mimeType) {
+    private Response serveResponse(IHTTPSession session, InputStream inputStream, String mimeType) {
         Response response;
         String rangeRequest = session.getHeaders().get("range");
 
@@ -134,13 +137,13 @@ public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
         return (response == null) ? getResponse("Error 404: File not found") : response;
     }
 
-    private Response createResponse(Response.Status status, String mimeType, InputStream message) {
+    private Response createResponse(Status status, String mimeType, InputStream message) {
         Response response = NanoHTTPD.newChunkedResponse(status, mimeType, message);
         response.addHeader("Accept-Ranges", "bytes");
         return response;
     }
 
-    private Response createResponse(Response.Status status, String mimeType, String message) {
+    private Response createResponse(Status status, String mimeType, String message) {
         Response response = NanoHTTPD.newFixedLengthResponse(status, mimeType, message);
         response.addHeader("Accept-Ranges", "bytes");
         return response;
