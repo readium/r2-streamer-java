@@ -27,7 +27,7 @@ import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
  */
 
 public class EpubHandler extends DefaultHandler {
-    private static final String SPINE_HANDLE = "/spineHandle";
+    private static final String SPINE_HANDLE = "/spines";
     private static final String TAG = "EpubHandler";
     private Response response;
 

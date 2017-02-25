@@ -53,7 +53,7 @@ public class SearchQueryHandler extends RouterNanoHTTPD.DefaultHandler {
 
     @Override
     public String getMimeType() {
-        return "text/plain";
+        return "application/json";
     }
 
     @Override
