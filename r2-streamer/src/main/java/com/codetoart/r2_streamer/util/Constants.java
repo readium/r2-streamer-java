@@ -5,7 +5,6 @@ package com.codetoart.r2_streamer.util;
  */
 
 public class Constants {
-    public static final String MATCHING_TEXT = "match_text";
     public static final String HREF = "href";
     public static final String TYPE_LINK = "type_link";
     public static final String JSON_STRING= "json_string";

@@ -24,8 +24,9 @@ public class EpubPublication {
     public List<Link> resources;
     //public Link[] resources;
 
-    //public List<Link> TOC;
-    public Link[] TOC;
+    public List<Link> guides;
+    public List<Link> tableOfContents;
+    //public Link[] TOC;
     //public List<Link> pageList;
     public Link[] pageList;
     //public List<Link> landmarks;
@@ -47,20 +48,23 @@ public class EpubPublication {
     public Link coverLink;
 
     public EpubPublication() {
-        this.matchingLinks = new ArrayList<Link>();
-        this.links = new ArrayList<Link>();
-        this.spines = new ArrayList<Link>();
-        this.resources = new ArrayList<Link>();
-        this.internalData = new HashMap<String, String>();
+        this.matchingLinks = new ArrayList<>();
+        this.links = new ArrayList<>();
+        this.spines = new ArrayList<>();
+        this.resources = new ArrayList<>();
+        this.guides= new ArrayList<>();
+        this.tableOfContents = new ArrayList<>();
+        this.internalData = new HashMap<>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
+    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources,List<Link> guides, List<Link> tableOfContents, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
         this.metadata = metadata;
         this.links = links;
         this.matchingLinks = matchingLinks;
         this.spines = spines;
         this.resources = resources;
-        this.TOC = TOC;
+        this.guides = guides;
+        this.tableOfContents = tableOfContents;
         this.pageList = pageList;
         this.landmarks = landmarks;
         this.LOI = LOI;
@@ -71,22 +75,6 @@ public class EpubPublication {
         this.otherLinks = otherLinks;
         this.coverLink = coverLink;
     }
-
-    /*public EpubPublication(MetaData metadata, Link[] links, Link[] spine, Link[] resources, Link[] TOC, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, Link[] otherLinks, Link coverLink) {
-        this.metadata = metadata;
-        this.links = links;
-        this.spine = spine;
-        this.resources = resources;
-        this.TOC = TOC;
-        this.pageList = pageList;
-        this.landmarks = landmarks;
-        this.LOI = LOI;
-        this.LOA = LOA;
-        this.LOV = LOV;
-        this.LOT = LOT;
-        this.otherLinks = otherLinks;
-        this.coverLink = coverLink;
-    }*/
 
     public Link getCoverLink() {
         return getLink("cover");

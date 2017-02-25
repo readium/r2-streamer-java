@@ -1,16 +1,24 @@
 package com.codetoart.r2_streamer.server.handler;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
+import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.publication.Link;
 import com.codetoart.r2_streamer.server.ResponseStatus;
-import com.codetoart.r2_streamer.util.Constants;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.io.IOException;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -22,12 +30,14 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 
+import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
+
 /**
  * Created by Shrikant Badwaik on 24-Jan-17.
  */
 
 public class EpubHandler extends DefaultHandler {
-    private static final String SPINE_HANDLE = "/spineHandle";
+    private static final String SPINE_HANDLE = "/spines";
     private static final String TAG = "EpubHandler";
     private Response response;
 
@@ -62,9 +72,27 @@ public class EpubHandler extends DefaultHandler {
                 JSONArray spineArray = new JSONArray();
                 for (Link link : fetcher.publication.spines) {
                     if (link.getTypeLink().equals("application/xhtml+xml")) {
+
+                        String bookTitle = getBookTitle(fetcher);
+                        if (bookTitle != null) {
+                            link.setBookTitle(bookTitle);
+                        }
+
+                        String chapterTitle = getChapterTitle(fetcher, link);
+                        if (chapterTitle != null) {
+                            link.setChapterTitle(chapterTitle);
+                        } else {
+                            link.setChapterTitle("Title not available");
+                        }
+
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        String json = objectMapper.writeValueAsString(link);
+                        Log.d(TAG, "JSON : " + json);
+
                         JSONObject spineObject = new JSONObject();
-                        spineObject.put(Constants.HREF, link.getHref());
-                        spineObject.put(Constants.TYPE_LINK, link.getTypeLink());
+                        spineObject.put(JSON_STRING, json);
+                        //spineObject.put(HREF, link.getHref());
+                        //spineObject.put(TYPE_LINK, link.getTypeLink());
                         spineArray.put(spineObject);
                     }
                 }
@@ -73,7 +101,41 @@ public class EpubHandler extends DefaultHandler {
         } catch (JSONException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
+        } catch (JsonGenerationException | JsonMappingException e) {
+            e.printStackTrace();
+            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
+        } catch (EpubFetcherException e) {
+            e.printStackTrace();
+            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         }
         return response;
+    }
+
+    private String getBookTitle(EpubFetcher fetcher) {
+        return fetcher.publication.metadata.getTitle();
+    }
+
+    @Nullable
+    private String getChapterTitle(EpubFetcher fetcher, Link link) throws EpubFetcherException {
+        String spineData = fetcher.getData(link.getHref());
+        Document document = Jsoup.parse(spineData);
+        Element h1Element = document.select("h1").first();
+        if (h1Element != null) {
+            return h1Element.text();
+        } else {
+            Element h2Element = document.select("h2").first();
+            if (h2Element != null) {
+                return h2Element.text();
+            } else {
+                Element titleElement = document.select("title").first();
+                if (titleElement != null) {
+                    return titleElement.text();
+                }
+            }
+        }
+        return null;
     }
 }

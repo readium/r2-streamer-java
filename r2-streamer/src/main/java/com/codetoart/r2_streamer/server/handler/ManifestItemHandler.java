@@ -17,7 +17,7 @@ import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.router.RouterNanoHTTPD;
+import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 
 import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
@@ -26,7 +26,7 @@ import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
  * Created by Shrikant Badwaik on 10-Feb-17.
  */
 
-public class ManifestItemHandler extends RouterNanoHTTPD.DefaultHandler {
+public class ManifestItemHandler extends DefaultHandler {
     private static final String TAG = "ManifestItemHandler";
     private Response response;
 

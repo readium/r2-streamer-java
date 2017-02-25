@@ -9,7 +9,6 @@ import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.publication.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.ResponseStatus;
-import com.codetoart.r2_streamer.util.Constants;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -32,14 +31,16 @@ import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.router.RouterNanoHTTPD;
+import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
+
+import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 /**
  * Created by Shrikant Badwaik on 17-Feb-17.
  */
 
-public class SearchQueryHandler extends RouterNanoHTTPD.DefaultHandler {
+public class SearchQueryHandler extends DefaultHandler {
     private static final String TAG = "SearchQueryHandler";
     private Response response;
 
@@ -53,7 +54,7 @@ public class SearchQueryHandler extends RouterNanoHTTPD.DefaultHandler {
 
     @Override
     public String getMimeType() {
-        return "text/plain";
+        return "application/json";
     }
 
     @Override
@@ -103,7 +104,7 @@ public class SearchQueryHandler extends RouterNanoHTTPD.DefaultHandler {
                     Log.d(TAG, "JSON : " + json);
 
                     JSONObject searchObject = new JSONObject();
-                    searchObject.put(Constants.JSON_STRING, json);
+                    searchObject.put(JSON_STRING, json);
                     searchArray.put(searchObject);
                 }
             }
@@ -124,6 +125,16 @@ public class SearchQueryHandler extends RouterNanoHTTPD.DefaultHandler {
         Element h1Element = document.select("h1").first();
         if (h1Element != null) {
             return h1Element.text();
+        } else {
+            Element h2Element = document.select("h2").first();
+            if (h2Element != null) {
+                return h2Element.text();
+            } else {
+                Element titleElement = document.select("title").first();
+                if (titleElement != null) {
+                    return titleElement.text();
+                }
+            }
         }
 
         /*try {

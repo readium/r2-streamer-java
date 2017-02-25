@@ -9,21 +9,21 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.sample.R;
 
 import java.util.List;
 
 /**
- * Created by Shrikant Badwaik on 24-Feb-17.
+ * Created by Shrikant Badwaik on 17-Feb-17.
  */
 
-public class SpineListAdapter extends ArrayAdapter<String> {
+public class SearchListAdapter extends ArrayAdapter<String> {
     private Context context;
-    private List<Link> list;
-    private TextView view_1;
+    private List<SearchResult> list;
+    private TextView view_1, view_2;
 
-    public SpineListAdapter(Context context, List<Link> list) {
+    public SearchListAdapter(Context context, List<SearchResult> list) {
         super(context, 0);
         this.context = context;
         this.list = list;
@@ -40,15 +40,17 @@ public class SpineListAdapter extends ArrayAdapter<String> {
         LinearLayout layout = null;
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            layout = (LinearLayout) layoutInflater.inflate(R.layout.spinelist_adapter_resource, null);
+            layout = (LinearLayout) layoutInflater.inflate(R.layout.searchlist_adapter_resource, null);
         } else {
             layout = (LinearLayout) convertView;
         }
 
-        view_1 = (TextView) layout.findViewById(R.id.spineTextView);
+        view_1 = (TextView) layout.findViewById(R.id.titleText);
+        view_2 = (TextView) layout.findViewById(R.id.matchingText);
 
-        Link link = list.get(position);
-        view_1.setText(link.getHref());
+        SearchResult searchResult = list.get(position);
+        view_1.setText(searchResult.getTitle());
+        view_2.setText(searchResult.getMatchString());
 
         return layout;
     }

@@ -13,9 +13,12 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
+import com.codetoart.r2_streamer.model.publication.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.EpubServer;
+import com.codetoart.sample.adapters.SearchListAdapter;
 import com.codetoart.sample.adapters.SpineListAdapter;
 
 import org.codehaus.jackson.JsonParseException;
@@ -44,7 +47,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private EditText searchBar;
     private ListView listView;
-    private List<String> manifestItemList = new ArrayList<>();
+    //private List<String> manifestItemList = new ArrayList<>();
+    private List<Link> manifestItemList = new ArrayList<>();
     private List<SearchResult> searchList = new ArrayList<>();
 
     @Override
@@ -67,7 +71,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     public void find(View view) throws IOException {
         String path = Environment.getExternalStorageDirectory().getPath();
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
-        EpubContainer epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
+        Container epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
         mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
 
         searchList.clear();
@@ -85,7 +89,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spineHandle";
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spines";
         new SpineListTask().execute(urlString);
     }
 
@@ -101,7 +105,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + manifestItemList.get(position);
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -136,12 +140,19 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 for (int index = 0; index < jsonArray.length(); index++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(index);
-                    manifestItemList.add(jsonObject.getString(HREF));
+                    Object object = jsonObject.get(JSON_STRING);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Link link = objectMapper.readValue(object.toString(), Link.class);
+                    //manifestItemList.add(jsonObject.getString(HREF));
+                    manifestItemList.add(link);
                 }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(TestActivity.this, android.R.layout.simple_list_item_1, manifestItemList);
+
+                SpineListAdapter arrayAdapter = new SpineListAdapter(TestActivity.this, manifestItemList);
+                //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TestActivity.this,android.R.layout.simple_list_item_1,manifestItemList);
                 listView.setAdapter(arrayAdapter);
                 listView.setOnItemClickListener(TestActivity.this);
-            } catch (JSONException e) {
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -181,7 +192,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     SearchResult searchResult = objectMapper.readValue(object.toString(), SearchResult.class);
                     searchList.add(searchResult);
                 }
-                SpineListAdapter adapter = new SpineListAdapter(TestActivity.this, searchList);
+                SearchListAdapter adapter = new SearchListAdapter(TestActivity.this, searchList);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(TestActivity.this);
             } catch (JSONException | JsonParseException | JsonMappingException e) {

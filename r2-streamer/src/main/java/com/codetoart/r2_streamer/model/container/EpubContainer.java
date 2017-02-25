@@ -1,6 +1,5 @@
 package com.codetoart.r2_streamer.model.container;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -88,7 +86,7 @@ public class EpubContainer implements Container {
                     long BUFFER_SIZE = 16 * 1024;
                     byte[] byteArray = new byte[(int) BUFFER_SIZE];
                     int bytesRead;
-                    while ((bytesRead = inputStream.read(byteArray)) != -1){
+                    while ((bytesRead = inputStream.read(byteArray)) != -1) {
                         byteArrayOutputStream.write(byteArray, 0, bytesRead);
                     }
 
@@ -106,17 +104,4 @@ public class EpubContainer implements Container {
         }
         return null;
     }
-
-    /*@Override
-    public SeekableInputStream rawDataInputStream(String relativePath) throws NullPointerException {
-        try {
-            SeekableInputStream inputStream = new ZipStream(epubFilePath, relativePath);
-            if (inputStream != null) {
-                return inputStream;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }*/
 }

@@ -93,14 +93,4 @@ public class DirectoryContainer implements Container {
         }
         return null;
     }
-
-    /* @Override
-    public SeekableInputStream rawDataInputStream(String relativePath) throws NullPointerException {
-        String filePath = rootPath.concat(relativePath);
-        SeekableInputStream inputStream = new FileStream(filePath);
-        if (inputStream != null) {
-            return inputStream;
-        }
-        return null;
-    }*/
 }

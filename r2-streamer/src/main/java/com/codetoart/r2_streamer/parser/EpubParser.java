@@ -276,7 +276,7 @@ public class EpubParser {
             }
         }
 
-        parseSpineAndResources(document, publication, coverId, rootFile);
+        parseSpineAndResourcesAndGuide(document, publication, coverId, rootFile);
 
         return publication;
     }
@@ -432,7 +432,7 @@ public class EpubParser {
         return null;
     }
 
-    private void parseSpineAndResources(Document document, EpubPublication publication, String coverId, String rootFile) {
+    private void parseSpineAndResourcesAndGuide(Document document, EpubPublication publication, String coverId, String rootFile) {
         int startIndex = 0;
         int endIndex = rootFile.indexOf("/");
         String packageName = rootFile.substring(startIndex, endIndex);
@@ -480,7 +480,6 @@ public class EpubParser {
                 publication.links.add(link);
                 manifestLinks.put(id, link);
             }
-
             Log.d(TAG, "Link count: " + publication.links.size());
         }
 
@@ -496,8 +495,20 @@ public class EpubParser {
             }
             Log.d(TAG, "Spine count: " + publication.spines.size());
         }
-
         publication.resources.addAll(manifestLinks.values());
         Log.d(TAG, "Resource count: " + publication.resources.size());
+
+        NodeList references = document.getElementsByTagName("reference");
+        if (references != null) {
+            for (int i = 0; i < references.getLength(); i++) {
+                Element referenceElement = (Element) references.item(i);
+                Link link = new Link();
+                link.setType(referenceElement.getAttribute("type"));
+                link.setChapterTitle(referenceElement.getAttribute("title"));
+                link.setHref(referenceElement.getAttribute("href"));
+                publication.guides.add(link);
+            }
+        }
+        Log.d(TAG, "Guide count: " + publication.guides.size());
     }
 }

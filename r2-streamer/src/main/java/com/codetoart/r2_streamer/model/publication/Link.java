@@ -12,19 +12,19 @@ public class Link {
     public String id;
     public String href;
     public List<String> rel;
-    //public String[] rel;
     public String typeLink;
     public int height;
     public int width;
-    public String title;
+    public String bookTitle;
+    public String chapterTitle;
+    public String type;
     public List<String> properties;
-    //public String[] properties;
     public Date duration;
     public boolean templated;
 
     public Link() {
-        this.rel = new ArrayList<String>();
-        this.properties = new ArrayList<String>();
+        this.rel = new ArrayList<>();
+        this.properties = new ArrayList<>();
     }
 
     public Link(String href, String rel, String typeLink) {
@@ -81,12 +81,28 @@ public class Link {
         this.width = width;
     }
 
-    public String getTitle() {
-        return title;
+    public String getBookTitle() {
+        return bookTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
+    public String getChapterTitle() {
+        return chapterTitle;
+    }
+
+    public void setChapterTitle(String chapterTitle) {
+        this.chapterTitle = chapterTitle;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<String> getProperties() {
