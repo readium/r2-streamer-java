@@ -1,4 +1,30 @@
 apply plugin: 'com.android.library'
+apply from: '../config/quality/quality.gradle'
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'r2streamer'
+
+    publishedGroupId = 'com.codetoart'
+    libraryName = 'r2streamer'
+    artifact = 'r2streamer'
+
+    libraryDescription = 'Readium 2 streamer architecture for epub'
+
+    siteUrl = 'https://github.com/codetoart/r2-streamer-java.git'
+    gitUrl = 'https://github.com/codetoart/r2-streamer-java.git'
+
+    libraryVersion = '0.1.0'
+
+    developerId = 'codetoart'
+    developerName = 'CodeToArt Technology Pvt. Ltd.'
+    developerEmail = 'mahavir@codetoart.com'
+
+    licenseName = 'FreeBSD License'
+    licenseUrl = 'https://en.wikipedia.org/wiki/FreeBSD_Documentation_License#License'
+    allLicenses = ["FreeBSD"]
+}
+
 
 android {
     compileSdkVersion 25
@@ -37,3 +63,6 @@ dependencies {
     compile 'org.jsoup:jsoup:1.10.2'
     testCompile 'junit:junit:4.12'
 }
+
+apply from: '../r2streamer/bintray/installv1.gradle'
+apply from: '../r2streamer/bintray/bintrayv1.gradle'
