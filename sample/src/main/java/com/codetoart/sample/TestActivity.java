@@ -28,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +43,8 @@ import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private final String TAG = "TestActivity";
+    private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath()+"/R2StreamerSample/";
+
     private EpubServer mEpubServer;
 
     private EditText searchBar;
@@ -55,6 +59,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_sample_main);
         searchBar = (EditText) findViewById(R.id.searchField);
         listView = (ListView) findViewById(R.id.list);
+        copyEpubFromAssetsToSdCard("BARRETT_GUIDE.epub");
 
         try {
             mEpubServer = new EpubServer();
@@ -81,9 +86,9 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void show(View view) throws IOException {
-        String path = Environment.getExternalStorageDirectory().getPath();
+        String path = ROOT_EPUB_PATH+"BARRETT_GUIDE.epub";
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
-        EpubContainer epubContainer = new EpubContainer(path + "/Download/BARRETT_GUIDE.epub");
+        EpubContainer epubContainer = new EpubContainer(path);
         mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
@@ -99,6 +104,28 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         Log.d(TAG, "Server has been stopped");
+    }
+
+    public void copyEpubFromAssetsToSdCard(String epubFileName){
+        try {
+            File dir = new File(ROOT_EPUB_PATH);
+            if (!dir.exists()) dir.mkdirs();
+            File file = new File(dir, epubFileName);
+            file.createNewFile();
+
+            FileOutputStream fos = new FileOutputStream(file);
+            InputStream fis = getAssets().open("BARRETT_GUIDE.epub");
+            byte[] b = new byte[1024];
+            int i;
+            while ((i = fis.read(b)) != -1) {
+                fos.write(b, 0, i);
+            }
+            fos.flush();
+            fos.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

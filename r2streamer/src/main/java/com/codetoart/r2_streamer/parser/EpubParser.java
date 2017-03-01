@@ -541,7 +541,11 @@ public class EpubParser {
             publication.tableOfContents.setDocTitle(docTitleElement.getTextContent());
         }
 
-        NodeList navPointNodes = document.getElementsByTagName("navPoint");
+        Element navMapElement = (Element) document.getElementsByTagName("navMap").item(0);
+        NodeList navPointNodes = navMapElement.getChildNodes();
+        int length = navPointNodes.getLength();
+        Log.d("EpubParser", "Length ===> "+length);
+        /*NodeList navPointNodes = document.getElementsByTagName("navPoint");
         if (navPointNodes != null) {
             for (int i = 0; i < navPointNodes.getLength(); i++) {
                 Element navPoint = (Element) navPointNodes.item(i);
@@ -549,7 +553,7 @@ public class EpubParser {
                 publication.tableOfContents.tocLinks.add(tocLink);
             }
             publication.tableOfContents.tocLinks.size();
-        }
+        }*/
 
                 /*if (navPoint.getTagName().equals("navPoint") && navPoint.hasChildNodes()) {
                     NodeList childNodes_1 = navPoint.getChildNodes();
@@ -596,11 +600,13 @@ public class EpubParser {
     }
 
     @Nullable
-    private TOCLink parseElement(Element element) {
+    private TOCLink parseNavPoint(Element element) {
         if (element.getTagName().equals("navPoint")) {
             TOCLink tocLink = new TOCLink();
             tocLink.setId(element.getAttribute("id"));
             tocLink.setPlayOrder(element.getAttribute("playOrder"));
+
+            NodeList nodeList = element.getChildNodes();
 
             NodeList labelNodes = element.getElementsByTagName("navLabel");
             if (labelNodes != null) {
@@ -621,6 +627,7 @@ public class EpubParser {
                 Element content = (Element) contentNodes.item(j);
                 tocLink.setHref(content.getAttribute("src"));
             }
+
 
             return tocLink;
         }
