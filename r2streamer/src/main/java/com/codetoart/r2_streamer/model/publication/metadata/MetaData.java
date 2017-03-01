@@ -1,5 +1,7 @@
-package com.codetoart.r2_streamer.model.publication;
+package com.codetoart.r2_streamer.model.publication.metadata;
 
+import com.codetoart.r2_streamer.model.publication.subject.Subject;
+import com.codetoart.r2_streamer.model.publication.contributor.Contributor;
 import com.codetoart.r2_streamer.model.publication.rendition.Rendition;
 
 import java.util.ArrayList;

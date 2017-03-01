@@ -1,6 +1,4 @@
-package com.codetoart.r2_streamer.model.publication;
-
-import java.util.List;
+package com.codetoart.r2_streamer.model.publication.metadata;
 
 /**
  * Created by Shrikant Badwaik on 25-Jan-17.

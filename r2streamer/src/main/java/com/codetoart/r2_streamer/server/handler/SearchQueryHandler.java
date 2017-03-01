@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
 import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
-import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.ResponseStatus;
 

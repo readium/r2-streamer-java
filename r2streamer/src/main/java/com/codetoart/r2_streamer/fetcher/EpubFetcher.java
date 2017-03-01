@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
-import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.model.publication.link.Link;
 
 import java.io.InputStream;
 

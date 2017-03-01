@@ -1,4 +1,4 @@
-package com.codetoart.r2_streamer.model.publication;
+package com.codetoart.r2_streamer.model.publication.contributor;
 
 /**
  * Created by Shrikant Badwaik on 25-Jan-17.

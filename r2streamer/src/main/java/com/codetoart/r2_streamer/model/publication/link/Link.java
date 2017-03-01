@@ -1,4 +1,4 @@
-package com.codetoart.r2_streamer.model.publication;
+package com.codetoart.r2_streamer.model.publication.link;
 
 import java.util.ArrayList;
 import java.util.Date;

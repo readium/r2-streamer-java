@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.sample.R;
 
 import java.util.List;

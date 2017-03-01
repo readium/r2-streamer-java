@@ -9,13 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
-import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.EpubServer;
 import com.codetoart.sample.adapters.SearchListAdapter;
@@ -37,7 +36,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.codetoart.r2_streamer.util.Constants.HREF;
 import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 
@@ -85,11 +83,11 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     public void show(View view) throws IOException {
         String path = Environment.getExternalStorageDirectory().getPath();
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
-        EpubContainer epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
-        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
+        EpubContainer epubContainer = new EpubContainer(path + "/Download/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spines";
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/spines";
         new SpineListTask().execute(urlString);
     }
 
@@ -105,7 +103,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);

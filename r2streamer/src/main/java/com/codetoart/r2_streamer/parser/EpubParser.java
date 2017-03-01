@@ -4,20 +4,23 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.codetoart.r2_streamer.model.container.Container;
-import com.codetoart.r2_streamer.model.publication.Contributor;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
-import com.codetoart.r2_streamer.model.publication.Link;
-import com.codetoart.r2_streamer.model.publication.MetaData;
-import com.codetoart.r2_streamer.model.publication.Subject;
+import com.codetoart.r2_streamer.model.publication.contributor.Contributor;
+import com.codetoart.r2_streamer.model.publication.link.Link;
+import com.codetoart.r2_streamer.model.publication.metadata.MetaData;
 import com.codetoart.r2_streamer.model.publication.rendition.RenditionFlow;
 import com.codetoart.r2_streamer.model.publication.rendition.RenditionLayout;
 import com.codetoart.r2_streamer.model.publication.rendition.RenditionOrientation;
 import com.codetoart.r2_streamer.model.publication.rendition.RenditionSpread;
+import com.codetoart.r2_streamer.model.publication.subject.Subject;
+import com.codetoart.r2_streamer.model.tableofcontents.NCX;
+import com.codetoart.r2_streamer.model.tableofcontents.TOCLink;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -26,8 +29,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -121,14 +126,13 @@ public class EpubParser {
     }
 
     private EpubPublication parseOpfFile(String rootFile) throws EpubParserException {
-
         String opfData = container.rawData(rootFile);
         if (opfData == null) {
             Log.e(TAG, "File is missing: " + rootFile);
             throw new EpubParserException("File is missing");
         }
 
-        Document document = opfXmlParser(opfData);
+        Document document = xmlParser(opfData);
         if (document == null) {
             throw new EpubParserException("Error while parsing");
         }
@@ -169,10 +173,10 @@ public class EpubParser {
         }
 
         //subject
-        NodeList subjects = document.getElementsByTagName("dc:subject");
-        if (subjects != null) {
-            for (int i = 0; i < subjects.getLength(); i++) {
-                Element subjectElement = (Element) subjects.item(i);
+        NodeList subjectNodes = document.getElementsByTagName("dc:subject");
+        if (subjectNodes != null) {
+            for (int i = 0; i < subjectNodes.getLength(); i++) {
+                Element subjectElement = (Element) subjectNodes.item(i);
                 metaData.subjects.add(new Subject(subjectElement.getTextContent()));
 
                 Log.d(TAG, "Subject: " + subjectElement.getTextContent());
@@ -180,10 +184,10 @@ public class EpubParser {
         }
 
         //language
-        NodeList languages = document.getElementsByTagName("dc:language");
-        if (languages != null) {
-            for (int i = 0; i < languages.getLength(); i++) {
-                Element languageElement = (Element) languages.item(i);
+        NodeList languageNodes = document.getElementsByTagName("dc:language");
+        if (languageNodes != null) {
+            for (int i = 0; i < languageNodes.getLength(); i++) {
+                Element languageElement = (Element) languageNodes.item(i);
                 metaData.languages.add(languageElement.getTextContent());
 
                 Log.d(TAG, "Language: " + languageElement.getTextContent());
@@ -191,10 +195,10 @@ public class EpubParser {
         }
 
         //rights
-        NodeList rights = document.getElementsByTagName("dc:rights");
-        if (rights != null) {
-            for (int i = 0; i < rights.getLength(); i++) {
-                Element rightElement = (Element) rights.item(i);
+        NodeList rightNodes = document.getElementsByTagName("dc:rights");
+        if (rightNodes != null) {
+            for (int i = 0; i < rightNodes.getLength(); i++) {
+                Element rightElement = (Element) rightNodes.item(i);
                 metaData.rights.add(rightElement.getTextContent());
 
                 Log.d(TAG, "Rights: " + rightElement.getTextContent());
@@ -202,10 +206,10 @@ public class EpubParser {
         }
 
         //publisher
-        NodeList publishers = document.getElementsByTagName("dc:publisher");
-        if (publishers != null) {
-            for (int i = 0; i < publishers.getLength(); i++) {
-                Element publisherElement = (Element) publishers.item(i);
+        NodeList publisherNodes = document.getElementsByTagName("dc:publisher");
+        if (publisherNodes != null) {
+            for (int i = 0; i < publisherNodes.getLength(); i++) {
+                Element publisherElement = (Element) publisherNodes.item(i);
                 metaData.publishers.add(new Contributor(publisherElement.getTextContent()));
 
                 Log.d(TAG, "Publisher: " + publisherElement.getTextContent());
@@ -213,28 +217,28 @@ public class EpubParser {
         }
 
         //creator
-        NodeList authors = document.getElementsByTagName("dc:creator");
-        if (authors != null) {
-            for (int i = 0; i < authors.getLength(); i++) {
-                Element authorElement = (Element) authors.item(i);
+        NodeList authorNodes = document.getElementsByTagName("dc:creator");
+        if (authorNodes != null) {
+            for (int i = 0; i < authorNodes.getLength(); i++) {
+                Element authorElement = (Element) authorNodes.item(i);
                 parseContributor(authorElement, document, metaData);
             }
         }
 
         //contributor
-        NodeList contributors = document.getElementsByTagName("dc:contributor");
-        if (contributors != null) {
-            for (int i = 0; i < contributors.getLength(); i++) {
-                Element contributorElement = (Element) contributors.item(i);
+        NodeList contributorNodes = document.getElementsByTagName("dc:contributor");
+        if (contributorNodes != null) {
+            for (int i = 0; i < contributorNodes.getLength(); i++) {
+                Element contributorElement = (Element) contributorNodes.item(i);
                 parseContributor(contributorElement, document, metaData);
             }
         }
 
         //rendition property
-        NodeList metas = document.getElementsByTagName("meta");
-        if (metas != null) {
-            for (int i = 0; i < metas.getLength(); i++) {
-                Element metaElement = (Element) metas.item(i);
+        NodeList metaNodes = document.getElementsByTagName("meta");
+        if (metaNodes != null) {
+            for (int i = 0; i < metaNodes.getLength(); i++) {
+                Element metaElement = (Element) metaNodes.item(i);
                 if (metaElement.getAttribute("property").equals("rendition:layout")) {
                     metaData.rendition.layout = RenditionLayout.valueOfEnum(metaElement.getTextContent());
                 }
@@ -266,9 +270,9 @@ public class EpubParser {
 
         //cover
         String coverId = null;
-        if (metas != null) {
-            for (int i = 0; i < metas.getLength(); i++) {
-                Element metaElement = (Element) metas.item(i);
+        if (metaNodes != null) {
+            for (int i = 0; i < metaNodes.getLength(); i++) {
+                Element metaElement = (Element) metaNodes.item(i);
                 if (metaElement.getAttribute("name").equals("cover")) {
                     //coverId = metaElement.getTextContent();
                     coverId = metaElement.getAttribute("content");
@@ -282,7 +286,7 @@ public class EpubParser {
     }
 
     @Nullable
-    private Document opfXmlParser(String opfData) throws EpubParserException {                     //parsing content.opf
+    private Document xmlParser(String opfData) throws EpubParserException {                     //parsing content.opf
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -302,16 +306,16 @@ public class EpubParser {
     @Nullable
     private String parseMainTitle(Document document) {
         Element titleElement;
-        NodeList titles = document.getElementsByTagName("dc:title");
-        if (titles != null) {
-            if (titles.getLength() > 1) {
-                for (int i = 0; i < titles.getLength(); i++) {
-                    titleElement = (Element) titles.item(i);
+        NodeList titleNodes = document.getElementsByTagName("dc:title");
+        if (titleNodes != null) {
+            if (titleNodes.getLength() > 1) {
+                for (int i = 0; i < titleNodes.getLength(); i++) {
+                    titleElement = (Element) titleNodes.item(i);
                     String titleId = titleElement.getAttribute("id");
-                    NodeList metas = document.getElementsByTagName("meta");
-                    if (metas != null) {
-                        for (int j = 0; j < metas.getLength(); j++) {
-                            Element metaElement = (Element) metas.item(j);
+                    NodeList metaNodes = document.getElementsByTagName("meta");
+                    if (metaNodes != null) {
+                        for (int j = 0; j < metaNodes.getLength(); j++) {
+                            Element metaElement = (Element) metaNodes.item(j);
                             if (metaElement.getAttribute("property").equals("title-type")) {
                                 if (metaElement.getAttribute("refines").equals("#" + titleId)) {
                                     if (metaElement.getTextContent().equals("main")) {
@@ -323,7 +327,7 @@ public class EpubParser {
                     }
                 }
             } else {
-                titleElement = (Element) titles.item(0);
+                titleElement = (Element) titleNodes.item(0);
                 return titleElement.getTextContent();
             }
         }
@@ -333,18 +337,18 @@ public class EpubParser {
     @Nullable
     private String parseUniqueIdentifier(Document document) {
         Element identifierElement;
-        NodeList identifiers = document.getElementsByTagName("dc:identifier");
-        if (identifiers != null) {
-            if (identifiers.getLength() > 1) {
-                for (int i = 0; i < identifiers.getLength(); i++) {
-                    identifierElement = (Element) identifiers.item(i);
+        NodeList identifierNodes = document.getElementsByTagName("dc:identifier");
+        if (identifierNodes != null) {
+            if (identifierNodes.getLength() > 1) {
+                for (int i = 0; i < identifierNodes.getLength(); i++) {
+                    identifierElement = (Element) identifierNodes.item(i);
                     String uniqueId = identifierElement.getAttribute("unique-identifier");
                     if (identifierElement.getAttribute("id").equals(uniqueId)) {
                         return identifierElement.getTextContent();
                     }
                 }
             } else {
-                identifierElement = (Element) identifiers.item(0);
+                identifierElement = (Element) identifierNodes.item(0);
                 return identifierElement.getTextContent();
             }
         }
@@ -432,17 +436,17 @@ public class EpubParser {
         return null;
     }
 
-    private void parseSpineAndResourcesAndGuide(Document document, EpubPublication publication, String coverId, String rootFile) {
+    private void parseSpineAndResourcesAndGuide(Document document, EpubPublication publication, String coverId, String rootFile) throws EpubParserException {
         int startIndex = 0;
         int endIndex = rootFile.indexOf("/");
         String packageName = rootFile.substring(startIndex, endIndex);
 
         Map<String, Link> manifestLinks = new HashMap<>();
 
-        NodeList items = document.getElementsByTagName("item");
-        if (items != null) {
-            for (int i = 0; i < items.getLength(); i++) {
-                Element itemElement = (Element) items.item(i);
+        NodeList itemNodes = document.getElementsByTagName("item");
+        if (itemNodes != null) {
+            for (int i = 0; i < itemNodes.getLength(); i++) {
+                Element itemElement = (Element) itemNodes.item(i);
 
                 Link link = new Link();
                 NamedNodeMap nodeMap = itemElement.getAttributes();
@@ -468,25 +472,33 @@ public class EpubParser {
                 }
 
                 String id = itemElement.getAttribute("id");
+                link.setId(id);
+
                 if (id.equals(coverId)) {
-                    link.rel.add("cover");
+                    //link.rel.add("cover");
 
                     publication.coverLink = new Link();
+                    publication.coverLink.rel.add("cover");
                     publication.coverLink.setId(id);
                     publication.coverLink.setHref(link.getHref());
                     publication.coverLink.setTypeLink(link.getTypeLink());
                     publication.coverLink.setProperties(link.getProperties());
                 }
-                publication.links.add(link);
+                //publication.links.add(link);
+                publication.linkMap.put(link.href, link);
                 manifestLinks.put(id, link);
+
+                if ((link.getTypeLink().equals("application/x-dtbncx+xml")) && (link.getHref().endsWith(".ncx"))) {
+                    parseNCXFile(link.getHref());
+                }
             }
-            Log.d(TAG, "Link count: " + publication.links.size());
+            Log.d(TAG, "Link count: " + publication.linkMap.size());
         }
 
-        NodeList itemRefs = document.getElementsByTagName("itemref");
-        if (itemRefs != null) {
-            for (int i = 0; i < itemRefs.getLength(); i++) {
-                Element itemRefElement = (Element) itemRefs.item(i);
+        NodeList itemRefNodes = document.getElementsByTagName("itemref");
+        if (itemRefNodes != null) {
+            for (int i = 0; i < itemRefNodes.getLength(); i++) {
+                Element itemRefElement = (Element) itemRefNodes.item(i);
                 String id = itemRefElement.getAttribute("idref");
                 if (manifestLinks.containsKey(id)) {
                     publication.spines.add(manifestLinks.get(id));
@@ -498,10 +510,10 @@ public class EpubParser {
         publication.resources.addAll(manifestLinks.values());
         Log.d(TAG, "Resource count: " + publication.resources.size());
 
-        NodeList references = document.getElementsByTagName("reference");
-        if (references != null) {
-            for (int i = 0; i < references.getLength(); i++) {
-                Element referenceElement = (Element) references.item(i);
+        NodeList referenceNodes = document.getElementsByTagName("reference");
+        if (referenceNodes != null) {
+            for (int i = 0; i < referenceNodes.getLength(); i++) {
+                Element referenceElement = (Element) referenceNodes.item(i);
                 Link link = new Link();
                 link.setType(referenceElement.getAttribute("type"));
                 link.setChapterTitle(referenceElement.getAttribute("title"));
@@ -510,5 +522,108 @@ public class EpubParser {
             }
         }
         Log.d(TAG, "Guide count: " + publication.guides.size());
+    }
+
+    private void parseNCXFile(String ncxFile) throws EpubParserException {
+        String ncxData = container.rawData(ncxFile);
+        if (ncxData == null) {
+            Log.e(TAG, "File is missing: " + ncxFile);
+            throw new EpubParserException("File is missing");
+        }
+        Document document = xmlParser(ncxData);
+        if (document == null) {
+            throw new EpubParserException("Error while parsing");
+        }
+
+        publication.tableOfContents = new NCX();
+        Element docTitleElement = (Element) document.getElementsByTagName("docTitle").item(0);
+        if (docTitleElement != null) {
+            publication.tableOfContents.setDocTitle(docTitleElement.getTextContent());
+        }
+
+        NodeList navPointNodes = document.getElementsByTagName("navPoint");
+        if (navPointNodes != null) {
+            for (int i = 0; i < navPointNodes.getLength(); i++) {
+                Element navPoint = (Element) navPointNodes.item(i);
+                TOCLink tocLink = parseElement(parseNode(navPoint));
+                publication.tableOfContents.tocLinks.add(tocLink);
+            }
+            publication.tableOfContents.tocLinks.size();
+        }
+
+                /*if (navPoint.getTagName().equals("navPoint") && navPoint.hasChildNodes()) {
+                    NodeList childNodes_1 = navPoint.getChildNodes();
+                    for (int j = 0; j < childNodes_1.getLength(); j++) {
+                        Element childElement_1 = (Element) childNodes_1.item(j);
+                        if (childElement_1.getTagName().equals("navPoint") && childElement_1.hasChildNodes()) {
+                            NodeList childNodes_2 = childElement_1.getChildNodes();
+                            for (int k = 0; k < childNodes_2.getLength(); k++) {
+                                Element childElement_2 = (Element) childNodes_2.item(k);
+                                if (childElement_2.getTagName().equals("navPoint") && childElement_2.hasChildNodes()) {
+                                    tocLink = parseElement(childElement_2);
+                                    tocLinksList.add(tocLink);
+                                }
+                                tocLink.setTocLinks(tocLinksList);
+                                publication.tableOfContents.tocLinks.add(tocLink);
+                            }
+                        } else {
+                            break;
+                        }
+                        tocLink = parseElement(childElement_1);
+                        tocLinksList.add(tocLink);
+                    }
+                    tocLink.setTocLinks(tocLinksList);
+                    publication.tableOfContents.tocLinks.add(tocLink);
+                } else {
+                    break;
+                }
+                tocLink = parseElement(navPoint);
+                publication.tableOfContents.tocLinks.add(tocLink);*/
+    }
+
+    private Element parseNode(Element element) {
+        if (element.hasChildNodes()) {
+            NodeList childNodeList = element.getChildNodes();
+            for (int i = 0; i < childNodeList.getLength(); i++) {
+                Node childNode = childNodeList.item(i);
+                if (childNode.getNodeName().equals("navPoint")) {
+                    Element childElement = (Element) childNode;
+                    parseNode(childElement);
+                }
+            }
+        }
+        return element;
+    }
+
+    @Nullable
+    private TOCLink parseElement(Element element) {
+        if (element.getTagName().equals("navPoint")) {
+            TOCLink tocLink = new TOCLink();
+            tocLink.setId(element.getAttribute("id"));
+            tocLink.setPlayOrder(element.getAttribute("playOrder"));
+
+            NodeList labelNodes = element.getElementsByTagName("navLabel");
+            if (labelNodes != null) {
+                for (int i = 0; i < labelNodes.getLength(); i++) {
+                    Element label = (Element) labelNodes.item(i);
+                    NodeList textNodes = label.getElementsByTagName("text");
+                    if (textNodes != null) {
+                        for (int k = 0; k < textNodes.getLength(); k++) {
+                            Element text = (Element) textNodes.item(k);
+                            tocLink.setSectionTitle(text.getTextContent());
+                        }
+                    }
+                }
+            }
+
+            NodeList contentNodes = element.getElementsByTagName("content");
+            for (int j = 0; j < contentNodes.getLength(); j++) {
+                Element content = (Element) contentNodes.item(j);
+                tocLink.setHref(content.getAttribute("src"));
+            }
+
+            return tocLink;
+        }
+        return null;
     }
 }
