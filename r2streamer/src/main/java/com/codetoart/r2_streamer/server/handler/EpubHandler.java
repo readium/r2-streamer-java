@@ -39,7 +39,7 @@ import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 public class EpubHandler extends DefaultHandler {
     private static final String SPINE_HANDLE = "/spines";
-    private static final String TOC_HANDLE = "/table_of_contents";
+    private static final String TOC_HANDLE = "/toc";
     private static final String TAG = "EpubHandler";
     private Response response;
 
@@ -101,7 +101,7 @@ public class EpubHandler extends DefaultHandler {
                 response = NanoHTTPD.newFixedLengthResponse(spineArray.toString());
             } else if (uri.endsWith(TOC_HANDLE)) {
                 JSONArray tocArray = new JSONArray();
-                for (TOCLink tocLink : fetcher.publication.tableOfContents.navPoint) {
+                for (TOCLink tocLink : fetcher.publication.tableOfContents.tocLinks) {
                     ObjectMapper objectMapper = new ObjectMapper();
                     String json = objectMapper.writeValueAsString(tocLink);
                     Log.d(TAG, "TOC_JSON : " + json);

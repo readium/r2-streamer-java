@@ -66,13 +66,15 @@ public class SearchQueryHandler extends DefaultHandler {
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Method method = session.getMethod();
         String uri = session.getUri();
+
         Log.d(TAG, "Method: " + method + ", Url: " + uri);
 
         try {
             EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
 
-            int startIndex = uri.indexOf("=");
-            String searchQueryPath = uri.substring(startIndex + 1);
+            String queryParameter = session.getQueryParameterString();
+            int startIndex = queryParameter.indexOf("=");
+            String searchQueryPath = queryParameter.substring(startIndex + 1);
 
             JSONArray searchArray = new JSONArray();
             for (Link link : fetcher.publication.spines) {
@@ -136,45 +138,6 @@ public class SearchQueryHandler extends DefaultHandler {
                 }
             }
         }
-
-        /*try {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XmlPullParser parser = factory.newPullParser();
-            parser.setInput(new StringReader(searchData));
-            int eventType = parser.getEventType();
-            String startTagName = null;
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                switch (eventType) {
-                    case XmlPullParser.START_TAG:
-                        startTagName = parser.getName();
-                        break;
-                    case XmlPullParser.TEXT:
-                        if (startTagName != null && startTagName.equals("h1"))
-                            return parser.getText();
-                        break;
-                }
-                eventType = parser.next();
-            }
-        } catch (XmlPullParserException | IOException e) {
-            e.printStackTrace();
-        }*/
-
-        /*try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(searchData)));
-            document.getDocumentElement().normalize();
-            if (document != null) {
-                Element headingElement = (Element) document.getDocumentElement().getElementsByTagName("h1").item(0);
-                if (headingElement != null) {
-                    return headingElement.getTextContent();
-                }
-            }
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }*/
-
         return null;
     }
 

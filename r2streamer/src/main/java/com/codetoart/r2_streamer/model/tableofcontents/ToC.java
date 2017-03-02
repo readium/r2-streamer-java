@@ -7,17 +7,17 @@ import java.util.List;
  * Created by Shrikant Badwaik on 27-Feb-17.
  */
 
-public class NCX {
+public class ToC {
     public String docTitle;
-    public List<TOCLink> navPoint;
+    public List<TOCLink> tocLinks;
 
-    public NCX() {
-        navPoint = new ArrayList<>();
+    public ToC() {
+        tocLinks = new ArrayList<>();
     }
 
-    public NCX(String docTitle, List<TOCLink> navPoint) {
+    public ToC(String docTitle, List<TOCLink> navPoint) {
         this.docTitle = docTitle;
-        this.navPoint = navPoint;
+        this.tocLinks = navPoint;
     }
 
     public String getDocTitle() {
@@ -28,11 +28,11 @@ public class NCX {
         this.docTitle = docTitle;
     }
 
-    public List<TOCLink> getNavPoint() {
-        return navPoint;
+    public List<TOCLink> getTocLinks() {
+        return tocLinks;
     }
 
-    public void setNavPoint(List<TOCLink> navPoint) {
-        this.navPoint = navPoint;
+    public void setTocLinks(List<TOCLink> navPoint) {
+        this.tocLinks = navPoint;
     }
 }

@@ -9,6 +9,8 @@ import com.codetoart.r2_streamer.server.handler.EpubHandler;
 import com.codetoart.r2_streamer.server.handler.ManifestItemHandler;
 import com.codetoart.r2_streamer.server.handler.SearchQueryHandler;
 
+import java.util.regex.Pattern;
+
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
 /**
@@ -17,9 +19,9 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
 
 public class EpubServer extends RouterNanoHTTPD {
     private static final String SPINE_HANDLE = "/spines";
-    private static final String TOC_HANDLE = "/table_of_contents";
+    private static final String TOC_HANDLE = "/toc";
+    private static final String SEARCH_QUERY_HANDLE = "/search";
     private static final String MANIFEST_ITEM_HANDLE = "/(.*)";
-    private static final String SEARCH_QUERY_HANDLE = "/query=(.*)";
 
     public EpubServer() {
         super(8080);

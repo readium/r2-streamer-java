@@ -16,6 +16,7 @@ import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
+import com.codetoart.r2_streamer.model.tableofcontents.TOCLink;
 import com.codetoart.r2_streamer.server.EpubServer;
 import com.codetoart.sample.adapters.SearchListAdapter;
 import com.codetoart.sample.adapters.SpineListAdapter;
@@ -33,6 +34,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -71,15 +74,15 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void find(View view) throws IOException {
-        String path = ROOT_EPUB_PATH + "BARRETT_GUIDE.epub";
+        String path = ROOT_EPUB_PATH + "TheSilverChair.epub";
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
 
         searchList.clear();
         String searchQuery = searchBar.getText().toString();
         if (searchQuery.length() != 0) {
-            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/query=" + searchQuery;
+            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/search?query=" + searchQuery;
             new SearchListTask().execute(urlString);
         }
     }
@@ -91,7 +94,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/table_of_contents";
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/toc";
         new SpineListTask().execute(urlString);
     }
 
@@ -113,7 +116,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             file.createNewFile();
 
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream fis = getAssets().open("BARRETT_GUIDE.epub");
+            InputStream fis = getAssets().open("TheSilverChair.epub");
             byte[] b = new byte[1024];
             int i;
             while ((i = fis.read(b)) != -1) {
@@ -129,8 +132,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
-        //String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + searchList.get(position).getResource();
+        //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
@@ -167,7 +170,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     Object object = jsonObject.get(JSON_STRING);
 
                     ObjectMapper objectMapper = new ObjectMapper();
-                    Link link = objectMapper.readValue(object.toString(), Link.class);
+                    TOCLink link = objectMapper.readValue(object.toString(), TOCLink.class);
                     //manifestItemList.add(jsonObject.getString(HREF));
                     manifestItemList.add(link);
                 }
@@ -189,7 +192,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             String strUrl = urls[0];
             try {
                 URL url = new URL(strUrl);
-                URLConnection urlConnection = url.openConnection();
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
                 InputStream inputStream = urlConnection.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder stringBuilder = new StringBuilder();
@@ -199,7 +203,11 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
 
                 return new JSONArray(stringBuilder.toString());
-            } catch (IOException | JSONException e) {
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;

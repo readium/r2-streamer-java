@@ -12,16 +12,16 @@ import java.util.List;
 public class TOCLink extends Link {
     public String sectionTitle;
     public String playOrder;
-    public List<TOCLink> navPoints;
+    public List<TOCLink> tocLinks;
 
     public TOCLink() {
-        navPoints = new ArrayList<>();
+        tocLinks = new ArrayList<>();
     }
 
     public TOCLink(String sectionTitle, String playOrder, List<TOCLink> navPoints) {
         this.sectionTitle = sectionTitle;
         this.playOrder = playOrder;
-        this.navPoints = navPoints;
+        this.tocLinks = navPoints;
     }
 
     public String getSectionTitle() {
@@ -40,11 +40,11 @@ public class TOCLink extends Link {
         this.playOrder = playOrder;
     }
 
-    public List<TOCLink> getNavPoints() {
-        return navPoints;
+    public List<TOCLink> getTocLinks() {
+        return tocLinks;
     }
 
-    public void setNavPoints(List<TOCLink> navPoints) {
-        this.navPoints = navPoints;
+    public void setTocLinks(List<TOCLink> navPoints) {
+        this.tocLinks = navPoints;
     }
 }

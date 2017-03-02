@@ -4,8 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.publication.metadata.MetaData;
-import com.codetoart.r2_streamer.model.tableofcontents.NCX;
-import com.codetoart.r2_streamer.model.tableofcontents.TOCLink;
+import com.codetoart.r2_streamer.model.tableofcontents.ToC;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 public class EpubPublication {
     public MetaData metadata;
-    public NCX tableOfContents;
+    public ToC tableOfContents;
 
     public Map<String,Link> linkMap;
     public List<Link> links;
@@ -58,7 +57,7 @@ public class EpubPublication {
         this.linkMap = new HashMap<>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources,List<Link> guides, NCX tableOfContents, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
+    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, List<Link> guides, ToC tableOfContents, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
         this.metadata = metadata;
         this.links = links;
         this.matchingLinks = matchingLinks;
