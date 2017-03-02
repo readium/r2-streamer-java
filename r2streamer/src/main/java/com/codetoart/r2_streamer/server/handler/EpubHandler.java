@@ -6,6 +6,7 @@ import android.util.Log;
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
 import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.publication.link.Link;
+import com.codetoart.r2_streamer.model.tableofcontents.TOCLink;
 import com.codetoart.r2_streamer.server.ResponseStatus;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -38,6 +39,7 @@ import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 public class EpubHandler extends DefaultHandler {
     private static final String SPINE_HANDLE = "/spines";
+    private static final String TOC_HANDLE = "/table_of_contents";
     private static final String TAG = "EpubHandler";
     private Response response;
 
@@ -87,7 +89,7 @@ public class EpubHandler extends DefaultHandler {
 
                         ObjectMapper objectMapper = new ObjectMapper();
                         String json = objectMapper.writeValueAsString(link);
-                        Log.d(TAG, "JSON : " + json);
+                        Log.d(TAG, "SPINE_JSON : " + json);
 
                         JSONObject spineObject = new JSONObject();
                         spineObject.put(JSON_STRING, json);
@@ -97,6 +99,18 @@ public class EpubHandler extends DefaultHandler {
                     }
                 }
                 response = NanoHTTPD.newFixedLengthResponse(spineArray.toString());
+            } else if (uri.endsWith(TOC_HANDLE)) {
+                JSONArray tocArray = new JSONArray();
+                for (TOCLink tocLink : fetcher.publication.tableOfContents.navPoint) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = objectMapper.writeValueAsString(tocLink);
+                    Log.d(TAG, "TOC_JSON : " + json);
+
+                    JSONObject tocObject = new JSONObject();
+                    tocObject.put(JSON_STRING, json);
+                    tocArray.put(tocObject);
+                }
+                response = NanoHTTPD.newFixedLengthResponse(tocArray.toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();

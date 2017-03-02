@@ -1,7 +1,5 @@
 package com.codetoart.r2_streamer.model.tableofcontents;
 
-import com.codetoart.r2_streamer.model.publication.link.Link;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +9,17 @@ import java.util.List;
 
 public class NCX {
     public String docTitle;
-    public List<TOCLink> tocLinks;
+    public List<TOCLink> navPoint;
 
     public NCX() {
-        tocLinks = new ArrayList<>();
+        navPoint = new ArrayList<>();
     }
 
-    public NCX(String docTitle, List<TOCLink> navPoints) {
+    public NCX(String docTitle, List<TOCLink> navPoint) {
         this.docTitle = docTitle;
-        this.tocLinks = navPoints;
+        this.navPoint = navPoint;
     }
+
     public String getDocTitle() {
         return docTitle;
     }
@@ -29,11 +28,11 @@ public class NCX {
         this.docTitle = docTitle;
     }
 
-    public List<TOCLink> getTocLinks() {
-        return tocLinks;
+    public List<TOCLink> getNavPoint() {
+        return navPoint;
     }
 
-    public void setTocLinks(List<TOCLink> tocLinks) {
-        this.tocLinks = tocLinks;
+    public void setNavPoint(List<TOCLink> navPoint) {
+        this.navPoint = navPoint;
     }
 }

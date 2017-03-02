@@ -17,6 +17,7 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
 
 public class EpubServer extends RouterNanoHTTPD {
     private static final String SPINE_HANDLE = "/spines";
+    private static final String TOC_HANDLE = "/table_of_contents";
     private static final String MANIFEST_ITEM_HANDLE = "/(.*)";
     private static final String SEARCH_QUERY_HANDLE = "/query=(.*)";
 
@@ -30,6 +31,7 @@ public class EpubServer extends RouterNanoHTTPD {
             EpubFetcher fetcher = new EpubFetcher(container, publication);
 
             addRoute(filePath + SPINE_HANDLE, EpubHandler.class, fetcher);
+            addRoute(filePath + TOC_HANDLE, EpubHandler.class, fetcher);
             addRoute(filePath + SEARCH_QUERY_HANDLE, SearchQueryHandler.class, fetcher);
             addRoute(filePath + MANIFEST_ITEM_HANDLE, ManifestItemHandler.class, fetcher);
         } catch (EpubFetcherException e) {

@@ -42,9 +42,8 @@ import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+    private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
     private final String TAG = "TestActivity";
-    private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath()+"/R2StreamerSample/";
-
     private EpubServer mEpubServer;
 
     private EditText searchBar;
@@ -72,10 +71,10 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void find(View view) throws IOException {
-        String path = Environment.getExternalStorageDirectory().getPath();
+        String path = ROOT_EPUB_PATH + "BARRETT_GUIDE.epub";
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
-        Container epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
-        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
+        Container epubContainer = new EpubContainer(path);
+        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         searchList.clear();
         String searchQuery = searchBar.getText().toString();
@@ -86,13 +85,13 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void show(View view) throws IOException {
-        String path = ROOT_EPUB_PATH+"BARRETT_GUIDE.epub";
+        String path = ROOT_EPUB_PATH + "BARRETT_GUIDE.epub";
         //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
         EpubContainer epubContainer = new EpubContainer(path);
         mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/spines";
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/table_of_contents";
         new SpineListTask().execute(urlString);
     }
 
@@ -106,7 +105,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "Server has been stopped");
     }
 
-    public void copyEpubFromAssetsToSdCard(String epubFileName){
+    public void copyEpubFromAssetsToSdCard(String epubFileName) {
         try {
             File dir = new File(ROOT_EPUB_PATH);
             if (!dir.exists()) dir.mkdirs();
