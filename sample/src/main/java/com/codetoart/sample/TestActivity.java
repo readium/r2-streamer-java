@@ -16,8 +16,8 @@ import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
-import com.codetoart.r2_streamer.model.tableofcontents.TOCLink;
 import com.codetoart.r2_streamer.server.EpubServer;
+import com.codetoart.r2_streamer.server.EpubServerSingleton;
 import com.codetoart.sample.adapters.SearchListAdapter;
 import com.codetoart.sample.adapters.SpineListAdapter;
 
@@ -51,7 +51,6 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private EditText searchBar;
     private ListView listView;
-    //private List<String> manifestItemList = new ArrayList<>();
     private List<Link> manifestItemList = new ArrayList<>();
     private List<SearchResult> searchList = new ArrayList<>();
 
@@ -61,40 +60,44 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_sample_main);
         searchBar = (EditText) findViewById(R.id.searchField);
         listView = (ListView) findViewById(R.id.list);
-        copyEpubFromAssetsToSdCard("BARRETT_GUIDE.epub");
 
-        try {
-            mEpubServer = new EpubServer();
-            mEpubServer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        copyEpubFromAssetsToSdCard("BARRETT_GUIDE.epub");
+        startServer();
 
         Log.d(TAG, "Server is running. Point your browser at http://localhost:8080/");
     }
 
+    private void startServer() {
+        try {
+            mEpubServer = EpubServerSingleton.getEpubServerInstance();
+            mEpubServer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void find(View view) throws IOException {
-        String path = ROOT_EPUB_PATH + "TheSilverChair.epub";
-        //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
+        String path = ROOT_EPUB_PATH + "BARRETT_GUIDE.epub";
+        //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
+        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         searchList.clear();
         String searchQuery = searchBar.getText().toString();
         if (searchQuery.length() != 0) {
-            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/search?query=" + searchQuery;
+            String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/search?query=" + searchQuery;
             new SearchListTask().execute(urlString);
         }
     }
 
     public void show(View view) throws IOException {
         String path = ROOT_EPUB_PATH + "BARRETT_GUIDE.epub";
-        //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
+        //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         EpubContainer epubContainer = new EpubContainer(path);
         mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/toc";
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/spines";
         new SpineListTask().execute(urlString);
     }
 
@@ -103,6 +106,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onDestroy();
         if (mEpubServer != null && mEpubServer.isAlive()) {
             mEpubServer.stop();
+            EpubServerSingleton.resetServerInstance();
         }
 
         Log.d(TAG, "Server has been stopped");
@@ -116,7 +120,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             file.createNewFile();
 
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream fis = getAssets().open("TheSilverChair.epub");
+            InputStream fis = getAssets().open("BARRETT_GUIDE.epub");
             byte[] b = new byte[1024];
             int i;
             while ((i = fis.read(b)) != -1) {
@@ -132,8 +136,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
-        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + searchList.get(position).getResource();
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
+        //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
@@ -170,13 +174,11 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     Object object = jsonObject.get(JSON_STRING);
 
                     ObjectMapper objectMapper = new ObjectMapper();
-                    TOCLink link = objectMapper.readValue(object.toString(), TOCLink.class);
-                    //manifestItemList.add(jsonObject.getString(HREF));
+                    Link link = objectMapper.readValue(object.toString(), Link.class);
                     manifestItemList.add(link);
                 }
 
                 SpineListAdapter arrayAdapter = new SpineListAdapter(TestActivity.this, manifestItemList);
-                //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TestActivity.this,android.R.layout.simple_list_item_1,manifestItemList);
                 listView.setAdapter(arrayAdapter);
                 listView.setOnItemClickListener(TestActivity.this);
             } catch (JSONException | IOException e) {

@@ -23,8 +23,8 @@ public class EpubServer extends RouterNanoHTTPD {
     private static final String SEARCH_QUERY_HANDLE = "/search";
     private static final String MANIFEST_ITEM_HANDLE = "/(.*)";
 
-    public EpubServer() {
-        super(8080);
+    public EpubServer(int portNo) {
+        super(portNo);
     }
 
     public void addEpub(Container container, String filePath) {
