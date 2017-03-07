@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.publication.metadata.MetaData;
 import com.codetoart.r2_streamer.model.tableofcontents.ToC;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,34 +18,50 @@ import java.util.Map;
  */
 
 public class EpubPublication {
+    @JsonProperty("metadata")
     public MetaData metadata;
+    @JsonProperty("toc")
     public ToC tableOfContents;
 
+    @JsonIgnore
     public Map<String,Link> linkMap;
+    @JsonProperty("links")
     public List<Link> links;
+    @JsonIgnore
     public List<Link> matchingLinks;
+    @JsonProperty("spines")
     public List<Link> spines;
+    @JsonProperty("resources")
     public List<Link> resources;
+    @JsonIgnore
     public List<Link> guides;
 
     //public List<Link> pageList;
+    @JsonIgnore
     public Link[] pageList;
+    @JsonIgnore
     //public List<Link> landmarks;
     public Link[] landmarks;
+    @JsonIgnore
     //public List<Link> LOI;
     public Link[] LOI;
+    @JsonIgnore
     //public List<Link> LOA;
     public Link[] LOA;
+    @JsonIgnore
     //public List<Link> LOV;
     public Link[] LOV;
+    @JsonIgnore
     //public List<Link> LOT;
     public Link[] LOT;
 
     public Map<String, String> internalData;
 
+    @JsonIgnore
     //public List<Link> otherLinks;
     public Link[] otherLinks;
 
+    @JsonProperty("cover")
     public Link coverLink;
 
     public EpubPublication() {

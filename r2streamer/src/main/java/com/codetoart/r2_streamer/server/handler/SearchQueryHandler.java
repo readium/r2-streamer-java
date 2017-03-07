@@ -9,10 +9,10 @@ import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.ResponseStatus;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

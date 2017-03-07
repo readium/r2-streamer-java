@@ -26,11 +26,11 @@ import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
  * Created by Shrikant Badwaik on 10-Feb-17.
  */
 
-public class ManifestItemHandler extends DefaultHandler {
+public class ResourceHandler extends DefaultHandler {
     private static final String TAG = "ManifestItemHandler";
     private Response response;
 
-    public ManifestItemHandler() {
+    public ResourceHandler() {
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ManifestItemHandler extends DefaultHandler {
 
     @Override
     public IStatus getStatus() {
-        return Status.NOT_ACCEPTABLE;
+        return Status.OK;
     }
 
     @Override

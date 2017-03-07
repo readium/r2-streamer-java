@@ -14,16 +14,18 @@ import android.widget.ListView;
 
 import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
+import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.model.publication.link.Link;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.EpubServer;
 import com.codetoart.r2_streamer.server.EpubServerSingleton;
 import com.codetoart.sample.adapters.SearchListAdapter;
 import com.codetoart.sample.adapters.SpineListAdapter;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,7 +99,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/spines";
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/manifest";
         new SpineListTask().execute(urlString);
     }
 
@@ -143,9 +145,9 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         startActivity(intent);
     }
 
-    class SpineListTask extends AsyncTask<String, Void, JSONArray> {
+    class SpineListTask extends AsyncTask<String, Void, EpubPublication> {
         @Override
-        protected JSONArray doInBackground(String... urls) {
+        protected EpubPublication doInBackground(String... urls) {
             String strUrl = urls[0];
 
             try {
@@ -159,31 +161,24 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     stringBuilder.append(line);
                 }
 
-                return new JSONArray(stringBuilder.toString());
-            } catch (IOException | JSONException e) {
+                Log.d("TestActivity", "EpubPublication => "+stringBuilder.toString());
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                EpubPublication epubPublication = objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
+
+                return epubPublication;
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(JSONArray jsonArray) {
-            try {
-                for (int index = 0; index < jsonArray.length(); index++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(index);
-                    Object object = jsonObject.get(JSON_STRING);
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    Link link = objectMapper.readValue(object.toString(), Link.class);
-                    manifestItemList.add(link);
-                }
-
-                SpineListAdapter arrayAdapter = new SpineListAdapter(TestActivity.this, manifestItemList);
-                listView.setAdapter(arrayAdapter);
-                listView.setOnItemClickListener(TestActivity.this);
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
+        protected void onPostExecute(EpubPublication epubPublication) {
+            SpineListAdapter arrayAdapter = new SpineListAdapter(TestActivity.this, epubPublication.spines);
+            listView.setAdapter(arrayAdapter);
+            listView.setOnItemClickListener(TestActivity.this);
         }
     }
 
