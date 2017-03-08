@@ -1,5 +1,8 @@
 package com.codetoart.r2_streamer.model.publication.link;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.List;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class Link {
+public class Link implements Parcelable{
     public String id;
     public String href;
     public List<String> rel;
@@ -32,6 +35,32 @@ public class Link {
         this.rel.add(rel);
         this.typeLink = typeLink;
     }
+
+    protected Link(Parcel in) {
+        id = in.readString();
+        href = in.readString();
+        rel = in.createStringArrayList();
+        typeLink = in.readString();
+        height = in.readInt();
+        width = in.readInt();
+        bookTitle = in.readString();
+        chapterTitle = in.readString();
+        type = in.readString();
+        properties = in.createStringArrayList();
+        templated = in.readByte() != 0;
+    }
+
+    public static final Creator<Link> CREATOR = new Creator<Link>() {
+        @Override
+        public Link createFromParcel(Parcel in) {
+            return new Link(in);
+        }
+
+        @Override
+        public Link[] newArray(int size) {
+            return new Link[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -127,5 +156,25 @@ public class Link {
 
     public void setTemplated(boolean templated) {
         this.templated = templated;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(href);
+        parcel.writeStringList(rel);
+        parcel.writeString(typeLink);
+        parcel.writeInt(height);
+        parcel.writeInt(width);
+        parcel.writeString(bookTitle);
+        parcel.writeString(chapterTitle);
+        parcel.writeString(type);
+        parcel.writeStringList(properties);
+        parcel.writeByte((byte) (templated ? 1 : 0));
     }
 }

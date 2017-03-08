@@ -1,10 +1,13 @@
 package com.codetoart.r2_streamer.model.publication.rendition;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class Rendition {
+public class Rendition implements Parcelable {
     public RenditionLayout layout;
     public RenditionFlow flow;
     public RenditionOrientation orientation;
@@ -21,6 +24,26 @@ public class Rendition {
         this.spread = spread;
         this.viewport = viewport;
     }
+
+    protected Rendition(Parcel in) {
+        layout = RenditionLayout.valueOfEnum(in.readString());
+        flow = RenditionFlow.valueOfEnum(in.readString());
+        orientation = RenditionOrientation.valueOfEnum(in.readString());
+        spread = RenditionSpread.valueOfEnum(in.readString());
+        viewport = in.readString();
+    }
+
+    public static final Creator<Rendition> CREATOR = new Creator<Rendition>() {
+        @Override
+        public Rendition createFromParcel(Parcel in) {
+            return new Rendition(in);
+        }
+
+        @Override
+        public Rendition[] newArray(int size) {
+            return new Rendition[size];
+        }
+    };
 
     public RenditionLayout getLayout() {
         return layout;
@@ -60,5 +83,19 @@ public class Rendition {
 
     public void setViewport(String viewport) {
         this.viewport = viewport;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(layout.name());
+        parcel.writeString(flow.name());
+        parcel.writeString(orientation.name());
+        parcel.writeString(spread.name());
+        parcel.writeString(viewport);
     }
 }

@@ -27,7 +27,7 @@ import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
  */
 
 public class ResourceHandler extends DefaultHandler {
-    private static final String TAG = "ManifestItemHandler";
+    private static final String TAG = "ResourceHandler";
     private Response response;
 
     public ResourceHandler() {

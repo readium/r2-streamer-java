@@ -1,5 +1,9 @@
 package com.codetoart.r2_streamer.model.publication.metadata;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.model.publication.subject.Subject;
 import com.codetoart.r2_streamer.model.publication.contributor.Contributor;
 import com.codetoart.r2_streamer.model.publication.rendition.Rendition;
@@ -12,7 +16,7 @@ import java.util.List;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class MetaData {
+public class MetaData implements Parcelable{
     public String title;
     public String identifier;
 
@@ -50,35 +54,36 @@ public class MetaData {
     public String direction;
     public Rendition rendition;
     public String source;
-    public String[] epubType;
+    public List<String> epubType;
     public List<String> rights;
     public List<Subject> subjects;
     //public Subject[] subjects;
 
-    //private List<MetadataItem> otherMetadata;
-    public MetadataItem[] otherMetadata;
+    private List<MetadataItem> otherMetadata;
+    //public MetadataItem[] otherMetadata;
 
     public MetaData() {
         this.rendition = new Rendition();
-        this.creators = new ArrayList<Contributor>();
-        this.translators = new ArrayList<Contributor>();
-        this.editors = new ArrayList<Contributor>();
-        this.artists = new ArrayList<Contributor>();
-        this.illustrators = new ArrayList<Contributor>();
-        this.letterers = new ArrayList<Contributor>();
-        this.pencilers = new ArrayList<Contributor>();
-        this.colorists = new ArrayList<Contributor>();
-        this.inkers = new ArrayList<Contributor>();
-        this.narrators = new ArrayList<Contributor>();
-        this.contributors = new ArrayList<Contributor>();
-        this.publishers = new ArrayList<Contributor>();
-        this.imprints = new ArrayList<Contributor>();
-        this.languages = new ArrayList<String>();
-        this.rights = new ArrayList<String>();
-        this.subjects = new ArrayList<Subject>();
+        this.creators = new ArrayList<>();
+        this.translators = new ArrayList<>();
+        this.editors = new ArrayList<>();
+        this.artists = new ArrayList<>();
+        this.illustrators = new ArrayList<>();
+        this.letterers = new ArrayList<>();
+        this.pencilers = new ArrayList<>();
+        this.colorists = new ArrayList<>();
+        this.inkers = new ArrayList<>();
+        this.narrators = new ArrayList<>();
+        this.contributors = new ArrayList<>();
+        this.publishers = new ArrayList<>();
+        this.imprints = new ArrayList<>();
+        this.languages = new ArrayList<>();
+        this.epubType = new ArrayList<>();
+        this.rights = new ArrayList<>();
+        this.subjects = new ArrayList<>();
     }
 
-    public MetaData(String title, String identifier, List<Contributor> creators, List<Contributor> translators, List<Contributor> editors, List<Contributor> artists, List<Contributor> illustrators, List<Contributor> letterers, List<Contributor> pencilers, List<Contributor> colorists, List<Contributor> inkers, List<Contributor> narrators, List<Contributor> contributors, List<Contributor> publishers, List<Contributor> imprints, List<String> languages, Date modified, Date publicationDate, String description, String direction, Rendition rendition, String source, String[] epubType, List<String> rights, List<Subject> subjects, MetadataItem[] otherMetadata) {
+    public MetaData(String title, String identifier, List<Contributor> creators, List<Contributor> translators, List<Contributor> editors, List<Contributor> artists, List<Contributor> illustrators, List<Contributor> letterers, List<Contributor> pencilers, List<Contributor> colorists, List<Contributor> inkers, List<Contributor> narrators, List<Contributor> contributors, List<Contributor> publishers, List<Contributor> imprints, List<String> languages, Date modified, Date publicationDate, String description, String direction, Rendition rendition, String source, List<String> epubType, List<String> rights, List<Subject> subjects, List<MetadataItem> otherMetadata) {
         this.title = title;
         this.identifier = identifier;
         this.creators = creators;
@@ -106,6 +111,45 @@ public class MetaData {
         this.subjects = subjects;
         this.otherMetadata = otherMetadata;
     }
+
+    protected MetaData(Parcel in) {
+        title = in.readString();
+        identifier = in.readString();
+        creators = in.createTypedArrayList(Contributor.CREATOR);
+        translators = in.createTypedArrayList(Contributor.CREATOR);
+        editors = in.createTypedArrayList(Contributor.CREATOR);
+        artists = in.createTypedArrayList(Contributor.CREATOR);
+        illustrators = in.createTypedArrayList(Contributor.CREATOR);
+        letterers = in.createTypedArrayList(Contributor.CREATOR);
+        pencilers = in.createTypedArrayList(Contributor.CREATOR);
+        colorists = in.createTypedArrayList(Contributor.CREATOR);
+        inkers = in.createTypedArrayList(Contributor.CREATOR);
+        narrators = in.createTypedArrayList(Contributor.CREATOR);
+        contributors = in.createTypedArrayList(Contributor.CREATOR);
+        publishers = in.createTypedArrayList(Contributor.CREATOR);
+        imprints = in.createTypedArrayList(Contributor.CREATOR);
+        languages = in.createStringArrayList();
+        description = in.readString();
+        direction = in.readString();
+        rendition = in.readParcelable(Rendition.class.getClassLoader());
+        source = in.readString();
+        epubType = in.createStringArrayList();
+        rights = in.createStringArrayList();
+        subjects = in.createTypedArrayList(Subject.CREATOR);
+        otherMetadata = in.createTypedArrayList(MetadataItem.CREATOR);
+    }
+
+    public static final Creator<MetaData> CREATOR = new Creator<MetaData>() {
+        @Override
+        public MetaData createFromParcel(Parcel in) {
+            return new MetaData(in);
+        }
+
+        @Override
+        public MetaData[] newArray(int size) {
+            return new MetaData[size];
+        }
+    };
 
     public String getTitle() {
         return title;
@@ -283,11 +327,11 @@ public class MetaData {
         this.source = source;
     }
 
-    public String[] getEpubType() {
+    public List<String> getEpubType() {
         return epubType;
     }
 
-    public void setEpubType(String[] epubType) {
+    public void setEpubType(List<String> epubType) {
         this.epubType = epubType;
     }
 
@@ -307,11 +351,44 @@ public class MetaData {
         this.subjects = subjects;
     }
 
-    public MetadataItem[] getOtherMetadata() {
+    public List<MetadataItem> getOtherMetadata() {
         return otherMetadata;
     }
 
-    public void setOtherMetadata(MetadataItem[] otherMetadata) {
+    public void setOtherMetadata(List<MetadataItem> otherMetadata) {
         this.otherMetadata = otherMetadata;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(identifier);
+        parcel.writeTypedList(creators);
+        parcel.writeTypedList(translators);
+        parcel.writeTypedList(editors);
+        parcel.writeTypedList(artists);
+        parcel.writeTypedList(illustrators);
+        parcel.writeTypedList(letterers);
+        parcel.writeTypedList(pencilers);
+        parcel.writeTypedList(colorists);
+        parcel.writeTypedList(inkers);
+        parcel.writeTypedList(narrators);
+        parcel.writeTypedList(contributors);
+        parcel.writeTypedList(publishers);
+        parcel.writeTypedList(imprints);
+        parcel.writeStringList(languages);
+        parcel.writeString(description);
+        parcel.writeString(direction);
+        parcel.writeParcelable(rendition, i);
+        parcel.writeString(source);
+        parcel.writeStringList(epubType);
+        parcel.writeStringList(rights);
+        parcel.writeTypedList(subjects);
+        parcel.writeTypedList(otherMetadata);
     }
 }

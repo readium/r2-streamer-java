@@ -1,5 +1,7 @@
 package com.codetoart.r2_streamer.model.publication;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import com.codetoart.r2_streamer.model.publication.link.Link;
@@ -17,7 +19,7 @@ import java.util.Map;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class EpubPublication {
+public class EpubPublication implements Parcelable{
     @JsonProperty("metadata")
     public MetaData metadata;
     @JsonProperty("toc")
@@ -94,6 +96,35 @@ public class EpubPublication {
         this.coverLink = coverLink;
     }
 
+    protected EpubPublication(Parcel in) {
+        metadata = in.readParcelable(MetaData.class.getClassLoader());
+        links = in.createTypedArrayList(Link.CREATOR);
+        matchingLinks = in.createTypedArrayList(Link.CREATOR);
+        spines = in.createTypedArrayList(Link.CREATOR);
+        resources = in.createTypedArrayList(Link.CREATOR);
+        guides = in.createTypedArrayList(Link.CREATOR);
+        pageList = in.createTypedArray(Link.CREATOR);
+        landmarks = in.createTypedArray(Link.CREATOR);
+        LOI = in.createTypedArray(Link.CREATOR);
+        LOA = in.createTypedArray(Link.CREATOR);
+        LOV = in.createTypedArray(Link.CREATOR);
+        LOT = in.createTypedArray(Link.CREATOR);
+        otherLinks = in.createTypedArray(Link.CREATOR);
+        coverLink = in.readParcelable(Link.class.getClassLoader());
+    }
+
+    public static final Creator<EpubPublication> CREATOR = new Creator<EpubPublication>() {
+        @Override
+        public EpubPublication createFromParcel(Parcel in) {
+            return new EpubPublication(in);
+        }
+
+        @Override
+        public EpubPublication[] newArray(int size) {
+            return new EpubPublication[size];
+        }
+    };
+
     public Link getCoverLink() {
         return getLink("cover");
     }
@@ -109,16 +140,33 @@ public class EpubPublication {
     }
 
     public Link getResourceMimeType(String resourcePath) {
-        /*for (int i = 0; i < links.size(); i++) {
-            if (links.get(i).href.equals(resourcePath)) {
-                return links.get(i);
-            }
-        }*/
-
         if(linkMap.containsKey(resourcePath)){
             return linkMap.get(resourcePath);
         }
 
         return null;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeParcelable(metadata, i);
+        parcel.writeTypedList(links);
+        parcel.writeTypedList(matchingLinks);
+        parcel.writeTypedList(spines);
+        parcel.writeTypedList(resources);
+        parcel.writeTypedList(guides);
+        parcel.writeTypedArray(pageList, i);
+        parcel.writeTypedArray(landmarks, i);
+        parcel.writeTypedArray(LOI, i);
+        parcel.writeTypedArray(LOA, i);
+        parcel.writeTypedArray(LOV, i);
+        parcel.writeTypedArray(LOT, i);
+        parcel.writeTypedArray(otherLinks, i);
+        parcel.writeParcelable(coverLink, i);
     }
 }
