@@ -47,6 +47,7 @@ public class Link implements Parcelable{
         chapterTitle = in.readString();
         type = in.readString();
         properties = in.createStringArrayList();
+        duration = (Date) in.readSerializable();
         templated = in.readByte() != 0;
     }
 
@@ -175,6 +176,7 @@ public class Link implements Parcelable{
         parcel.writeString(chapterTitle);
         parcel.writeString(type);
         parcel.writeStringList(properties);
+        parcel.writeSerializable(duration);
         parcel.writeByte((byte) (templated ? 1 : 0));
     }
 }

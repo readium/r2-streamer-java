@@ -26,7 +26,7 @@ public class EpubPublication implements Parcelable{
     public ToC tableOfContents;
 
     @JsonIgnore
-    public Map<String,Link> linkMap;
+    public HashMap<String,Link> linkMap;
     @JsonProperty("links")
     public List<Link> links;
     @JsonIgnore
@@ -57,7 +57,7 @@ public class EpubPublication implements Parcelable{
     //public List<Link> LOT;
     public Link[] LOT;
 
-    public Map<String, String> internalData;
+    public HashMap<String, String> internalData;
 
     @JsonIgnore
     //public List<Link> otherLinks;
@@ -98,6 +98,8 @@ public class EpubPublication implements Parcelable{
 
     protected EpubPublication(Parcel in) {
         metadata = in.readParcelable(MetaData.class.getClassLoader());
+        tableOfContents = in.readParcelable(ToC.class.getClassLoader());
+        linkMap = (HashMap) in.readSerializable();
         links = in.createTypedArrayList(Link.CREATOR);
         matchingLinks = in.createTypedArrayList(Link.CREATOR);
         spines = in.createTypedArrayList(Link.CREATOR);
@@ -109,6 +111,7 @@ public class EpubPublication implements Parcelable{
         LOA = in.createTypedArray(Link.CREATOR);
         LOV = in.createTypedArray(Link.CREATOR);
         LOT = in.createTypedArray(Link.CREATOR);
+        internalData = (HashMap) in.readSerializable();
         otherLinks = in.createTypedArray(Link.CREATOR);
         coverLink = in.readParcelable(Link.class.getClassLoader());
     }
@@ -155,6 +158,8 @@ public class EpubPublication implements Parcelable{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeParcelable(metadata, i);
+        parcel.writeParcelable(tableOfContents, i);
+        parcel.writeSerializable(linkMap);
         parcel.writeTypedList(links);
         parcel.writeTypedList(matchingLinks);
         parcel.writeTypedList(spines);
@@ -166,6 +171,7 @@ public class EpubPublication implements Parcelable{
         parcel.writeTypedArray(LOA, i);
         parcel.writeTypedArray(LOV, i);
         parcel.writeTypedArray(LOT, i);
+        parcel.writeSerializable(internalData);
         parcel.writeTypedArray(otherLinks, i);
         parcel.writeParcelable(coverLink, i);
     }

@@ -129,6 +129,8 @@ public class MetaData implements Parcelable{
         publishers = in.createTypedArrayList(Contributor.CREATOR);
         imprints = in.createTypedArrayList(Contributor.CREATOR);
         languages = in.createStringArrayList();
+        modified = (Date) in.readSerializable();
+        publicationDate = (Date) in.readSerializable();
         description = in.readString();
         direction = in.readString();
         rendition = in.readParcelable(Rendition.class.getClassLoader());
@@ -382,6 +384,8 @@ public class MetaData implements Parcelable{
         parcel.writeTypedList(publishers);
         parcel.writeTypedList(imprints);
         parcel.writeStringList(languages);
+        parcel.writeSerializable(modified);
+        parcel.writeSerializable(publicationDate);
         parcel.writeString(description);
         parcel.writeString(direction);
         parcel.writeParcelable(rendition, i);
