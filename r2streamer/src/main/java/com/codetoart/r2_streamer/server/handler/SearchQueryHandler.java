@@ -7,20 +7,16 @@ import android.util.Log;
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
 import com.codetoart.r2_streamer.fetcher.EpubFetcherException;
 import com.codetoart.r2_streamer.model.publication.link.Link;
+import com.codetoart.r2_streamer.model.searcher.SearchQueryResults;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.ResponseStatus;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,8 +29,6 @@ import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
-
-import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 /**
  * Created by Shrikant Badwaik on 17-Feb-17.
@@ -76,7 +70,8 @@ public class SearchQueryHandler extends DefaultHandler {
             int startIndex = queryParameter.indexOf("=");
             String searchQueryPath = queryParameter.substring(startIndex + 1);
 
-            JSONArray searchArray = new JSONArray();
+            //JSONArray searchArray = new JSONArray();
+            SearchQueryResults searchQueryResults = new SearchQueryResults();
             for (Link link : fetcher.publication.spines) {
                 String searchData = fetcher.getData(link.getHref());
                 Pattern pattern = Pattern.compile(searchQueryPath);
@@ -89,6 +84,7 @@ public class SearchQueryHandler extends DefaultHandler {
                     String matchString = removeHtmlTags(match);
 
                     SearchResult searchResult = new SearchResult();
+                    searchResult.setSearchIndex(start);
                     searchResult.setResource(link.getHref());
                     searchResult.setMatchString(matchString);
                     searchResult.setTextBefore(prev);
@@ -100,25 +96,33 @@ public class SearchQueryHandler extends DefaultHandler {
                     } else {
                         searchResult.setTitle("Title not available");
                     }
+                    searchQueryResults.searchResultList.add(searchResult);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    /*ObjectMapper objectMapper = new ObjectMapper();
                     String json = objectMapper.writeValueAsString(searchResult);
-                    Log.d(TAG, "JSON : " + json);
+                    Log.d(TAG, "SEARCH_JSON : " + json);
 
                     JSONObject searchObject = new JSONObject();
                     searchObject.put(JSON_STRING, json);
-                    searchArray.put(searchObject);
+                    searchArray.put(searchObject);*/
                 }
             }
-            response = NanoHTTPD.newFixedLengthResponse(searchArray.toString());
-        } catch (EpubFetcherException | JSONException | JsonGenerationException | JsonMappingException e) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(searchQueryResults);
+            response = NanoHTTPD.newFixedLengthResponse(Status.OK, getMimeType(), json);
+            //response = NanoHTTPD.newFixedLengthResponse(searchArray.toString());
+
+            return response;
+        } catch (EpubFetcherException | JsonProcessingException e) {
+            e.printStackTrace();
+            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
+        } /*catch (EpubFetcherException | JSONException | JsonGenerationException | JsonMappingException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         } catch (IOException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
-        }
-        return response;
+        }*/
     }
 
     @Nullable

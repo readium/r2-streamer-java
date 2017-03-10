@@ -16,19 +16,14 @@ import com.codetoart.r2_streamer.model.container.Container;
 import com.codetoart.r2_streamer.model.container.EpubContainer;
 import com.codetoart.r2_streamer.model.publication.EpubPublication;
 import com.codetoart.r2_streamer.model.publication.link.Link;
+import com.codetoart.r2_streamer.model.searcher.SearchQueryResults;
 import com.codetoart.r2_streamer.model.searcher.SearchResult;
 import com.codetoart.r2_streamer.server.EpubServer;
 import com.codetoart.r2_streamer.server.EpubServerSingleton;
 import com.codetoart.sample.adapters.SearchListAdapter;
 import com.codetoart.sample.adapters.SpineListAdapter;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,8 +37,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -138,8 +131,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
-        //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
+        //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
@@ -161,7 +154,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     stringBuilder.append(line);
                 }
 
-                Log.d("TestActivity", "EpubPublication => "+stringBuilder.toString());
+                Log.d("TestActivity", "EpubPublication => " + stringBuilder.toString());
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -182,10 +175,10 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    class SearchListTask extends AsyncTask<String, Void, JSONArray> {
+    class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> {
 
         @Override
-        protected JSONArray doInBackground(String... urls) {
+        protected SearchQueryResults doInBackground(String... urls) {
             String strUrl = urls[0];
             try {
                 URL url = new URL(strUrl);
@@ -199,36 +192,42 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                     stringBuilder.append(line);
                 }
 
-                return new JSONArray(stringBuilder.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                SearchQueryResults results = objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
+                return results;
+                //return new JSONArray(stringBuilder.toString());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }/*catch (JSONException e) {
+                e.printStackTrace();
+            }*/
             return null;
         }
 
         @Override
-        protected void onPostExecute(JSONArray jsonArray) {
-            try {
-                for (int index = 0; index < jsonArray.length(); index++) {
+        protected void onPostExecute(SearchQueryResults results) {
+            //try {
+                /*for (int index = 0; index < jsonArray.length(); index++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(index);
                     Object object = jsonObject.get(JSON_STRING);
 
                     ObjectMapper objectMapper = new ObjectMapper();
                     SearchResult searchResult = objectMapper.readValue(object.toString(), SearchResult.class);
                     searchList.add(searchResult);
-                }
-                SearchListAdapter adapter = new SearchListAdapter(TestActivity.this, searchList);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(TestActivity.this);
-            } catch (JSONException | JsonParseException | JsonMappingException e) {
+                }*/
+
+            searchList = results.searchResultList;
+            SearchListAdapter adapter = new SearchListAdapter(TestActivity.this, searchList);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(TestActivity.this);
+            /*} catch (JSONException | JsonParseException | JsonMappingException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 }

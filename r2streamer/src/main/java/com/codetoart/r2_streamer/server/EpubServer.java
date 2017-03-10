@@ -16,8 +16,6 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
  */
 
 public class EpubServer extends RouterNanoHTTPD {
-    private static final String SPINE_HANDLE = "/spines";
-    private static final String TOC_HANDLE = "/toc";
     private static final String SEARCH_QUERY_HANDLE = "/search";
     private static final String MANIFEST_HANDLE = "/manifest";
     private static final String MANIFEST_ITEM_HANDLE = "/(.*)";

@@ -5,6 +5,7 @@ package com.codetoart.r2_streamer.model.searcher;
  */
 
 public class SearchResult {
+    private int searchIndex;
     private String resource;
     private String title;
     private String matchString;
@@ -14,12 +15,21 @@ public class SearchResult {
     public SearchResult() {
     }
 
-    public SearchResult(String resource, String title, String matchString, String textBefore, String textAfter) {
+    public SearchResult(int searchIndex, String resource, String title, String matchString, String textBefore, String textAfter) {
+        this.searchIndex = searchIndex;
         this.resource = resource;
         this.title = title;
         this.matchString = matchString;
         this.textBefore = textBefore;
         this.textAfter = textAfter;
+    }
+
+    public int getSearchIndex() {
+        return searchIndex;
+    }
+
+    public void setSearchIndex(int searchIndex) {
+        this.searchIndex = searchIndex;
     }
 
     public String getResource() {
