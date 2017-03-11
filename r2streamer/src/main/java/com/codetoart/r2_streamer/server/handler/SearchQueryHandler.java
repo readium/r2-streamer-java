@@ -2,6 +2,7 @@ package com.codetoart.r2_streamer.server.handler;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.util.Log;
 
 import com.codetoart.r2_streamer.fetcher.EpubFetcher;
@@ -74,19 +75,20 @@ public class SearchQueryHandler extends DefaultHandler {
             SearchQueryResults searchQueryResults = new SearchQueryResults();
             for (Link link : fetcher.publication.spines) {
                 String searchData = fetcher.getData(link.getHref());
-                Pattern pattern = Pattern.compile(searchQueryPath);
-                Matcher matcher = pattern.matcher(searchData);
+                String htmlText = removeHtmlTags(searchData);
+                Pattern pattern = Pattern.compile("\\b" + searchQueryPath + "\\b");     //finding exact word?
+                Matcher matcher = pattern.matcher(htmlText);
                 while (matcher.find()) {
                     int start = matcher.start();
-                    String prev = searchData.substring(start - 20, start);
-                    String next = searchData.substring(start + searchQueryPath.length(), start + 20);
+                    String prev = htmlText.substring(start - 20, start);
+                    String next = htmlText.substring(start + searchQueryPath.length(), start + 20);
                     String match = prev.concat(searchQueryPath).concat(next);
-                    String matchString = removeHtmlTags(match);
+                    //String matchString = removeHtmlTags(match);
 
                     SearchResult searchResult = new SearchResult();
                     searchResult.setSearchIndex(start);
                     searchResult.setResource(link.getHref());
-                    searchResult.setMatchString(matchString);
+                    searchResult.setMatchString(match);
                     searchResult.setTextBefore(prev);
                     searchResult.setTextAfter(next);
 
@@ -146,14 +148,21 @@ public class SearchQueryHandler extends DefaultHandler {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     private String removeHtmlTags(String html) {
-        html = html.replaceAll("<(.*?)\\>", " ");
+        /*html = html.replaceAll("<(.*?)\\>", " ");
         html = html.replaceAll("<(.*?)\\\n", " ");
         html = html.replaceFirst("(.*?)\\>", " ");
-        html = html.replaceAll("<[^>]*", " ");
-        html = html.replaceAll("<[^>]+>", " ");
-        html = html.replaceAll("[^<]*>", " ");
+        //html = html.replaceAll("<[^>]*", " ");
+        //html = html.replaceAll("<[^>]+>", " ");
+        //html = html.replaceAll("[^<]*>", " ");
         html = html.replaceAll("&nbsp;", " ");
-        return html.replaceAll("&amp;", " ");
+        return html.replaceAll("&amp;", " ");*/
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString();
+        } else {
+            return Html.fromHtml(html).toString();
+        }
     }
 }
