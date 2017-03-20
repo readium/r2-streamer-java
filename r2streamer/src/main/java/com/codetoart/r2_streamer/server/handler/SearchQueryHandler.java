@@ -76,14 +76,16 @@ public class SearchQueryHandler extends DefaultHandler {
             for (Link link : fetcher.publication.spines) {
                 String searchData = fetcher.getData(link.getHref());
                 String htmlText = removeHtmlTags(searchData);
-                Pattern pattern = Pattern.compile("\\b" + searchQueryPath + "\\b");     //finding exact word?
+                Pattern pattern = Pattern.compile(searchQueryPath);
                 Matcher matcher = pattern.matcher(htmlText);
                 while (matcher.find()) {
                     int start = matcher.start();
-                    String prev = htmlText.substring(start - 20, start);
-                    String next = htmlText.substring(start + searchQueryPath.length(), start + 20);
+
+                    String prev = getTextBefore(start, htmlText);
+                    //String prev = htmlText.substring(start - 20, start);
+                    String next = getTextAfter(start, searchQueryPath, htmlText);
+                    //String next = htmlText.substring(start + searchQueryPath.length(), (start + searchQueryPath.length()) + 20);
                     String match = prev.concat(searchQueryPath).concat(next);
-                    //String matchString = removeHtmlTags(match);
 
                     SearchResult searchResult = new SearchResult();
                     searchResult.setSearchIndex(start);
@@ -150,19 +152,28 @@ public class SearchQueryHandler extends DefaultHandler {
     @NonNull
     @SuppressWarnings("deprecation")
     private String removeHtmlTags(String html) {
-        /*html = html.replaceAll("<(.*?)\\>", " ");
-        html = html.replaceAll("<(.*?)\\\n", " ");
-        html = html.replaceFirst("(.*?)\\>", " ");
-        //html = html.replaceAll("<[^>]*", " ");
-        //html = html.replaceAll("<[^>]+>", " ");
-        //html = html.replaceAll("[^<]*>", " ");
-        html = html.replaceAll("&nbsp;", " ");
-        return html.replaceAll("&amp;", " ");*/
-
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString();
         } else {
             return Html.fromHtml(html).toString();
+        }
+    }
+
+    private String getTextBefore(int start, String htmlString) {
+        int beginIndex = start - 20;
+        if (beginIndex >= 0 && beginIndex < htmlString.length()) {
+            return htmlString.substring(beginIndex, start);
+        } else {
+            return htmlString.substring(0, start);
+        }
+    }
+
+    private String getTextAfter(int start, String searchQueryPath, String htmlString) {
+        int beginIndex = start + searchQueryPath.length();
+        if ((beginIndex + 20) > htmlString.length()) {
+            return htmlString.substring(beginIndex);
+        } else {
+            return htmlString.substring(beginIndex, beginIndex + 20);
         }
     }
 }
