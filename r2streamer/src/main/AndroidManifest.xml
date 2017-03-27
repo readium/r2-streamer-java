@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.codetoart.r2_streamer">
+    package="com.readium.r2_streamer">
 
     <application>
-        <activity android:name=".MainActivity"/>
+        <activity android:name="com.readium.r2_streamer.MainActivity"/>
     </application>
 
 </manifest>
