@@ -1,1 +1,1 @@
-include ':r2streamer', ':sample'
+include ':sample', ':parser', ':server', ':fetcher'

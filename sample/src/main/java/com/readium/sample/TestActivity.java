@@ -32,14 +32,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.readium.r2_streamer.util.Constants.EPUBTITLE;
-
+import static com.readium.r2_streamer.model.Constants.EPUBTITLE;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
@@ -164,9 +162,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                EpubPublication epubPublication = objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
 
-                return epubPublication;
+                return objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -201,10 +198,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                SearchQueryResults results = objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
-                return results;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+                return objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }

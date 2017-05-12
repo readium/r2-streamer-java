@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile project(':fetcher')
+
+    compile 'org.nanohttpd:nanohttpd:2.3.1'
+    compile 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"

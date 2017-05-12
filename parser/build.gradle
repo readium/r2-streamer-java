@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+    final JACKSON_VERSION = '2.8.6'
+
+    compile "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
+    compile "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
+    compile "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
