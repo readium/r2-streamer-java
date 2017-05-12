@@ -1,16 +1,22 @@
 package com.readium.sample;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +47,7 @@ import static com.readium.r2_streamer.model.Constants.EPUBTITLE;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
+    private static final int WRITE_EXST = 100;
     private final String TAG = "TestActivity";
     private EpubServer mEpubServer;
 
@@ -52,6 +59,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
         setContentView(R.layout.activity_sample_main);
         searchBar = (EditText) findViewById(R.id.searchField);
         listView = (ListView) findViewById(R.id.list);
@@ -211,6 +219,29 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             SearchListAdapter adapter = new SearchListAdapter(TestActivity.this, searchList);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(TestActivity.this);
+        }
+    }
+
+    private void askForPermission(String permission, Integer requestCode) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == WRITE_EXST) {
+                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 }
