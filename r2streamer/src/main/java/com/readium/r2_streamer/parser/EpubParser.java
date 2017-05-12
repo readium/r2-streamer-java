@@ -545,8 +545,11 @@ public class EpubParser {
         NodeList navPointNodes = navMapElement.getChildNodes();
         if (navPointNodes != null) {
             for (int i = 0; i < navPointNodes.getLength(); i++) {
-                Element navPointElement = (Element) navPointNodes.item(i);
-                publication.tableOfContents.tocLinks.add(parseNavPointElement(navPointElement, packageName));
+                Node node = navPointNodes.item(i);
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element navPointElement = (Element) node;
+                    publication.tableOfContents.tocLinks.add(parseNavPointElement(navPointElement, packageName));
+                }
             }
             publication.tableOfContents.tocLinks.size();
         }
