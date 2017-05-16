@@ -77,7 +77,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         String path = ROOT_EPUB_PATH + EPUBTITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
 
         searchList.clear();
         String searchQuery = searchBar.getText().toString();
@@ -86,7 +86,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         if (searchQuery.length() != 0) {
-            String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/search?query=" + searchQuery;
+            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/search?query=" + searchQuery;
             new SearchListTask().execute(urlString);
         }
     }
@@ -95,10 +95,10 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         String path = ROOT_EPUB_PATH + EPUBTITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/manifest";
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/manifest";
         new SpineListTask().execute(urlString);
     }
 
@@ -137,7 +137,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
