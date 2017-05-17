@@ -22,6 +22,14 @@ public class ToC implements Serializable {
         this.tocLinks = navPoint;
     }
 
+    @Override
+    public String toString() {
+        return "ToC{" +
+                "docTitle='" + docTitle + '\'' +
+                ", tocLinks=" + tocLinks +
+                '}';
+    }
+
     public String getDocTitle() {
         return docTitle;
     }

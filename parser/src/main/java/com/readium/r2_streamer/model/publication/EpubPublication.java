@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -92,6 +93,29 @@ public class EpubPublication implements Serializable{
         this.internalData = internalData;
         this.otherLinks = otherLinks;
         this.coverLink = coverLink;
+    }
+
+    @Override
+    public String toString() {
+        return "EpubPublication{" +
+                "metadata=" + metadata +
+                ", tableOfContents=" + tableOfContents +
+                ", linkMap=" + linkMap +
+                ", links=" + links +
+                ", matchingLinks=" + matchingLinks +
+                ", spines=" + spines +
+                ", resources=" + resources +
+                ", guides=" + guides +
+                ", pageList=" + Arrays.toString(pageList) +
+                ", landmarks=" + Arrays.toString(landmarks) +
+                ", LOI=" + Arrays.toString(LOI) +
+                ", LOA=" + Arrays.toString(LOA) +
+                ", LOV=" + Arrays.toString(LOV) +
+                ", LOT=" + Arrays.toString(LOT) +
+                ", internalData=" + internalData +
+                ", otherLinks=" + Arrays.toString(otherLinks) +
+                ", coverLink=" + coverLink +
+                '}';
     }
 
     private Link getLink(String coverPath) {

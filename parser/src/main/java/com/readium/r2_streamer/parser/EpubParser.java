@@ -10,8 +10,8 @@ import com.readium.r2_streamer.model.publication.rendition.RenditionLayout;
 import com.readium.r2_streamer.model.publication.rendition.RenditionOrientation;
 import com.readium.r2_streamer.model.publication.rendition.RenditionSpread;
 import com.readium.r2_streamer.model.publication.subject.Subject;
-import com.readium.r2_streamer.model.tableofcontents.ToC;
 import com.readium.r2_streamer.model.tableofcontents.TOCLink;
+import com.readium.r2_streamer.model.tableofcontents.ToC;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -60,7 +60,7 @@ public class EpubParser {
                 return publication;
             }
         } catch (EpubParserException e) {
-            e.printStackTrace();
+            System.out.println(TAG + " parserEpubFile() error " + e.toString());
         }
         return null;
     }
@@ -436,8 +436,11 @@ public class EpubParser {
     private void parseSpineAndResourcesAndGuide(Document document, EpubPublication publication, String coverId, String rootFile) throws EpubParserException {
         int startIndex = 0;
         int endIndex = rootFile.indexOf("/");
-        String packageName = rootFile.substring(startIndex, endIndex);
-
+        System.out.println(TAG + " rootFile:= " + rootFile);
+        String packageName = "";
+        if (endIndex != -1) {
+            packageName = rootFile.substring(startIndex, endIndex) + "/";
+        }
         Map<String, Link> manifestLinks = new HashMap<>();
 
         NodeList itemNodes = document.getElementsByTagName("item");
@@ -451,7 +454,7 @@ public class EpubParser {
                     Attr attr = (Attr) nodeMap.item(j);
                     switch (attr.getNodeName()) {
                         case "href":
-                            link.href = packageName + "/" + attr.getNodeValue();
+                            link.href = packageName + attr.getNodeValue();
                             break;
                         case "media-type":
                             link.typeLink = attr.getNodeValue();
@@ -469,6 +472,9 @@ public class EpubParser {
                 }
 
                 String id = itemElement.getAttribute("id");
+                if (id.equalsIgnoreCase("ncx")) {
+                    parseNCXFile(link.getHref(), packageName);
+                }
                 link.setId(id);
 
                 if (id.equals(coverId)) {
@@ -484,10 +490,6 @@ public class EpubParser {
                 //publication.links.add(link);
                 publication.linkMap.put(link.href, link);
                 manifestLinks.put(id, link);
-
-                if ((link.getTypeLink().equals("application/x-dtbncx+xml")) && (link.getHref().endsWith(".ncx"))) {
-                    parseNCXFile(link.getHref(), packageName);
-                }
             }
             //Log.d(TAG, "Link count: " + publication.linkMap.size());
         }
@@ -524,9 +526,10 @@ public class EpubParser {
     private void parseNCXFile(String ncxFile, String packageName) throws EpubParserException {
         String ncxData = container.rawData(ncxFile);
         if (ncxData == null) {
-            //Log.e(TAG, "File is missing: " + ncxFile);
+            System.out.println(TAG + " File is missing: " + ncxFile);
             throw new EpubParserException("File is missing");
         }
+        System.out.println(TAG + " ncxData " + ncxData);
         Document document = xmlParser(ncxData);
         if (document == null) {
             throw new EpubParserException("Error while parsing");
@@ -542,8 +545,11 @@ public class EpubParser {
         NodeList navPointNodes = navMapElement.getChildNodes();
         if (navPointNodes != null) {
             for (int i = 0; i < navPointNodes.getLength(); i++) {
-                Element navPointElement = (Element) navPointNodes.item(i);
-                publication.tableOfContents.tocLinks.add(parseNavPointElement(navPointElement, packageName));
+                Node node = navPointNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element navPointElement = (Element) navPointNodes.item(i);
+                    publication.tableOfContents.tocLinks.add(parseNavPointElement(navPointElement, packageName));
+                }
             }
             publication.tableOfContents.tocLinks.size();
         }
@@ -565,7 +571,7 @@ public class EpubParser {
                 tocLink.setSectionTitle(parseTOCLabel(labelNodes));
             } else if (childNode.getNodeName().equals("content")) {
                 NodeList contentNodes = element.getElementsByTagName("content");
-                tocLink.setHref(packageName + "/" + parseTOCResourceLink(contentNodes));
+                tocLink.setHref(packageName + parseTOCResourceLink(contentNodes));
             } else if (childNode.getNodeName().equals("navPoint")) {
                 Element navPointElement = (Element) childNode;
                 navPointList.add(parseNavPointElement(navPointElement, packageName));

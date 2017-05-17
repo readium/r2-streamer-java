@@ -25,6 +25,17 @@ public class Rendition implements Serializable {
         this.viewport = viewport;
     }
 
+    @Override
+    public String toString() {
+        return "Rendition{" +
+                "layout=" + layout +
+                ", flow=" + flow +
+                ", orientation=" + orientation +
+                ", spread=" + spread +
+                ", viewport='" + viewport + '\'' +
+                '}';
+    }
+
     public RenditionLayout getLayout() {
         return layout;
     }

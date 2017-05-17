@@ -1,6 +1,7 @@
 package com.readium.sample;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -43,9 +44,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.readium.r2_streamer.model.Constants.EPUBTITLE;
-
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+    private static final String EPUBTITLE = "BARRETT_GUIDE.epub";
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
     private static final int WRITE_EXST = 100;
     private final String TAG = "TestActivity";
@@ -55,10 +55,19 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     private ListView listView;
     private List<Link> manifestItemList = new ArrayList<>();
     private List<SearchResult> searchList = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading.... ");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+
         askForPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXST);
         setContentView(R.layout.activity_sample_main);
         searchBar = (EditText) findViewById(R.id.searchField);
@@ -75,15 +84,16 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             mEpubServer = EpubServerSingleton.getEpubServerInstance();
             mEpubServer.start();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "startServer IOException " + e.toString());
         }
     }
 
     public void find(View view) throws IOException {
+        progressDialog.show();
         String path = ROOT_EPUB_PATH + EPUBTITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/" + EPUBTITLE);
 
         searchList.clear();
         String searchQuery = searchBar.getText().toString();
@@ -92,19 +102,20 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         if (searchQuery.length() != 0) {
-            String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/search?query=" + searchQuery;
+            String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/search?query=" + searchQuery;
             new SearchListTask().execute(urlString);
         }
     }
 
     public void show(View view) throws IOException {
+        progressDialog.show();
         String path = ROOT_EPUB_PATH + EPUBTITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/BARRETT_GUIDE.epub");
+        mEpubServer.addEpub(epubContainer, "/" + EPUBTITLE);
 
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/manifest";
+        String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/manifest";
         new SpineListTask().execute(urlString);
     }
 
@@ -137,13 +148,13 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             fos.close();
             fis.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "copyEpubFromAssetsToSdCard IOException " + e.toString());
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -173,7 +184,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 return objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "SpineListTask error " + e);
             }
             return null;
         }
@@ -184,6 +195,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             SpineListAdapter arrayAdapter = new SpineListAdapter(TestActivity.this, manifestItemList);
             listView.setAdapter(arrayAdapter);
             listView.setOnItemClickListener(TestActivity.this);
+            cancel(true);
+            progressDialog.dismiss();
         }
     }
 
@@ -208,7 +221,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 return objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "SearchListTask IOException " + e.toString());
             }
             return null;
         }
@@ -219,6 +232,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             SearchListAdapter adapter = new SearchListAdapter(TestActivity.this, searchList);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener(TestActivity.this);
+            cancel(true);
+            progressDialog.dismiss();
         }
     }
 

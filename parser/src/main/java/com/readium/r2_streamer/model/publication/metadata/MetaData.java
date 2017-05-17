@@ -95,6 +95,38 @@ public class MetaData implements Serializable {
         this.otherMetadata = otherMetadata;
     }
 
+    @Override
+    public String toString() {
+        return "MetaData{" +
+                "title='" + title + '\'' +
+                ", identifier='" + identifier + '\'' +
+                ", creators=" + creators +
+                ", translators=" + translators +
+                ", editors=" + editors +
+                ", artists=" + artists +
+                ", illustrators=" + illustrators +
+                ", letterers=" + letterers +
+                ", pencilers=" + pencilers +
+                ", colorists=" + colorists +
+                ", inkers=" + inkers +
+                ", narrators=" + narrators +
+                ", contributors=" + contributors +
+                ", publishers=" + publishers +
+                ", imprints=" + imprints +
+                ", languages=" + languages +
+                ", modified=" + modified +
+                ", publicationDate=" + publicationDate +
+                ", description='" + description + '\'' +
+                ", direction='" + direction + '\'' +
+                ", rendition=" + rendition +
+                ", source='" + source + '\'' +
+                ", epubType=" + epubType +
+                ", rights=" + rights +
+                ", subjects=" + subjects +
+                ", otherMetadata=" + otherMetadata +
+                '}';
+    }
+
     public String getTitle() {
         return title;
     }

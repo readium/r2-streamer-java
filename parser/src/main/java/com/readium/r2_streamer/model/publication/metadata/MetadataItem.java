@@ -21,4 +21,13 @@ public class MetadataItem implements Serializable {
         this.value = value;
         this.children = children;
     }
+
+    @Override
+    public String toString() {
+        return "MetadataItem{" +
+                "property='" + property + '\'' +
+                ", value='" + value + '\'' +
+                ", children=" + children +
+                '}';
+    }
 }

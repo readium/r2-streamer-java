@@ -26,6 +26,15 @@ public class TOCLink extends Link implements Serializable{
         this.tocLinks = navPoints;
     }
 
+    @Override
+    public String toString() {
+        return "TOCLink{" +
+                "sectionTitle='" + sectionTitle + '\'' +
+                ", playOrder='" + playOrder + '\'' +
+                ", tocLinks=" + tocLinks +
+                '}';
+    }
+
     public String getSectionTitle() {
         return sectionTitle;
     }

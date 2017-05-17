@@ -35,6 +35,24 @@ public class Link implements Serializable {
         this.typeLink = typeLink;
     }
 
+    @Override
+    public String toString() {
+        return "Link{" +
+                "id='" + id + '\'' +
+                ", href='" + href + '\'' +
+                ", rel=" + rel +
+                ", typeLink='" + typeLink + '\'' +
+                ", height=" + height +
+                ", width=" + width +
+                ", bookTitle='" + bookTitle + '\'' +
+                ", chapterTitle='" + chapterTitle + '\'' +
+                ", type='" + type + '\'' +
+                ", properties=" + properties +
+                ", duration=" + duration +
+                ", templated=" + templated +
+                '}';
+    }
+
     public String getId() {
         return id;
     }

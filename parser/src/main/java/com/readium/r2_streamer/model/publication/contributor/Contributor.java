@@ -16,6 +16,16 @@ public class Contributor implements Serializable {
     public Contributor() {
     }
 
+    @Override
+    public String toString() {
+        return "Contributor{" +
+                "name='" + name + '\'' +
+                ", sortAs='" + sortAs + '\'' +
+                ", identifier='" + identifier + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
+
     public Contributor(String name) {
         this.name = name;
     }

@@ -18,6 +18,16 @@ public class Subject implements Serializable{
     public Subject() {
     }
 
+    @Override
+    public String toString() {
+        return "Subject{" +
+                "name='" + name + '\'' +
+                ", sortAs='" + sortAs + '\'' +
+                ", scheme='" + scheme + '\'' +
+                ", code='" + code + '\'' +
+                '}';
+    }
+
     public Subject(String name) {
         this.name = name;
     }
