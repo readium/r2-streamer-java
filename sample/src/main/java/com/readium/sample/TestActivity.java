@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private static final String EPUBTITLE = "BARRETT_GUIDE.epub";
+    private static final String EPUBTITLE = "TheSilverChair.epub";
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
     private static final int WRITE_EXST = 100;
     private final String TAG = "TestActivity";
@@ -63,7 +63,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading.... ");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
@@ -89,31 +89,34 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void find(View view) throws IOException {
-        progressDialog.show();
+        addEpub();
+        searchList.clear();
+        String searchQuery = searchBar.getText().toString();
+        if (!searchQuery.isEmpty()) {
+            progressDialog.show();
+            if (searchQuery.contains(" ")) {
+                searchQuery = searchQuery.replaceAll(" ", "%20");
+            }
+            if (searchQuery.length() != 0) {
+                String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/search?query=" + searchQuery;
+                new SearchListTask().execute(urlString);
+            }
+        } else {
+            searchBar.requestFocus();
+            searchBar.setError("Enter search query");
+        }
+    }
+
+    private void addEpub() throws IOException {
         String path = ROOT_EPUB_PATH + EPUBTITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
         mEpubServer.addEpub(epubContainer, "/" + EPUBTITLE);
-
-        searchList.clear();
-        String searchQuery = searchBar.getText().toString();
-        if (searchQuery.contains(" ")) {
-            searchQuery = searchQuery.replaceAll(" ", "%20");
-        }
-
-        if (searchQuery.length() != 0) {
-            String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/search?query=" + searchQuery;
-            new SearchListTask().execute(urlString);
-        }
     }
 
     public void show(View view) throws IOException {
         progressDialog.show();
-        String path = ROOT_EPUB_PATH + EPUBTITLE;
-        //DirectoryContainer directoryContainer = new DirectoryContainer(path);
-        Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + EPUBTITLE);
-
+        addEpub();
         manifestItemList.clear();
         String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/manifest";
         new SpineListTask().execute(urlString);
