@@ -14,6 +14,13 @@ public class EpubServerSingleton {
         return epubServerInstance;
     }
 
+    public static EpubServer getEpubServerInstance(int portNumber) {
+        if (epubServerInstance == null) {
+            epubServerInstance = new EpubServer(portNumber);
+        }
+        return epubServerInstance;
+    }
+
     public static void resetServerInstance() {
         epubServerInstance = null;
     }

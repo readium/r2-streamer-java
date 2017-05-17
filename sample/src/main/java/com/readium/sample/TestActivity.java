@@ -51,6 +51,8 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     private final String TAG = "TestActivity";
     private EpubServer mEpubServer;
 
+    private int portNumber = 3000;
+
     private EditText searchBar;
     private ListView listView;
     private List<Link> manifestItemList = new ArrayList<>();
@@ -76,12 +78,12 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         copyEpubFromAssetsToSdCard(EPUBTITLE);
         startServer();
 
-        Log.d(TAG, "Server is running. Point your browser at http://localhost:8080/");
+        Log.d(TAG, "Server is running. Point your browser at http://localhost:" + portNumber + "/");
     }
 
     private void startServer() {
         try {
-            mEpubServer = EpubServerSingleton.getEpubServerInstance();
+            mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
             mEpubServer.start();
         } catch (IOException e) {
             Log.e(TAG, "startServer IOException " + e.toString());
@@ -98,7 +100,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                 searchQuery = searchQuery.replaceAll(" ", "%20");
             }
             if (searchQuery.length() != 0) {
-                String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/search?query=" + searchQuery;
+                String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/search?query=" + searchQuery;
                 new SearchListTask().execute(urlString);
             }
         } else {
@@ -118,7 +120,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         progressDialog.show();
         addEpub();
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/manifest";
+        String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/manifest";
         new SpineListTask().execute(urlString);
     }
 
@@ -157,7 +159,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:8080/" + EPUBTITLE + "/" + manifestItemList.get(position).getHref();
+        String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
