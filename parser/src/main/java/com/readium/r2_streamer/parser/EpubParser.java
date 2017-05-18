@@ -1,6 +1,7 @@
 package com.readium.r2_streamer.parser;
 
 import com.readium.r2_streamer.model.container.Container;
+import com.readium.r2_streamer.model.publication.Encryption;
 import com.readium.r2_streamer.model.publication.EpubPublication;
 import com.readium.r2_streamer.model.publication.contributor.Contributor;
 import com.readium.r2_streamer.model.publication.link.Link;
@@ -57,6 +58,7 @@ public class EpubParser {
             if (isMimeTypeValid()) {
                 rootFile = parseContainer();
                 this.publication = parseOpfFile(rootFile);
+                parseEncryption();
                 return publication;
             }
         } catch (EpubParserException e) {
@@ -91,6 +93,45 @@ public class EpubParser {
             throw new EpubParserException("Error while parsing");
         }
         return opfFile;
+    }
+
+
+    private String parseEncryption() {
+        String containerPath = "META-INF/encryption.xml";
+        try {
+            String containerData = container.rawData(containerPath);
+            Document encryptionDocument = xmlParser(containerData);
+            if (encryptionDocument == null) {
+                throw new EpubParserException("Error while paring META-INF/encryption.xml");
+            }
+            NodeList element = encryptionDocument.getDocumentElement().getElementsByTagName("EncryptedData");
+
+            List<Encryption> encryptions = new ArrayList<>();
+            for (int i = 0; i < element.getLength(); i++) {
+                Encryption encryption = new Encryption();
+                Element algorithmElement = (Element) ((Element) element.item(i)).getElementsByTagName("EncryptionMethod").item(0);
+                Element pathElement = (Element) ((Element) ((Element) element.item(i)).getElementsByTagName("CipherData").item(0)).getElementsByTagName("CipherReference").item(0);
+                if (algorithmElement != null) {
+                    if (algorithmElement.hasAttribute("Algorithm")) {
+                        encryption.setAlgorithm(algorithmElement.getAttribute("Algorithm"));
+                    }
+                }
+                if (pathElement != null) {
+                    if (pathElement.hasAttribute("URI")) {
+                        encryption.setAlgorithm(pathElement.getAttribute("URI"));
+                    }
+                }
+                //TODO properties
+                //TODO LCP
+                encryptions.add(encryption);
+            }
+            publication.encryptions = encryptions;
+        } catch (EpubParserException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            System.out.println(TAG + " META-INF/encryption.xml not found " + e);
+        }
+        return null;
     }
 
     //@Nullable

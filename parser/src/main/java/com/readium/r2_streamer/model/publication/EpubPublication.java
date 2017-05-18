@@ -37,6 +37,9 @@ public class EpubPublication implements Serializable{
     @JsonIgnore
     public List<Link> guides;
 
+    @JsonIgnore
+    public List<Encryption> encryptions;
+
     //public List<Link> pageList;
     @JsonIgnore
     public Link[] pageList;
@@ -69,6 +72,7 @@ public class EpubPublication implements Serializable{
         this.matchingLinks = new ArrayList<>();
         this.links = new ArrayList<>();
         this.spines = new ArrayList<>();
+        this.encryptions = new ArrayList<>();
         this.resources = new ArrayList<>();
         this.guides= new ArrayList<>();
         this.internalData = new HashMap<>();
@@ -104,6 +108,7 @@ public class EpubPublication implements Serializable{
                 ", links=" + links +
                 ", matchingLinks=" + matchingLinks +
                 ", spines=" + spines +
+                ", encryptions=" + encryptions +
                 ", resources=" + resources +
                 ", guides=" + guides +
                 ", pageList=" + Arrays.toString(pageList) +
