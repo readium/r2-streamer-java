@@ -118,7 +118,7 @@ public class EpubParser {
                 }
                 if (pathElement != null) {
                     if (pathElement.hasAttribute("URI")) {
-                        encryption.setAlgorithm(pathElement.getAttribute("URI"));
+                        encryption.setProfile(pathElement.getAttribute("URI"));
                     }
                 }
                 //TODO properties

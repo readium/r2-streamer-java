@@ -1,10 +1,12 @@
 package com.readium.r2_streamer.server.handler;
 
-//import android.util.Log;
-
 import com.readium.r2_streamer.fetcher.EpubFetcher;
 import com.readium.r2_streamer.fetcher.EpubFetcherException;
+import com.readium.r2_streamer.model.container.Container;
+import com.readium.r2_streamer.model.container.EpubContainer;
+import com.readium.r2_streamer.model.publication.Encryption;
 import com.readium.r2_streamer.model.publication.link.Link;
+import com.readium.r2_streamer.parser.Decoder;
 import com.readium.r2_streamer.server.ResponseStatus;
 
 import java.io.IOException;
@@ -28,7 +30,6 @@ import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
 
 public class ResourceHandler extends DefaultHandler {
     private static final String TAG = "ResourceHandler";
-    private Response response;
 
     public ResourceHandler() {
     }
@@ -37,6 +38,8 @@ public class ResourceHandler extends DefaultHandler {
     public String getMimeType() {
         return null;
     }
+
+    private final String[] fonts = {".woff", ".ttf", ".obf", ".woff2", ".eot"};
 
     @Override
     public String getText() {
@@ -52,18 +55,33 @@ public class ResourceHandler extends DefaultHandler {
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Method method = session.getMethod();
         String uri = session.getUri();
-        //Log.d(TAG, "Method: " + method + ", Url: " + uri);
-
+        System.out.println(TAG + " Method: " + method + ", Url: " + uri);
+        Response response;
         try {
             EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
-
+            Container container = uriResource.initParameter(1, EpubContainer.class);
             int offset = uri.indexOf("/", 0);
             int startIndex = uri.indexOf("/", offset + 1);
             String filePath = uri.substring(startIndex + 1);
             Link link = fetcher.publication.getResourceMimeType(filePath);
             String mimeType = link.getTypeLink();
-
-            InputStream inputStream = fetcher.getDataInputStream(filePath);
+            if (mimeType.equals("application/xhtml+xml")) {
+                return serveResponse(session, fetcher.getDataInputStream(filePath), mimeType);
+            }
+            InputStream inputStream = null;
+            if (isFontFile(filePath)) {
+                Encryption encryption = Encryption.getEncryptionFormFontFilePath(
+                        filePath,
+                        fetcher.publication.encryptions);
+                if (encryption != null) {
+                    inputStream = Decoder.decode(
+                            fetcher.publication.metadata.identifier,
+                            container.rawDataInputStream(encryption.getProfile()),
+                            encryption);
+                }
+            } else {
+                inputStream = fetcher.getDataInputStream(filePath);
+            }
             response = serveResponse(session, inputStream, mimeType);
         } catch (EpubFetcherException e) {
             e.printStackTrace();
@@ -130,7 +148,7 @@ public class ResourceHandler extends DefaultHandler {
                     response.addHeader("ETag", etag);
                 }
             }
-        } catch (IOException ioe) {
+        } catch (IOException | NullPointerException ioe) {
             response = getResponse("Forbidden: Reading file failed");
         }
 
@@ -151,5 +169,14 @@ public class ResourceHandler extends DefaultHandler {
 
     private Response getResponse(String message) {
         return createResponse(Response.Status.OK, "text/plain", message);
+    }
+
+    private boolean isFontFile(String file) {
+        for (String font : fonts) {
+            if (file.endsWith(font)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

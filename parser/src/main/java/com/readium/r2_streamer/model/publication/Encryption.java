@@ -1,6 +1,7 @@
 package com.readium.r2_streamer.model.publication;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by gautam chibde on 18/5/17.
@@ -27,6 +28,17 @@ public class Encryption implements Serializable {
                 ", compression='" + compression + '\'' +
                 ", originalLength=" + originalLength +
                 '}';
+    }
+
+    public static Encryption getEncryptionFormFontFilePath(
+            String path,
+            List<Encryption> encryptions) {
+        for (Encryption encryption : encryptions) {
+            if (encryption.getProfile().equalsIgnoreCase(path)) {
+                return encryption;
+            }
+        }
+        return null;
     }
 
     public String getScheme() {
