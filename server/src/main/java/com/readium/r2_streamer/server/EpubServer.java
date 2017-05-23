@@ -38,7 +38,7 @@ public class EpubServer extends RouterNanoHTTPD {
             //addRoute(filePath + TOC_HANDLE, EpubHandler.class, fetcher);
             addRoute(filePath + MANIFEST_HANDLE, ManifestHandler.class, fetcher);
             addRoute(filePath + SEARCH_QUERY_HANDLE, SearchQueryHandler.class, fetcher);
-            addRoute(filePath + MANIFEST_ITEM_HANDLE, ResourceHandler.class, fetcher, container);
+            addRoute(filePath + MANIFEST_ITEM_HANDLE, ResourceHandler.class, fetcher);
         } catch (EpubFetcherException e) {
             e.printStackTrace();
         }

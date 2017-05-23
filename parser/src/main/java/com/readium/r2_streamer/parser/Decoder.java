@@ -130,11 +130,9 @@ public final class Decoder {
      * @return The key's bytes array.
      */
     private static byte[] getHashKeyAdobe(String pubId) {
-        // Clean the publicationIdentifier.
         String cleanPubId = pubId.replaceAll("urn:uuid", "");
         cleanPubId = cleanPubId.replaceAll("-", "");
-
-        return DatatypeConverter.parseHexBinary(cleanPubId.replaceAll(":", ""));
+        return hexaToBytes(cleanPubId);
     }
 
     /**

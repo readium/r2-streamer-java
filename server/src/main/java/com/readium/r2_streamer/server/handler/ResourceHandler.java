@@ -59,7 +59,6 @@ public class ResourceHandler extends DefaultHandler {
         Response response;
         try {
             EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
-            Container container = uriResource.initParameter(1, EpubContainer.class);
             int offset = uri.indexOf("/", 0);
             int startIndex = uri.indexOf("/", offset + 1);
             String filePath = uri.substring(startIndex + 1);
@@ -76,7 +75,7 @@ public class ResourceHandler extends DefaultHandler {
                 if (encryption != null) {
                     inputStream = Decoder.decode(
                             fetcher.publication.metadata.identifier,
-                            container.rawDataInputStream(encryption.getProfile()),
+                            fetcher.getDataInputStream(encryption.getProfile()),
                             encryption);
                 }
             } else {
