@@ -1,8 +1,9 @@
 package com.readium.r2_streamer.model.publication.link;
 
+import com.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,12 +22,14 @@ public class Link implements Serializable {
     public String chapterTitle;
     public String type;
     public List<String> properties;
-    public Date duration;
+    public String duration;
     public boolean templated;
+    public MediaOverlays mediaOverlay;
 
     public Link() {
         this.rel = new ArrayList<>();
         this.properties = new ArrayList<>();
+        this.mediaOverlay = new MediaOverlays();
     }
 
     public Link(String href, String rel, String typeLink) {
@@ -39,6 +42,7 @@ public class Link implements Serializable {
     public String toString() {
         return "Link{" +
                 "id='" + id + '\'' +
+                ", mediaOverlay=" + mediaOverlay +
                 ", href='" + href + '\'' +
                 ", rel=" + rel +
                 ", typeLink='" + typeLink + '\'' +
@@ -48,7 +52,7 @@ public class Link implements Serializable {
                 ", chapterTitle='" + chapterTitle + '\'' +
                 ", type='" + type + '\'' +
                 ", properties=" + properties +
-                ", duration=" + duration +
+                ", duration='" + duration + '\'' +
                 ", templated=" + templated +
                 '}';
     }
@@ -133,11 +137,11 @@ public class Link implements Serializable {
         this.properties = properties;
     }
 
-    public Date getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public void setDuration(Date duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 

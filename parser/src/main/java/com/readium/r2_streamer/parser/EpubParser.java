@@ -2,9 +2,12 @@ package com.readium.r2_streamer.parser;
 
 import com.readium.r2_streamer.model.container.Container;
 import com.readium.r2_streamer.model.publication.EpubPublication;
+import com.readium.r2_streamer.model.publication.SMIL.MediaOverlayNode;
+import com.readium.r2_streamer.model.publication.SMIL.SMILParser;
 import com.readium.r2_streamer.model.publication.contributor.Contributor;
 import com.readium.r2_streamer.model.publication.link.Link;
 import com.readium.r2_streamer.model.publication.metadata.MetaData;
+import com.readium.r2_streamer.model.publication.metadata.MetadataItem;
 import com.readium.r2_streamer.model.publication.rendition.RenditionFlow;
 import com.readium.r2_streamer.model.publication.rendition.RenditionLayout;
 import com.readium.r2_streamer.model.publication.rendition.RenditionOrientation;
@@ -57,6 +60,7 @@ public class EpubParser {
             if (isMimeTypeValid()) {
                 rootFile = parseContainer();
                 this.publication = parseOpfFile(rootFile);
+                parseSMILFile();
                 return publication;
             }
         } catch (EpubParserException e) {
@@ -65,11 +69,54 @@ public class EpubParser {
         return null;
     }
 
+    private void parseSMILFile() throws EpubParserException {
+        for (String key : publication.linkMap.keySet()) {
+            if (publication.linkMap.get(key).typeLink.equalsIgnoreCase("application/smil+xml")) {
+                parseMediaOverlay(key);
+            }
+        }
+    }
+
+    private void parseMediaOverlay(String key) throws EpubParserException {
+        Link link = publication.linkMap.get(key);
+        MediaOverlayNode node = new MediaOverlayNode();
+        String smip = container.rawData(link.getHref());
+        if (smip == null) return; // maybe file is invalid
+
+        Document document = xmlParser(smip);
+
+        if (document == null)
+            throw new EpubParserException("Error while parsing file " + link.href);
+
+        Element element = (Element) document.getDocumentElement().getElementsByTagName("seq").item(0);
+        if (element.hasAttribute("epub:textref")) {
+            node.text = element.getAttribute("epub:textref");
+        }
+
+        NodeList par = element.getElementsByTagName("par");
+
+        for (int i = 0; i < par.getLength(); i++) {
+            MediaOverlayNode mediaOverlayNode = new MediaOverlayNode();
+            Element item = (Element) par.item(i);
+            Element text = (Element) item.getElementsByTagName("text").item(0);
+            Element audio = (Element) item.getElementsByTagName("audio").item(0);
+
+            if (text != null) mediaOverlayNode.text = text.getAttribute("src");
+
+            if (audio != null) {
+                mediaOverlayNode.audio = SMILParser.parseAudio(audio);
+            }
+            node.role.add("section");
+            node.children.add(mediaOverlayNode);
+        }
+        link.mediaOverlay.mediaOverlayNodes.add(node);
+        publication.linkMap.put(key, link);
+    }
+
     private boolean isMimeTypeValid() throws EpubParserException {
         String mimeTypeData = container.rawData("mimetype");
 
         if (mimeTypeData.equals("application/epub+zip")) {
-            //Log.d(TAG, "MIME type: " + mimeTypeData);
             return true;
         } else {
             System.out.println(TAG + "Invalid MIME type: " + mimeTypeData);
@@ -113,7 +160,6 @@ public class EpubParser {
                     throw new EpubParserException("Missing root file element in container.xml");
                 }
 
-                //Log.d(TAG, "Root file: " + opfFile);
                 return opfFile;                    //returns opf file
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -255,6 +301,12 @@ public class EpubParser {
                 if (metaElement.getAttribute("property").equals("rendition:viewport")) {
                     metaData.rendition.viewport = metaElement.getTextContent();
                 }
+                if (metaElement.getAttribute("property").equals("media:duration")) {
+                    MetadataItem metadataItem = new MetadataItem();
+                    metadataItem.property = metaElement.getAttribute("refines");
+                    metadataItem.value = metaElement.getTextContent();
+                    metaData.getOtherMetadata().add(metadataItem);
+                }
             }
         }
 
@@ -289,10 +341,6 @@ public class EpubParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(xmlData)));
             document.getDocumentElement().normalize();
-            if (document == null) {
-                throw new EpubParserException("Error while parsing xml file");
-            }
-
             return document;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
@@ -458,6 +506,9 @@ public class EpubParser {
                             break;
                         case "media-type":
                             link.typeLink = attr.getNodeValue();
+                            if (link.typeLink.equalsIgnoreCase("application/smil+xml")) {
+                                link.duration = MetadataItem.getSMILDuration(publication.metadata.getOtherMetadata(), link.id);
+                            }
                             break;
                         case "properties":
                             if (attr.getNodeValue().equals("nav")) {

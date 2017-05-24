@@ -64,6 +64,7 @@ public class MetaData implements Serializable {
         this.epubType = new ArrayList<>();
         this.rights = new ArrayList<>();
         this.subjects = new ArrayList<>();
+        this.otherMetadata = new ArrayList<>();
     }
 
     public MetaData(String title, String identifier, List<Contributor> creators, List<Contributor> translators, List<Contributor> editors, List<Contributor> artists, List<Contributor> illustrators, List<Contributor> letterers, List<Contributor> pencilers, List<Contributor> colorists, List<Contributor> inkers, List<Contributor> narrators, List<Contributor> contributors, List<Contributor> publishers, List<Contributor> imprints, List<String> languages, Date modified, Date publicationDate, String description, String direction, Rendition rendition, String source, List<String> epubType, List<String> rights, List<Subject> subjects, List<MetadataItem> otherMetadata) {

@@ -36,6 +36,9 @@ public class EpubContainer implements Container {
 
         try {
             ZipEntry zipEntry = zipFile.getEntry(relativePath);
+            if (zipEntry == null) {
+                return "";
+            }
             InputStream is = zipFile.getInputStream(zipEntry);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();

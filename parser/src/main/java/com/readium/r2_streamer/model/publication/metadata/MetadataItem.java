@@ -1,5 +1,7 @@
 package com.readium.r2_streamer.model.publication.metadata;
 
+import com.readium.r2_streamer.model.publication.SMIL.SMILParser;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -29,5 +31,14 @@ public class MetadataItem implements Serializable {
                 ", value='" + value + '\'' +
                 ", children=" + children +
                 '}';
+    }
+
+    public static String getSMILDuration(List<MetadataItem> otherMetadata, String id) {
+        for (MetadataItem metadataItem : otherMetadata) {
+            if (metadataItem.property.equalsIgnoreCase("#" + id)) {
+                return SMILParser.smilTimeToSeconds(metadataItem.value);
+            }
+        }
+        return null;
     }
 }
