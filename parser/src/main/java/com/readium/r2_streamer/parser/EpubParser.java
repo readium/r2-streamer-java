@@ -69,19 +69,37 @@ public class EpubParser {
         return null;
     }
 
+    /**
+     * Looks for the link with type: application/smil+xml and parsed the
+     * data as media-overlay
+     * also adds link for media-overlay for specific file
+     *
+     * @throws EpubParserException if file is invalid for not found
+     */
     private void parseSMILFile() throws EpubParserException {
         for (String key : publication.linkMap.keySet()) {
             if (publication.linkMap.get(key).typeLink.equalsIgnoreCase("application/smil+xml")) {
                 parseMediaOverlay(key);
+                publication.links.add(new Link(
+                        "port/media-overlay?resource=" + key, //replace the port with proper url in EpubServer#addLinks
+                        "media-overlay",
+                        "application/vnd.readium.mo+json"));
             }
         }
     }
 
-    private void parseMediaOverlay(String key) throws EpubParserException {
-        Link link = publication.linkMap.get(key);
-        MediaOverlayNode node = new MediaOverlayNode();
+    /**
+     * parsed smil path to create media overlay objects
+     *
+     * @param smilFilePath path to smil file
+     * @throws EpubParserException if input xml file was't able to parse into DOM Document
+     */
+    private void parseMediaOverlay(String smilFilePath) throws EpubParserException {
+        Link link = publication.linkMap.get(smilFilePath);
         String smip = container.rawData(link.getHref());
         if (smip == null) return; // maybe file is invalid
+
+        System.out.println(TAG + " smilFilePath " + smilFilePath);
 
         Document document = xmlParser(smip);
 
@@ -89,28 +107,33 @@ public class EpubParser {
             throw new EpubParserException("Error while parsing file " + link.href);
 
         Element element = (Element) document.getDocumentElement().getElementsByTagName("seq").item(0);
-        if (element.hasAttribute("epub:textref")) {
-            node.text = element.getAttribute("epub:textref");
-        }
 
-        NodeList par = element.getElementsByTagName("par");
-
-        for (int i = 0; i < par.getLength(); i++) {
-            MediaOverlayNode mediaOverlayNode = new MediaOverlayNode();
-            Element item = (Element) par.item(i);
-            Element text = (Element) item.getElementsByTagName("text").item(0);
-            Element audio = (Element) item.getElementsByTagName("audio").item(0);
-
-            if (text != null) mediaOverlayNode.text = text.getAttribute("src");
-
-            if (audio != null) {
-                mediaOverlayNode.audio = SMILParser.parseAudio(audio);
+        NodeList seq = document.getDocumentElement().getElementsByTagName("seq");
+        for (int i = 0; i < seq.getLength(); i++) {
+            MediaOverlayNode node = new MediaOverlayNode();
+            if (element.hasAttribute("epub:textref")) {
+                node.text = element.getAttribute("epub:textref");
             }
+            Element seq1 = (Element) seq.item(i);
+            NodeList par = seq1.getElementsByTagName("par");
             node.role.add("section");
-            node.children.add(mediaOverlayNode);
+            for (int j = 0; j < par.getLength(); j++) {
+                Element parItem = (Element) par.item(i);
+                MediaOverlayNode mediaOverlayNode = new MediaOverlayNode();
+                Element text = (Element) parItem.getElementsByTagName("text").item(0);
+                Element audio = (Element) parItem.getElementsByTagName("audio").item(0);
+
+                if (text != null) mediaOverlayNode.text = text.getAttribute("src");
+
+                if (audio != null) {
+                    mediaOverlayNode.audio = SMILParser.parseAudio(audio);
+                }
+                mediaOverlayNode.role.add("children");
+                node.children.add(mediaOverlayNode);
+            }
+            link.mediaOverlay.mediaOverlayNodes.add(node);
+            publication.linkMap.put(smilFilePath, link);
         }
-        link.mediaOverlay.mediaOverlayNodes.add(node);
-        publication.linkMap.put(key, link);
     }
 
     private boolean isMimeTypeValid() throws EpubParserException {

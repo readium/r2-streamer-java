@@ -14,7 +14,7 @@ public class Link implements Serializable {
     private static final long serialVersionUID = 7612342295622776147L;
     public String id;
     public String href;
-    public List<String> rel;
+    public List<String> rel = new ArrayList<>();
     public String typeLink;
     public int height;
     public int width;
@@ -27,7 +27,6 @@ public class Link implements Serializable {
     public MediaOverlays mediaOverlay;
 
     public Link() {
-        this.rel = new ArrayList<>();
         this.properties = new ArrayList<>();
         this.mediaOverlay = new MediaOverlays();
     }

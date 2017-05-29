@@ -1,7 +1,5 @@
 package com.readium.r2_streamer.model.publication.SMIL;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import org.w3c.dom.Element;
 
 import java.io.Serializable;
