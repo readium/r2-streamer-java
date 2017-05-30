@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private static final String EPUBTITLE = "TheSilverChair.epub";
+    private static final String EPUBTITLE = "SmokeTestFXL.epub";
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
     private static final int WRITE_EXST = 100;
     private final String TAG = "TestActivity";
