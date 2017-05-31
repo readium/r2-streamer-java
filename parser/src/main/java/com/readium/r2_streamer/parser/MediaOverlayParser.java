@@ -11,6 +11,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.List;
+
 /**
  * Created by gautam chibde on 31/5/17.
  */
@@ -42,16 +44,18 @@ public class MediaOverlayParser {
                 if (body.hasAttribute("epub:textref"))
                     node.text = body.getAttribute("epub:textref");
                 parseParameters(body, node);
-                parseSequences(body, node);
-                link.mediaOverlay.text = key;
-                link.mediaOverlay.mediaOverlayNodes.add(node);
-                publication.linkMap.put(key, link);
-                publication.links.add(new Link(
-                        "port/media-overlay?resource=" + key, //replace the port with proper url in EpubServer#addLinks
-                        "media-overlay",
-                        "application/vnd.readium.mo+json"));
+                parseSequences(body, node, publication);
             }
         }
+    }
+
+    private static int getPosition(List<Link> spines, String baseHref) {
+        for (Link link : spines) {
+            if (baseHref.contains(link.href)) {
+                return spines.indexOf(link);
+            }
+        }
+        return -1;
     }
 
     /**
@@ -63,7 +67,10 @@ public class MediaOverlayParser {
      * @param body input element with seq tag
      * @param node contains parsed <par></par> elements
      */
-    private static void parseSequences(Element body, MediaOverlayNode node) throws StackOverflowError {
+    private static void parseSequences(Element body, MediaOverlayNode node, EpubPublication publication) throws StackOverflowError {
+        if (body == null || !body.hasChildNodes()) {
+            return;
+        }
         for (Node n = body.getFirstChild(); n != null; n = n.getNextSibling()) {
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) n;
@@ -80,8 +87,27 @@ public class MediaOverlayParser {
 
                     // recur to parse child node elements
                     if (e.getElementsByTagName("seq").getLength() != 0) {
-                        parseSequences(e, mediaOverlayNode);
+                        parseSequences(e, mediaOverlayNode, publication);
                     }
+                    String baseHrefParent = node.text.split("#")[0];
+                    String baseHref = mediaOverlayNode.text.split("#")[0];
+
+                    // TODO need to test this
+                    if (!baseHref.equals(baseHrefParent)) {
+                        node.children.add(mediaOverlayNode);
+                    }
+
+                    int position = getPosition(publication.spines, baseHref);
+
+                    if (position != -1) {
+                        publication.spines.get(position).mediaOverlay.mediaOverlayNodes.add(node);
+                        publication.spines.get(position).properties.add("media-overlay?resource=" + publication.spines.get(position).href);
+                    }
+
+                    publication.links.add(new Link(
+                            "port/media-overlay?resource=" + publication.spines.get(position).href, //replace the port with proper url in EpubServer#addLinks
+                            "media-overlay",
+                            "application/vnd.readium.mo+json"));
                 }
             }
         }
