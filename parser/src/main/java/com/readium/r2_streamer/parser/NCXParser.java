@@ -1,6 +1,7 @@
 package com.readium.r2_streamer.parser;
 
 import com.readium.r2_streamer.model.container.Container;
+import com.readium.r2_streamer.model.publication.EpubPublication;
 import com.readium.r2_streamer.model.tableofcontents.TOCLink;
 import com.readium.r2_streamer.model.tableofcontents.ToC;
 
@@ -20,10 +21,10 @@ public class NCXParser {
 
     private static final String TAG = NCXParser.class.getSimpleName();
 
-    public static ToC parseNCXFile(String ncxFile, String packageName, Container container) throws EpubParserException {
+    public static void parseNCXFile(String ncxFile, Container container, EpubPublication publication) throws EpubParserException {
         String ncxData = container.rawData(ncxFile);
         if (ncxData == null) {
-            return null; // File is missing
+            return; // File is missing
         }
         System.out.println(TAG + " ncxData " + ncxData);
         Document document = EpubParser.xmlParser(ncxData);
@@ -36,74 +37,74 @@ public class NCXParser {
         if (docTitleElement != null) {
             tableOfContents.setDocTitle(docTitleElement.getTextContent());
         }
-
         Element navMapElement = (Element) document.getElementsByTagName("navMap").item(0);
-        NodeList navPointNodes = navMapElement.getChildNodes();
-        if (navPointNodes != null) {
-            for (int i = 0; i < navPointNodes.getLength(); i++) {
-                Node node = navPointNodes.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element navPointElement = (Element) navPointNodes.item(i);
-                    tableOfContents.tocLinks.add(parseNavPointElement(navPointElement, packageName));
-                }
-            }
-            tableOfContents.tocLinks.size();
-            System.out.println(TAG + " navPointNodes " + tableOfContents);
+        // Parse table of contents (toc) from ncx file
+        if (navMapElement != null) {
+            publication.tableOfContents = nodeArray(navMapElement, "navPoint");
         }
-        return tableOfContents;
+
+        Element pageList = (Element) document.getElementsByTagName("pageList").item(0);
+        // Parse page list if exists from ncx file
+        if (pageList != null) {
+            publication.pageList = nodeArray(pageList, "pageTarget");
+        }
     }
 
-    //@Nullable
-    private static TOCLink parseNavPointElement(Element element, String packageName) {
-        TOCLink tocLink = new TOCLink();
-        tocLink.setId(element.getAttribute("id"));
-        tocLink.setPlayOrder(element.getAttribute("playOrder"));
+    /**
+     * Generate an array of {@link TOCLink} elements representation of the XML
+     * structure in the ncx file. Each of them possibly having children.
+     *
+     * @param elements NCX DOM element object
+     * @param type     The sub elements names (e.g. 'navPoint' for 'navMap',
+     *                 'pageTarget' for 'pageList'.
+     * @return The Object representation of the data contained in the given NCX XML element.
+     */
+    private static List<TOCLink> nodeArray(Element elements, String type) {
+        // The "to be returned" node array.
+        List<TOCLink> newNodeArray = new ArrayList<>();
 
-        List<TOCLink> navPointList = new ArrayList<>();
-        NodeList nodeList = element.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node childNode = nodeList.item(i);
-            if (childNode.getNodeName().equals("navLabel")) {
-                NodeList labelNodes = element.getElementsByTagName("navLabel");
-                tocLink.setSectionTitle(parseTOCLabel(labelNodes));
-            } else if (childNode.getNodeName().equals("content")) {
-                NodeList contentNodes = element.getElementsByTagName("content");
-                tocLink.setHref(packageName + parseTOCResourceLink(contentNodes));
-            } else if (childNode.getNodeName().equals("navPoint")) {
-                Element navPointElement = (Element) childNode;
-                navPointList.add(parseNavPointElement(navPointElement, packageName));
-            }
-        }
-
-        if (navPointList.size() > 0) {
-            tocLink.setTocLinks(navPointList);
-        }
-        return tocLink;
-    }
-
-    private static String parseTOCLabel(NodeList nodeList) {
-        if (nodeList != null) {
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Element labelElement = (Element) nodeList.item(i);
-                NodeList textNodeList = labelElement.getElementsByTagName("text");
-                if (textNodeList != null) {
-                    for (int j = 0; j < textNodeList.getLength(); j++) {
-                        Element textElement = (Element) textNodeList.item(j);
-                        return textElement.getTextContent();
-                    }
+        // Find the elements of `type` in the XML element.
+        for (Node n = elements.getFirstChild(); n != null; n = n.getNextSibling()) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) n;
+                if (e.getTagName().equalsIgnoreCase(type)) {
+                    newNodeArray.add(node(e, type));
                 }
             }
         }
-        return null;
+        return newNodeArray;
     }
 
-    private static String parseTOCResourceLink(NodeList nodeList) {
-        if (nodeList != null) {
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Element srcElement = (Element) nodeList.item(i);
-                return srcElement.getAttribute("src");
+    /**
+     * [RECURSIVE]
+     * Create a node link from the specified type element.
+     * recur if there are child elements
+     *
+     * @param element the DOM NCX file elemet
+     * @param type    The sub elements names (e.g. 'navPoint' for 'navMap',
+     *                'pageTarget' for 'pageList'.
+     * @return The generated node {@link TOCLink}.
+     */
+    private static TOCLink node(Element element, String type) {
+        TOCLink newNode = new TOCLink();
+
+        Element content = (Element) element.getElementsByTagName("content").item(0);
+        Element navLabel = (Element) element.getElementsByTagName("navLabel").item(0);
+        if (content != null) {
+            newNode.href = content.getAttribute("src");
+        }
+        if (navLabel != null) {
+            Element text = (Element) navLabel.getElementsByTagName("text").item(0);
+            if (text != null) {
+                newNode.bookTitle = text.getTextContent();
             }
         }
-        return null;
+
+        NodeList childerns = element.getElementsByTagName(type);
+        for (int i = 0; i < childerns.getLength(); i++) {
+            Element e = (Element) childerns.item(i);
+            newNode.tocLinks.add(node(e, type));
+        }
+        return newNode;
     }
 }

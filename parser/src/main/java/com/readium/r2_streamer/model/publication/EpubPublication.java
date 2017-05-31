@@ -2,6 +2,7 @@ package com.readium.r2_streamer.model.publication;
 
 import com.readium.r2_streamer.model.publication.link.Link;
 import com.readium.r2_streamer.model.publication.metadata.MetaData;
+import com.readium.r2_streamer.model.tableofcontents.TOCLink;
 import com.readium.r2_streamer.model.tableofcontents.ToC;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,8 +22,6 @@ public class EpubPublication implements Serializable{
 
     @JsonProperty("metadata")
     public MetaData metadata;
-    @JsonProperty("toc")
-    public ToC tableOfContents;
 
     @JsonIgnore
     public HashMap<String,Link> linkMap;
@@ -41,8 +40,11 @@ public class EpubPublication implements Serializable{
     public List<Encryption> encryptions;
 
     //public List<Link> pageList;
-    @JsonIgnore
-    public Link[] pageList;
+    @JsonProperty("toc")
+    public List<TOCLink> tableOfContents;
+
+    @JsonProperty
+    public List<TOCLink> pageList;
     @JsonIgnore
     //public List<Link> landmarks;
     public Link[] landmarks;
@@ -80,14 +82,14 @@ public class EpubPublication implements Serializable{
         this.linkMap = new HashMap<>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, List<Link> guides, ToC tableOfContents, Link[] pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
+    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, List<Link> guides, ToC tableOfContents, List<TOCLink> pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
         this.metadata = metadata;
         this.links = links;
         this.matchingLinks = matchingLinks;
         this.spines = spines;
         this.resources = resources;
         this.guides = guides;
-        this.tableOfContents = tableOfContents;
+        //this.tableOfContents = tableOfContents;
         this.pageList = pageList;
         this.landmarks = landmarks;
         this.LOI = LOI;
@@ -111,7 +113,7 @@ public class EpubPublication implements Serializable{
                 ", encryptions=" + encryptions +
                 ", resources=" + resources +
                 ", guides=" + guides +
-                ", pageList=" + Arrays.toString(pageList) +
+                ", pageList=" + pageList +
                 ", landmarks=" + Arrays.toString(landmarks) +
                 ", LOI=" + Arrays.toString(LOI) +
                 ", LOA=" + Arrays.toString(LOA) +
