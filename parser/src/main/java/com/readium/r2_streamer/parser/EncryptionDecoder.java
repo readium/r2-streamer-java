@@ -15,14 +15,14 @@ import java.util.HashMap;
  * Created by gautam chibde on 18/5/17.
  */
 
-public final class Decoder {
-    private final static String TAG = Decoder.class.getName();
+public final class EncryptionDecoder {
+    private final static String TAG = EncryptionDecoder.class.getName();
 
     private static HashMap<String, Integer> decoders = new HashMap<>();
 
     static {
-        com.readium.r2_streamer.parser.Decoder.decoders.put("http://www.idpf.org/2008/embedding", 1040);
-        com.readium.r2_streamer.parser.Decoder.decoders.put("http://ns.adobe.com/pdf/enc#RC", 1024);
+        EncryptionDecoder.decoders.put("http://www.idpf.org/2008/embedding", 1040);
+        EncryptionDecoder.decoders.put("http://ns.adobe.com/pdf/enc#RC", 1024);
     }
 
     /**

@@ -1,5 +1,8 @@
 package com.readium.r2_streamer.model.publication.SMIL;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,9 @@ public class MediaOverlays implements Serializable {
 
     private static final long serialVersionUID = 335418192699543070L;
 
+    @JsonIgnore
+    public String text;
+    @JsonProperty("media-overlay")
     public List<MediaOverlayNode> mediaOverlayNodes;
 
     public MediaOverlays() {
@@ -21,7 +27,8 @@ public class MediaOverlays implements Serializable {
     @Override
     public String toString() {
         return "MediaOverlays{" +
-                "mediaOverlayNodes=" + mediaOverlayNodes +
+                "text='" + text + '\'' +
+                ", mediaOverlayNodes=" + mediaOverlayNodes +
                 '}';
     }
 }

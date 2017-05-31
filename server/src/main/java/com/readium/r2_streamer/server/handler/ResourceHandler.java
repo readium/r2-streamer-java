@@ -2,11 +2,9 @@ package com.readium.r2_streamer.server.handler;
 
 import com.readium.r2_streamer.fetcher.EpubFetcher;
 import com.readium.r2_streamer.fetcher.EpubFetcherException;
-import com.readium.r2_streamer.model.container.Container;
-import com.readium.r2_streamer.model.container.EpubContainer;
 import com.readium.r2_streamer.model.publication.Encryption;
 import com.readium.r2_streamer.model.publication.link.Link;
-import com.readium.r2_streamer.parser.Decoder;
+import com.readium.r2_streamer.parser.EncryptionDecoder;
 import com.readium.r2_streamer.server.ResponseStatus;
 
 import java.io.IOException;
@@ -39,7 +37,7 @@ public class ResourceHandler extends DefaultHandler {
         return null;
     }
 
-    private final String[] fonts = {".woff", ".ttf", ".obf", ".woff2", ".eot",".otf"};
+    private final String[] fonts = {".woff", ".ttf", ".obf", ".woff2", ".eot", ".otf"};
 
     @Override
     public String getText() {
@@ -55,8 +53,9 @@ public class ResourceHandler extends DefaultHandler {
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Method method = session.getMethod();
         String uri = session.getUri();
+
         System.out.println(TAG + " Method: " + method + ", Url: " + uri);
-        Response response;
+
         try {
             EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
             int offset = uri.indexOf("/", 0);
@@ -67,32 +66,29 @@ public class ResourceHandler extends DefaultHandler {
             if (mimeType.equals("application/xhtml+xml")) {
                 return serveResponse(session, fetcher.getDataInputStream(filePath), mimeType);
             }
-            InputStream inputStream = null;
-            if (isFontFile(filePath)) {
+
+            // ********************
+            //  FONT DEOBFUSCATION
+            // ********************
+            if (isFontFile(filePath)) { // Check if the incoming request for the font file is encrypted
                 Encryption encryption = Encryption.getEncryptionFormFontFilePath(
                         filePath,
                         fetcher.publication.encryptions);
-                System.out.println(TAG + " identifier " + fetcher.publication.metadata.identifier);
-                System.out.println(TAG + " identifier file " + filePath);
-                if (encryption != null) {
-                    System.out.println(TAG + " identifier " + fetcher.publication.metadata.identifier);
-                    System.out.println(TAG + " identifier file " + filePath);
-                    inputStream = Decoder.decode(
-                            fetcher.publication.metadata.identifier,
-                            fetcher.getDataInputStream(encryption.getProfile()),
-                            encryption);
-                } else {
-                    inputStream = fetcher.getDataInputStream(filePath);
+                if (encryption != null) { // Decode the font file if encryption exists
+                    return serveResponse(session,
+                            EncryptionDecoder.decode(
+                                    fetcher.publication.metadata.identifier,
+                                    fetcher.getDataInputStream(encryption.getProfile()),
+                                    encryption),
+                            mimeType);
                 }
-            } else {
-                inputStream = fetcher.getDataInputStream(filePath);
             }
-            response = serveResponse(session, inputStream, mimeType);
+
+            return serveResponse(session, fetcher.getDataInputStream(filePath), mimeType);
         } catch (EpubFetcherException e) {
-            e.printStackTrace();
+            System.out.println(TAG + " EpubFetcherException " + e.toString());
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         }
-        return response;
     }
 
     private Response serveResponse(IHTTPSession session, InputStream inputStream, String mimeType) {

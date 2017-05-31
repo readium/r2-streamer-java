@@ -32,7 +32,7 @@ public class EpubServer extends RouterNanoHTTPD {
         try {
             EpubPublication publication = parse(container);
 
-            addLinks(publication);
+            addLinks(publication, filePath);
 
             EpubFetcher fetcher = new EpubFetcher(container, publication);
             if (containsMediaOverlay) {
@@ -54,26 +54,26 @@ public class EpubServer extends RouterNanoHTTPD {
      * ref=> https://github.com/readium/webpub-manifest#links
      *
      * @param publication publication with parsed OPF data
+     * @param filePath
      */
-    private void addLinks(EpubPublication publication) {
+    private void addLinks(EpubPublication publication, String filePath) {
         containsMediaOverlay = false;
         for (Link link : publication.links) {
-            if (link.rel.equals("media-overlay")) {
-                System.out.println("media-overlay" + link.rel);
+            if (link.rel.contains("media-overlay")) {
                 containsMediaOverlay = true;
-                link.href = link.href.replace("port", "localhost" + getListeningPort());
+                link.href = link.href.replace("port", "localhost:" + getListeningPort() + filePath);
             }
         }
 
         // A manifest must contain at least one link using the self relationship.
         // This link must point to the canonical location of the manifest using an absolute URI:
         publication.links.add(new Link(
-                "localhost/" + getListeningPort() + MANIFEST_HANDLE,
+                "localhost:" + getListeningPort() + filePath + MANIFEST_HANDLE,
                 "self",
                 "application/webpub+json"));
 
         publication.links.add(new Link(
-                "localhost/" + getListeningPort() + SEARCH_QUERY_HANDLE,
+                "localhost:" + getListeningPort() + filePath + SEARCH_QUERY_HANDLE,
                 "search",
                 "text/html"));
     }

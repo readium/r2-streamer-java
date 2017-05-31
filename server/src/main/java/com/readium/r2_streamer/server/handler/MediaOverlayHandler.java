@@ -3,14 +3,11 @@ package com.readium.r2_streamer.server.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readium.r2_streamer.fetcher.EpubFetcher;
-import com.readium.r2_streamer.model.publication.SMIL.Clip;
 import com.readium.r2_streamer.model.publication.SMIL.MediaOverlayNode;
 import com.readium.r2_streamer.model.publication.link.Link;
 import com.readium.r2_streamer.server.ResponseStatus;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -48,19 +45,10 @@ public class MediaOverlayHandler extends RouterNanoHTTPD.DefaultHandler {
 
             for (String key : linkMap.keySet()) {
                 Link link = linkMap.get(key);
-                List<Clip> clips = new ArrayList<>();
                 if (key.contains(searchQueryPath)) {
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
-                        for (MediaOverlayNode mediaOverlayNode : link.mediaOverlay.mediaOverlayNodes) {
-                            if (mediaOverlayNode.text.contains(searchQueryPath)) {
-                                for (MediaOverlayNode node : mediaOverlayNode.children) {
-                                    clips.add(node.clip());
-                                }
-                                break;
-                            }
-                        }
-                        String json = objectMapper.writeValueAsString(clips);
+                        String json = objectMapper.writeValueAsString(link.mediaOverlay);
                         return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), json);
                     } catch (JsonProcessingException e) {
                         return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), ResponseStatus.FAILURE_RESPONSE);
