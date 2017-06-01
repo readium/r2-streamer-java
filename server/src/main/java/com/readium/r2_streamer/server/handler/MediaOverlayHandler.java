@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.readium.r2_streamer.fetcher.EpubFetcher;
 import com.readium.r2_streamer.model.publication.SMIL.MediaOverlayNode;
+import com.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
 import com.readium.r2_streamer.model.publication.link.Link;
 import com.readium.r2_streamer.server.ResponseStatus;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -39,25 +40,27 @@ public class MediaOverlayHandler extends RouterNanoHTTPD.DefaultHandler {
     public NanoHTTPD.Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
         EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
 
-        if (session.getParameters().containsKey("query")) {
-            String searchQueryPath = session.getParameters().get("query").get(0);
-            HashMap<String, Link> linkMap = fetcher.publication.linkMap;
-
-            for (String key : linkMap.keySet()) {
-                Link link = linkMap.get(key);
-                if (key.contains(searchQueryPath)) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    try {
-                        String json = objectMapper.writeValueAsString(link.mediaOverlay);
-                        return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), json);
-                    } catch (JsonProcessingException e) {
-                        return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), ResponseStatus.FAILURE_RESPONSE);
-                    }
-                }
+        if (session.getParameters().containsKey("resource")) {
+            String searchQueryPath = session.getParameters().get("resource").get(0);
+            List<Link> spines = fetcher.publication.spines;
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                String json = objectMapper.writeValueAsString(getMediaOverlay(spines, searchQueryPath));
+                return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), json);
+            } catch (JsonProcessingException e) {
+                return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), ResponseStatus.FAILURE_RESPONSE);
             }
-            return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         } else {
             return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), ResponseStatus.FAILURE_RESPONSE);
         }
+    }
+
+    private MediaOverlays getMediaOverlay(List<Link> spines, String searchQueryPath) {
+        for (Link link : spines) {
+            if (link.href.contains(searchQueryPath)) {
+                return link.mediaOverlay;
+            }
+        }
+        return new MediaOverlays();
     }
 }

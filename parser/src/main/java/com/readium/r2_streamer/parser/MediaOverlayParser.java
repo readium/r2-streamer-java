@@ -18,11 +18,14 @@ import java.util.List;
  */
 
 public class MediaOverlayParser {
+
     /**
      * Looks for the link with type: application/smil+xml and parsed the
      * data as media-overlay
      * also adds link for media-overlay for specific file
      *
+     * @param publication The `Publication` object resulting from the parsing.
+     * @param container   contains implementation for getting raw data from file
      * @throws EpubParserException if file is invalid for not found
      */
     public static void parseMediaOverlay(EpubPublication publication, Container container) throws EpubParserException {
@@ -40,22 +43,36 @@ public class MediaOverlayParser {
                 Element body = (Element) document.getDocumentElement().getElementsByTagName("body").item(0);
 
                 MediaOverlayNode node = new MediaOverlayNode();
-                node.role.add("Section");
+                node.role.add("section");
+
                 if (body.hasAttribute("epub:textref"))
                     node.text = body.getAttribute("epub:textref");
+
                 parseParameters(body, node);
                 parseSequences(body, node, publication);
-            }
-        }
-    }
 
-    private static int getPosition(List<Link> spines, String baseHref) {
-        for (Link link : spines) {
-            if (baseHref.contains(link.href)) {
-                return spines.indexOf(link);
+                // TODO
+                // Body attribute epub:textref is optional
+                // ref https://www.idpf.org/epub/30/spec/epub30-mediaoverlays.html#sec-smil-body-elem
+                // need to handle <seq> parsing in an alternate way
+
+                if (node.text != null) {
+                    String baseHref = node.text.split("#")[0];
+                    int position = getPosition(publication.spines, baseHref);
+
+                    if (position != -1) {
+                        addMediaOverlayToSpine(publication, node, position);
+                    }
+                } else {
+                    for (MediaOverlayNode node1 : node.children) {
+                        int position = getPosition(publication.spines, node1.text);
+                        if (position != -1) {
+                            addMediaOverlayToSpine(publication, node1, position);
+                        }
+                    }
+                }
             }
         }
-        return -1;
     }
 
     /**
@@ -65,7 +82,7 @@ public class MediaOverlayParser {
      * parse their children's <par> and <seq>
      *
      * @param body input element with seq tag
-     * @param node contains parsed <par></par> elements
+     * @param node contains parsed <seq><par></par></seq> elements
      */
     private static void parseSequences(Element body, MediaOverlayNode node, EpubPublication publication) throws StackOverflowError {
         if (body == null || !body.hasChildNodes()) {
@@ -77,42 +94,49 @@ public class MediaOverlayParser {
                 if (e.getTagName().equalsIgnoreCase("seq")) {
                     MediaOverlayNode mediaOverlayNode = new MediaOverlayNode();
 
-                    mediaOverlayNode.role.add("Section");
-
                     if (e.hasAttribute("epub:textref"))
                         mediaOverlayNode.text = e.getAttribute("epub:textref");
+
+                    mediaOverlayNode.role.add("section");
+
+                    // child <par> elements in seq
                     parseParameters(e, mediaOverlayNode);
-
-                    node.children.add(mediaOverlayNode); // child <par> elements in seq
-
+                    node.children.add(mediaOverlayNode);
                     // recur to parse child node elements
-                    if (e.getElementsByTagName("seq").getLength() != 0) {
-                        parseSequences(e, mediaOverlayNode, publication);
+                    parseSequences(e, mediaOverlayNode, publication);
+
+                    if (node.text == null) return;
+
+                    // Not clear about the IRI reference, epub:textref in seq may not have [ "#" ifragment ]
+                    // ref:- https://www.idpf.org/epub/30/spec/epub30-mediaoverlays.html#sec-smil-seq-elem
+                    // TODO is it req? code ref from https://github.com/readium/r2-streamer-swift/blob/feature/media-overlay/Sources/parser/SMILParser.swift
+                    // can be done with contains?
+
+                    String baseHrefParent = node.text;
+                    if (node.text.contains("#")) {
+                        baseHrefParent = node.text.split("#")[0];
                     }
-                    String baseHrefParent = node.text.split("#")[0];
-                    String baseHref = mediaOverlayNode.text.split("#")[0];
+                    if (mediaOverlayNode.text.contains("#")) {
+                        String baseHref = mediaOverlayNode.text.split("#")[0];
 
-                    // TODO need to test this
-                    if (!baseHref.equals(baseHrefParent)) {
-                        node.children.add(mediaOverlayNode);
+                        if (!baseHref.equals(baseHrefParent)) {
+                            int position = getPosition(publication.spines, baseHref);
+
+                            if (position != -1)
+                                addMediaOverlayToSpine(publication, mediaOverlayNode, position);
+                        }
                     }
-
-                    int position = getPosition(publication.spines, baseHref);
-
-                    if (position != -1) {
-                        publication.spines.get(position).mediaOverlay.mediaOverlayNodes.add(node);
-                        publication.spines.get(position).properties.add("media-overlay?resource=" + publication.spines.get(position).href);
-                    }
-
-                    publication.links.add(new Link(
-                            "port/media-overlay?resource=" + publication.spines.get(position).href, //replace the port with proper url in EpubServer#addLinks
-                            "media-overlay",
-                            "application/vnd.readium.mo+json"));
                 }
             }
         }
     }
 
+    /**
+     * Parse the <par> elements at the current XML element level.
+     *
+     * @param body input element with seq tag
+     * @param node contains parsed <par></par> elements
+     */
     private static void parseParameters(Element body, MediaOverlayNode node) {
         NodeList par = body.getElementsByTagName("par");
         if (par.getLength() == 0) {
@@ -135,5 +159,41 @@ public class MediaOverlayParser {
                 }
             }
         }
+    }
+
+    /**
+     * Add parsed media-overlay object to corresponding spine item
+     *
+     * @param publication publication object
+     * @param node        parsed media overlay node
+     * @param position    position on spine item in publication
+     */
+    private static void addMediaOverlayToSpine(EpubPublication publication, MediaOverlayNode node, int position) {
+        publication.spines.get(position).mediaOverlay.mediaOverlayNodes.add(node);
+        publication.spines.get(position).properties.add("media-overlay?resource=" + publication.spines.get(position).href);
+
+        publication.links.add(new Link(
+                "port/media-overlay?resource=" + publication.spines.get(position).href, //replace the port with proper url in EpubServer#addLinks
+                "media-overlay",
+                "application/vnd.readium.mo+json"));
+    }
+
+    /**
+     * returns position of the spine whose href equals baseHref
+     *
+     * @param spines   spine list in publication
+     * @param baseHref name of the file which corresponding to media-overlay
+     * @return returns position of the spine item
+     */
+    private static int getPosition(List<Link> spines, String baseHref) {
+        for (Link link : spines) {
+            int offset = link.href.indexOf("/", 0);
+            int startIndex = link.href.indexOf("/", offset + 1);
+            String path = link.href.substring(startIndex + 1);
+            if (baseHref.contains(path)) {
+                return spines.indexOf(link);
+            }
+        }
+        return -1;
     }
 }
