@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -65,6 +66,11 @@ public class DirectoryContainer implements Container {
         String filePath = rootPath.concat(relativePath);
         File epubFile = new File(filePath);
         return ((int) epubFile.length());
+    }
+
+    @Override
+    public List<String> listFiles() {
+        return null;
     }
 
     @Override

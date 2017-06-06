@@ -28,9 +28,16 @@ public class EpubServer extends RouterNanoHTTPD {
         super(portNo);
     }
 
+
+    /**
+     * Creates local server routes for manifest,search and media-overlay
+     *
+     * @param container contains implementation for getting raw data from file
+     * @param filePath  path to the epub/cbz file
+     */
     public void addEpub(Container container, String filePath) {
         try {
-            EpubPublication publication = parse(container);
+            EpubPublication publication = parse(container, filePath);
 
             addLinks(publication, filePath);
 
@@ -44,7 +51,7 @@ public class EpubServer extends RouterNanoHTTPD {
             addRoute(filePath + SEARCH_QUERY_HANDLE, SearchQueryHandler.class, fetcher);
             addRoute(filePath + MANIFEST_ITEM_HANDLE, ResourceHandler.class, fetcher);
         } catch (EpubFetcherException e) {
-            e.printStackTrace();
+            System.out.println("EpubServer" + " EpubFetcherException: " + e);
         }
     }
 
@@ -78,8 +85,8 @@ public class EpubServer extends RouterNanoHTTPD {
                 "text/html"));
     }
 
-    private EpubPublication parse(Container container) {
+    private EpubPublication parse(Container container, String filePath) {
         EpubParser parser = new EpubParser(container);
-        return parser.parseEpubFile();
+        return parser.parseEpubFile(filePath);
     }
 }

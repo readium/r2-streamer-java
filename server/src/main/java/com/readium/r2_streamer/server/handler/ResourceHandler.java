@@ -174,7 +174,7 @@ public class ResourceHandler extends DefaultHandler {
 
     private boolean isFontFile(String file) {
         for (String font : fonts) {
-            if (file.contains(font)) {
+            if (file.endsWith(font)) {
                 return true;
             }
         }

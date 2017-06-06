@@ -28,15 +28,19 @@ public class EpubParser {
 
     public EpubParser(Container container) {
         this.container = container;
+        this.publication = new EpubPublication();
     }
 
-    public EpubPublication parseEpubFile() {
+    public EpubPublication parseEpubFile(String filePath) {
         String rootFile;
         try {
+            if (filePath.contains(".cbz")) {
+                CBZParser.parseCBZ(container, publication);
+                return publication;
+            }
             if (isMimeTypeValid()) {
                 rootFile = parseContainer();
 
-                this.publication = new EpubPublication();
                 publication.internalData.put("type", "epub");
                 publication.internalData.put("rootfile", rootFile);
                 //Parse OPF file

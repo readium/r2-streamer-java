@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -60,6 +63,17 @@ public class EpubContainer implements Container {
     public int rawDataSize(String relativePath) {
         ZipEntry zipEntry = zipFile.getEntry(relativePath);
         return ((int) zipEntry.getSize());
+    }
+
+    @Override
+    public List<String> listFiles() {
+        List<String> files = new ArrayList<>();
+        Enumeration zipEntries = zipFile.entries();
+        while (zipEntries.hasMoreElements()) {
+            String fileName = ((ZipEntry) zipEntries.nextElement()).getName();
+            files.add(fileName);
+        }
+        return files;
     }
 
     @Override
