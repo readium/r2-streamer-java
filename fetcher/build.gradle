@@ -4,7 +4,7 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'readium'
 
-    publishedGroupId = 'com.readium'
+    publishedGroupId = 'org.readium'
     libraryName = 'r2-fetcher'
     artifact = 'r2-fetcher'
 
