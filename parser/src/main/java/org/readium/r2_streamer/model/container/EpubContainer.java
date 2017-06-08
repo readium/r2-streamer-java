@@ -23,20 +23,17 @@ import java.util.zip.ZipFile;
 
 public class EpubContainer implements Container {
     private final String TAG = "EpubContainer";
-    private String epubFilePath;
     private ZipFile zipFile;
 
     public EpubContainer(String epubFilePath) throws IOException {
-        this.epubFilePath = epubFilePath;
         this.zipFile = new ZipFile(epubFilePath);
 
-        //Log.d(TAG, "Reading epub at path: " + epubFilePath);
+        System.out.println(TAG + " Reading epub at path: " + epubFilePath);
     }
 
     @Override
     public String rawData(String relativePath) throws NullPointerException {
-        //Log.d(TAG, "Reading file at path: " + relativePath);
-
+        System.out.println(TAG + " Reading file at path: " + relativePath);
         try {
             ZipEntry zipEntry = zipFile.getEntry(relativePath);
             if (zipEntry == null) {
@@ -50,7 +47,6 @@ public class EpubContainer implements Container {
             while ((line = br.readLine()) != null) {
                 sb.append(line);        //.append('\n');
             }
-            //Log.d(TAG, "Reading data: " + sb.toString());
 
             return sb.toString();
         } catch (IOException e) {

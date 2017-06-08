@@ -44,23 +44,19 @@ public class OPFParser {
             throw new EpubParserException("Error while parsing");
         }
 
-
         MetaData metaData = new MetaData();
 
         //title
         metaData.title = parseMainTitle(document);
-        //Log.d(TAG, "Title: " + metaData.getTitle());
 
         //identifier
         metaData.identifier = parseUniqueIdentifier(document);
-        //Log.d(TAG, "Identifier: " + metaData.getIdentifier());
 
         //description
         Element descriptionElement = (Element) ((Element) document.getDocumentElement().getElementsByTagName("metadata").item(0)).getElementsByTagName("dc:description").item(0);
         if (descriptionElement != null) {
             metaData.description = descriptionElement.getTextContent();
         }
-        //Log.d(TAG, "Description: " + metaData.getDescription());
 
         //modified date
         Element dateElement = (Element) ((Element) document.getDocumentElement().getElementsByTagName("metadata").item(0)).getElementsByTagName("dc:date").item(0);
@@ -69,8 +65,6 @@ public class OPFParser {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date modifiedDate = dateFormat.parse(dateElement.getTextContent());
                 metaData.modified = modifiedDate;
-
-                //Log.d(TAG, "Modified Date: " + dateFormat.format(modifiedDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -82,8 +76,6 @@ public class OPFParser {
             for (int i = 0; i < subjectNodeList.getLength(); i++) {
                 Element subjectElement = (Element) subjectNodeList.item(i);
                 metaData.subjects.add(new Subject(subjectElement.getTextContent()));
-
-                //Log.d(TAG, "Subject: " + subjectElement.getTextContent());
             }
         }
 
@@ -93,8 +85,6 @@ public class OPFParser {
             for (int i = 0; i < languageNodeList.getLength(); i++) {
                 Element languageElement = (Element) languageNodeList.item(i);
                 metaData.languages.add(languageElement.getTextContent());
-
-                //Log.d(TAG, "Language: " + languageElement.getTextContent());
             }
         }
 
@@ -104,8 +94,6 @@ public class OPFParser {
             for (int i = 0; i < rightNodeList.getLength(); i++) {
                 Element rightElement = (Element) rightNodeList.item(i);
                 metaData.rights.add(rightElement.getTextContent());
-
-                //Log.d(TAG, "Rights: " + rightElement.getTextContent());
             }
         }
 
@@ -115,8 +103,6 @@ public class OPFParser {
             for (int i = 0; i < publisherNodeList.getLength(); i++) {
                 Element publisherElement = (Element) publisherNodeList.item(i);
                 metaData.publishers.add(new Contributor(publisherElement.getTextContent()));
-
-                //Log.d(TAG, "Publisher: " + publisherElement.getTextContent());
             }
         }
 
@@ -184,7 +170,6 @@ public class OPFParser {
             for (int i = 0; i < metaNodeList.getLength(); i++) {
                 Element metaElement = (Element) metaNodeList.item(i);
                 if (metaElement.getAttribute("name").equals("cover")) {
-                    //coverId = metaElement.getTextContent();
                     coverId = metaElement.getAttribute("content");
                 }
             }
@@ -364,6 +349,9 @@ public class OPFParser {
                                 link.properties.add(attr.getNodeValue());
                             }
                             break;
+                        case "media-overlay":
+                            link.properties.add("media-overlay");
+                            link.properties.add("resource:" + attr.getNodeValue());
                     }
                 }
 
@@ -374,7 +362,6 @@ public class OPFParser {
                 link.setId(id);
 
                 if (id.equals(coverId)) {
-                    //link.rel.add("cover");
 
                     publication.coverLink = new Link();
                     publication.coverLink.rel.add("cover");
@@ -383,11 +370,9 @@ public class OPFParser {
                     publication.coverLink.setTypeLink(link.getTypeLink());
                     publication.coverLink.setProperties(link.getProperties());
                 }
-                //publication.links.add(link);
                 publication.linkMap.put(link.href, link);
                 manifestLinks.put(id, link);
             }
-            //Log.d(TAG, "Link count: " + publication.linkMap.size());
         }
 
         NodeList itemRefNodes = document.getElementsByTagName("itemref");
@@ -400,10 +385,8 @@ public class OPFParser {
                     manifestLinks.remove(id);
                 }
             }
-            //Log.d(TAG, "Spine count: " + publication.spines.size());
         }
         publication.resources.addAll(manifestLinks.values());
-        //Log.d(TAG, "Resource count: " + publication.resources.size());
 
         NodeList referenceNodes = document.getElementsByTagName("reference");
         if (referenceNodes != null) {
@@ -416,6 +399,5 @@ public class OPFParser {
                 publication.guides.add(link);
             }
         }
-        //Log.d(TAG, "Guide count: " + publication.guides.size());
     }
 }

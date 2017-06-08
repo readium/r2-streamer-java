@@ -47,13 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private static final String EPUBTITLE = "SmokeTestFXL.epub";
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath() + "/R2StreamerSample/";
     private static final int WRITE_EXST = 100;
     private final String TAG = "TestActivity";
     private EpubServer mEpubServer;
-
-    private int portNumber = 3000;
 
     private EditText searchBar;
     private ListView listView;
@@ -77,15 +74,15 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
         searchBar = (EditText) findViewById(R.id.searchField);
         listView = (ListView) findViewById(R.id.list);
 
-        copyEpubFromAssetsToSdCard(EPUBTITLE);
+        copyEpubFromAssetsToSdCard(Constant.EPUB_TITLE);
         startServer();
 
-        Log.d(TAG, "Server is running. Point your browser at http://localhost:" + portNumber + "/");
+        Log.d(TAG, "Server is running. Point your browser at " + Constant.URL);
     }
 
     private void startServer() {
         try {
-            mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
+            mEpubServer = EpubServerSingleton.getEpubServerInstance(Constant.PORT_NUMBER);
             mEpubServer.start();
         } catch (IOException e) {
             Log.e(TAG, "startServer IOException " + e.toString());
@@ -102,7 +99,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
                 searchQuery = searchQuery.replaceAll(" ", "%20");
             }
             if (searchQuery.length() != 0) {
-                String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/search?query=" + searchQuery;
+                String urlString = Constant.URL + "/search?query=" + searchQuery;
                 new SearchListTask().execute(urlString);
             }
         } else {
@@ -112,17 +109,18 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void addEpub() throws IOException {
-        String path = ROOT_EPUB_PATH + EPUBTITLE;
+        String path = ROOT_EPUB_PATH + Constant.EPUB_TITLE;
         //DirectoryContainer directoryContainer = new DirectoryContainer(path);
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + EPUBTITLE);
+        mEpubServer.addEpub(epubContainer, "/" + Constant.EPUB_TITLE);
     }
 
     public void show(View view) throws IOException {
         progressDialog.show();
         addEpub();
         manifestItemList.clear();
-        String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/manifest";
+        String urlString = Constant.URL + Constant.MANIFEST;
+        Log.i(TAG, "urlString: " + urlString);
         new SpineListTask().execute(urlString);
     }
 
@@ -145,7 +143,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
             file.createNewFile();
 
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream fis = getAssets().open(EPUBTITLE);
+            InputStream fis = getAssets().open(Constant.EPUB_TITLE);
             byte[] b = new byte[1024];
             int i;
             while ((i = fis.read(b)) != -1) {
@@ -161,7 +159,7 @@ public class TestActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        String urlString = "http://127.0.0.1:" + portNumber + "/" + EPUBTITLE + "/" + manifestItemList.get(position).getHref();
+        String urlString = Constant.URL + "/" + manifestItemList.get(position).getHref();
         //String urlString = "http://127.0.0.1:8080/BARRETT_GUIDE.epub/" + searchList.get(position).getResource();
         Uri uri = Uri.parse(urlString);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);

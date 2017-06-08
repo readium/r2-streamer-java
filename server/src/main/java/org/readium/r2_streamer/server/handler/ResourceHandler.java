@@ -63,6 +63,9 @@ public class ResourceHandler extends DefaultHandler {
             String filePath = uri.substring(startIndex + 1);
             Link link = fetcher.publication.getResourceMimeType(filePath);
             String mimeType = link.getTypeLink();
+
+            // If the content is of type html return the response this is done to
+            // skip the check for following font deobfuscation check
             if (mimeType.equals("application/xhtml+xml")) {
                 return serveResponse(session, fetcher.getDataInputStream(filePath), mimeType);
             }
@@ -83,7 +86,6 @@ public class ResourceHandler extends DefaultHandler {
                             mimeType);
                 }
             }
-
             return serveResponse(session, fetcher.getDataInputStream(filePath), mimeType);
         } catch (EpubFetcherException e) {
             System.out.println(TAG + " EpubFetcherException " + e.toString());

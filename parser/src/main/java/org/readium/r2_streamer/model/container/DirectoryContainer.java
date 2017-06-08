@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
  */
 
 public class DirectoryContainer implements Container {
-    private final String TAG = "DirectoryContainer";
+    private final String TAG = "DirectoryContainer ";
     private String rootPath;
 
     public DirectoryContainer(String rootPath) {
@@ -26,10 +26,7 @@ public class DirectoryContainer implements Container {
         File epubDirectoryFile = new File(rootPath);
         if (!epubDirectoryFile.exists()) {
             System.out.println(TAG + " No such directory exists at path: " + epubDirectoryFile);
-            return;
         }
-
-        //Log.d(TAG, "Directory exists at path: " + epubDirectoryFile);
     }
 
     @Override
@@ -38,7 +35,7 @@ public class DirectoryContainer implements Container {
         File epubFile = new File(filePath);
 
         if (epubFile.exists()) {
-            //Log.d(TAG, relativePath + " File exists at given path");
+            System.out.println(TAG + relativePath + " File exists at given path");
 
             try {
                 InputStream is = new FileInputStream(epubFile);
@@ -49,7 +46,6 @@ public class DirectoryContainer implements Container {
                 while ((line = br.readLine()) != null) {
                     sb.append(line);        //.append('\n');
                 }
-                //Log.d(TAG, "Reading Data: " + sb.toString());
 
                 return sb.toString();
             } catch (IOException e) {

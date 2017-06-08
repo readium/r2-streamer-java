@@ -26,7 +26,6 @@ public class NCXParser {
         if (ncxData == null) {
             return; // File is missing
         }
-        System.out.println(TAG + " ncxData " + ncxData);
         Document document = EpubParser.xmlParser(ncxData);
         if (document == null) {
             throw new EpubParserException("Error while parsing");

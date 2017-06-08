@@ -61,7 +61,6 @@ public class EpubParser {
         String mimeTypeData = container.rawData("mimetype");
 
         if (mimeTypeData.equals("application/epub+zip")) {
-            //Log.d(TAG, "MIME type: " + mimeTypeData);
             return true;
         } else {
             System.out.println(TAG + "Invalid MIME type: " + mimeTypeData);
@@ -105,7 +104,6 @@ public class EpubParser {
                     throw new EpubParserException("Missing root file element in container.xml");
                 }
 
-                //Log.d(TAG, "Root file: " + opfFile);
                 return opfFile;                    //returns opf file
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
