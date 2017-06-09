@@ -3,12 +3,10 @@ package org.readium.r2_streamer.parser;
 import org.readium.r2_streamer.model.container.Container;
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
-import org.readium.r2_streamer.model.tableofcontents.ToC;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +29,6 @@ public class NCXParser {
             throw new EpubParserException("Error while parsing");
         }
 
-        ToC tableOfContents = new ToC();
-        Element docTitleElement = (Element) document.getElementsByTagName("docTitle").item(0);
-        if (docTitleElement != null) {
-            tableOfContents.setDocTitle(docTitleElement.getTextContent());
-        }
         Element navMapElement = (Element) document.getElementsByTagName("navMap").item(0);
         // Parse table of contents (toc) from ncx file
         if (navMapElement != null) {
@@ -99,10 +92,13 @@ public class NCXParser {
             }
         }
 
-        NodeList childerns = element.getElementsByTagName(type);
-        for (int i = 0; i < childerns.getLength(); i++) {
-            Element e = (Element) childerns.item(i);
-            newNode.tocLinks.add(node(e, type));
+        for (Node n = element.getFirstChild(); n != null; n = n.getNextSibling()) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) n;
+                if (e.getTagName().equalsIgnoreCase(type)) {
+                    newNode.tocLinks.add(node(e, type));
+                }
+            }
         }
         return newNode;
     }

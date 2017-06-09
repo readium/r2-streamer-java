@@ -29,8 +29,7 @@ public class TOCLink extends Link implements Serializable{
     @Override
     public String toString() {
         return "TOCLink{" +
-                "sectionTitle='" + sectionTitle + '\'' +
-                ", playOrder='" + playOrder + '\'' +
+                "sectionTitle='" + bookTitle + '\'' +
                 ", tocLinks=" + tocLinks +
                 '}';
     }

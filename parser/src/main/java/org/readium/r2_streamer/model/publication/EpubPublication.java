@@ -3,7 +3,7 @@ package org.readium.r2_streamer.model.publication;
 import org.readium.r2_streamer.model.publication.link.Link;
 import org.readium.r2_streamer.model.publication.metadata.MetaData;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
-import org.readium.r2_streamer.model.tableofcontents.ToC;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -82,25 +82,6 @@ public class EpubPublication implements Serializable{
         this.linkMap = new HashMap<>();
     }
 
-    public EpubPublication(MetaData metadata, List<Link> links, List<Link> matchingLinks, List<Link> spines, List<Link> resources, List<Link> guides, ToC tableOfContents, List<TOCLink> pageList, Link[] landmarks, Link[] LOI, Link[] LOA, Link[] LOV, Link[] LOT, HashMap<String, String> internalData, Link[] otherLinks, Link coverLink) {
-        this.metadata = metadata;
-        this.links = links;
-        this.matchingLinks = matchingLinks;
-        this.spines = spines;
-        this.resources = resources;
-        this.guides = guides;
-        //this.tableOfContents = tableOfContents;
-        this.pageList = pageList;
-        this.landmarks = landmarks;
-        this.LOI = LOI;
-        this.LOA = LOA;
-        this.LOV = LOV;
-        this.LOT = LOT;
-        this.internalData = internalData;
-        this.otherLinks = otherLinks;
-        this.coverLink = coverLink;
-    }
-
     @Override
     public String toString() {
         return "EpubPublication{" +
@@ -123,19 +104,6 @@ public class EpubPublication implements Serializable{
                 ", otherLinks=" + Arrays.toString(otherLinks) +
                 ", coverLink=" + coverLink +
                 '}';
-    }
-
-    private Link getLink(String coverPath) {
-        /*for (int i = 0; i < links.size(); i++) {
-            if (links.get(i).rel.equals(coverPath)) {
-                return links.get(i);
-            }
-        }*/
-
-        if(linkMap.containsKey(coverPath)){
-            return linkMap.get(coverPath);
-        }
-        return null;
     }
 
     public Link getResourceMimeType(String resourcePath) {
