@@ -19,7 +19,7 @@ public class NCXParser {
 
     private static final String TAG = NCXParser.class.getSimpleName();
 
-    public static void parseNCXFile(String ncxFile, Container container, EpubPublication publication) throws EpubParserException {
+    public static void parseNCXFile(String ncxFile, Container container, EpubPublication publication, String rootPath) throws EpubParserException {
         String ncxData = container.rawData(ncxFile);
         if (ncxData == null) {
             return; // File is missing
@@ -32,13 +32,13 @@ public class NCXParser {
         Element navMapElement = (Element) document.getElementsByTagName("navMap").item(0);
         // Parse table of contents (toc) from ncx file
         if (navMapElement != null) {
-            publication.tableOfContents = nodeArray(navMapElement, "navPoint");
+            publication.tableOfContents = nodeArray(navMapElement, "navPoint", rootPath);
         }
 
         Element pageList = (Element) document.getElementsByTagName("pageList").item(0);
         // Parse page list if exists from ncx file
         if (pageList != null) {
-            publication.pageList = nodeArray(pageList, "pageTarget");
+            publication.pageList = nodeArray(pageList, "pageTarget", rootPath);
         }
     }
 
@@ -51,7 +51,7 @@ public class NCXParser {
      *                 'pageTarget' for 'pageList'.
      * @return The Object representation of the data contained in the given NCX XML element.
      */
-    private static List<TOCLink> nodeArray(Element elements, String type) {
+    private static List<TOCLink> nodeArray(Element elements, String type, String rootPath) {
         // The "to be returned" node array.
         List<TOCLink> newNodeArray = new ArrayList<>();
 
@@ -60,7 +60,7 @@ public class NCXParser {
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) n;
                 if (e.getTagName().equalsIgnoreCase(type)) {
-                    newNodeArray.add(node(e, type));
+                    newNodeArray.add(node(e, type, rootPath));
                 }
             }
         }
@@ -77,13 +77,13 @@ public class NCXParser {
      *                'pageTarget' for 'pageList'.
      * @return The generated node {@link TOCLink}.
      */
-    private static TOCLink node(Element element, String type) {
+    private static TOCLink node(Element element, String type, String rootPath) {
         TOCLink newNode = new TOCLink();
 
         Element content = (Element) element.getElementsByTagName("content").item(0);
         Element navLabel = (Element) element.getElementsByTagName("navLabel").item(0);
         if (content != null) {
-            newNode.href = content.getAttribute("src");
+            newNode.href = rootPath + content.getAttribute("src");
         }
         if (navLabel != null) {
             Element text = (Element) navLabel.getElementsByTagName("text").item(0);
@@ -96,7 +96,7 @@ public class NCXParser {
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) n;
                 if (e.getTagName().equalsIgnoreCase(type)) {
-                    newNode.tocLinks.add(node(e, type));
+                    newNode.tocLinks.add(node(e, type, rootPath));
                 }
             }
         }

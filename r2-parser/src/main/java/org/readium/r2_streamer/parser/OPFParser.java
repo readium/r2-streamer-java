@@ -357,7 +357,7 @@ public class OPFParser {
 
                 String id = itemElement.getAttribute("id");
                 if (id.equalsIgnoreCase("ncx")) {
-                    NCXParser.parseNCXFile(link.getHref(), container, publication);
+                    NCXParser.parseNCXFile(link.getHref(), container, publication, packageName);
                 }
                 link.setId(id);
 
