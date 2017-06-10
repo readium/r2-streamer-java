@@ -1,1 +1,1 @@
-include ':sample', ':parser', ':server', ':fetcher'
+include ':sample', ':r2-parser', ':r2-server', ':r2-fetcher'
