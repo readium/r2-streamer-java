@@ -1,5 +1,29 @@
 apply plugin: 'java'
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'readium'
+
+    publishedGroupId = 'org.readium'
+    libraryName = 'r2-server'
+    artifact = 'r2-server'
+
+    libraryDescription = 'Library takes an data from fetcher as an input and exposes in HTTP'
+
+    siteUrl = 'https://github.com/readium/r2-streamer-java'
+    gitUrl = 'https://github.com/readium/r2-streamer-java.git'
+
+    libraryVersion = '0.1.0'
+
+    developerId = 'mobisystech'
+    developerName = 'CodeToArt'
+    developerEmail = 'mahavir@codetoart.com'
+
+    licenseName = 'FreeBSD License'
+    licenseUrl = 'https://en.wikipedia.org/wiki/FreeBSD_Documentation_License#License'
+    allLicenses = ["FreeBSD"]
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -11,3 +35,6 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+apply from: '../bintray/installv1.gradle'
+apply from: '../bintray/bintrayv1.gradle'

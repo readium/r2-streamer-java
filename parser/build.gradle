@@ -1,5 +1,29 @@
 apply plugin: 'java'
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'readium'
+
+    publishedGroupId = 'org.readium'
+    libraryName = 'r2-parser'
+    artifact = 'r2-parser'
+
+    libraryDescription = 'Library parses xml data from EPUB file into java objects'
+
+    siteUrl = 'https://github.com/readium/r2-streamer-java'
+    gitUrl = 'https://github.com/readium/r2-streamer-java.git'
+
+    libraryVersion = '0.1.0'
+
+    developerId = 'mobisystech'
+    developerName = 'CodeToArt'
+    developerEmail = 'mahavir@codetoart.com'
+
+    licenseName = 'FreeBSD License'
+    licenseUrl = 'https://en.wikipedia.org/wiki/FreeBSD_Documentation_License#License'
+    allLicenses = ["FreeBSD"]
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -12,3 +36,6 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+apply from: '../bintray/installv1.gradle'
+apply from: '../bintray/bintrayv1.gradle'
