@@ -48,8 +48,8 @@ public class MediaOverlayParser {
                 if (body.hasAttribute("epub:textref"))
                     node.text = body.getAttribute("epub:textref");
 
-                parseParameters(body, node);
-                parseSequences(body, node, publication);
+                parseParameters(body, node, link.href);
+                parseSequences(body, node, publication, link.href);
 
                 // TODO
                 // Body attribute epub:textref is optional
@@ -83,8 +83,9 @@ public class MediaOverlayParser {
      *
      * @param body input element with seq tag
      * @param node contains parsed <seq><par></par></seq> elements
+     * @param href path of SMIL file
      */
-    private static void parseSequences(Element body, MediaOverlayNode node, EpubPublication publication) throws StackOverflowError {
+    private static void parseSequences(Element body, MediaOverlayNode node, EpubPublication publication, String href) throws StackOverflowError {
         if (body == null || !body.hasChildNodes()) {
             return;
         }
@@ -100,10 +101,10 @@ public class MediaOverlayParser {
                     mediaOverlayNode.role.add("section");
 
                     // child <par> elements in seq
-                    parseParameters(e, mediaOverlayNode);
+                    parseParameters(e, mediaOverlayNode, href);
                     node.children.add(mediaOverlayNode);
                     // recur to parse child node elements
-                    parseSequences(e, mediaOverlayNode, publication);
+                    parseSequences(e, mediaOverlayNode, publication, href);
 
                     if (node.text == null) return;
 
@@ -137,7 +138,7 @@ public class MediaOverlayParser {
      * @param body input element with seq tag
      * @param node contains parsed <par></par> elements
      */
-    private static void parseParameters(Element body, MediaOverlayNode node) {
+    private static void parseParameters(Element body, MediaOverlayNode node, String href) {
         NodeList par = body.getElementsByTagName("par");
         if (par.getLength() == 0) {
             return;
@@ -153,7 +154,7 @@ public class MediaOverlayParser {
 
                     if (text != null) mediaOverlayNode.text = text.getAttribute("src");
                     if (audio != null) {
-                        mediaOverlayNode.audio = SMILParser.parseAudio(audio);
+                        mediaOverlayNode.audio = SMILParser.parseAudio(audio, href);
                     }
                     node.children.add(mediaOverlayNode);
                 }
