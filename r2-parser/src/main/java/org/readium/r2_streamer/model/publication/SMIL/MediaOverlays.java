@@ -29,6 +29,53 @@ public class MediaOverlays implements Serializable {
     }
 
     /**
+     * Function return the path of the audio file for the
+     * given page href
+     *
+     * @param href page href
+     * @return audio file path for given SMIL
+     */
+    public String getAudioPath(String href) {
+        // extract file name
+        if (href.contains("/")) {
+            int startIndex = href.lastIndexOf("/");
+            href = href.substring(startIndex + 1, href.length());
+        }
+        String path = findAudioPath(href, this.mediaOverlayNodes);
+        if (path != null) {
+            return path;
+        }
+        return null;
+    }
+
+    /**
+     * [RECURSIVE]
+     * <p>
+     * Return the file path from the first node element
+     *
+     * @param href  href of page
+     * @param nodes media overlay nodes
+     * @return audio file path
+     */
+    private String findAudioPath(String href,
+                                 List<MediaOverlayNode> nodes) {
+        // For each node of the current scope..
+        for (MediaOverlayNode node : nodes) {
+            if (node.audio != null) {
+                if (node.text.contains(href)) {
+                    if (node.audio.contains("#")) {
+                        return node.audio.split("#")[0];
+                    }
+                }
+            }
+            if (node.role.contains("section")) {
+                return findAudioPath(href, node.children);
+            }
+        }
+        return null;
+    }
+
+    /**
      * <p>
      * Get the audio `Clip` associated to an audio Fragment id.
      * The fragment id can be found in the HTML document in <p> & <span> tags,

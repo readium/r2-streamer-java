@@ -93,9 +93,9 @@ public final class SMILParser {
      *
      * @param element The audio XML element.
      * @return The formatted string representing the data
-     *          format => audio_path#t=start_time,end_time.
+     * format => audio_path#t=start_time,end_time.
      */
-    public static String parseAudio(Element element) {
+    public static String parseAudio(Element element, String href) {
         String audio, clipBegin, clipEnd;
         if (element.hasAttribute("src")) {
             audio = element.getAttribute("src");
@@ -112,15 +112,46 @@ public final class SMILParser {
         } else {
             return null;
         }
-        /// Clean relative path elements "../"
-        if (audio.startsWith("../")) {
-            audio = audio.substring(3, audio.length());
-        }
-        return audio +
+
+        return getAbsoluteUriPath(href, audio) +
                 "#t=" +
                 smilTimeToSeconds(clipBegin) +
                 "," +
                 smilTimeToSeconds(clipEnd);
+    }
+
+    /**
+     * function creates absolute URI path for the audio file.
+     * in ref => https://github.com/readium/readium-2/issues/38.
+     * <p>
+     * TODO check with other Epub file. specifically with deep hierarchy
+     *
+     * @param href  path of SMIL file.
+     * @param audio audio path in SMIL file to update.
+     * @return absolute URI path.
+     */
+    private static String getAbsoluteUriPath(String href, String audio) {
+        StringBuilder toAppend = new StringBuilder();
+        if (href.contains("/")) {
+            // removes file name from path
+            int startIndex = href.lastIndexOf("/");
+            String filePath = href.substring(0, startIndex);
+
+            int count = countSubString(audio, "../");
+            String[] items = filePath.split("/");
+
+            for (int i = 0; i < count; i++) {
+                if (items.length > i) {
+                    if ((items.length - i - 2) >= 0) {
+                        toAppend.insert(0, items[items.length - i - 2] + "/");
+                    }
+                }
+            }
+        }
+        if (audio.contains("../")) {
+            audio = audio.replace("../", "");
+        }
+        return toAppend.toString() + audio;
     }
 
     /**
@@ -139,5 +170,27 @@ public final class SMILParser {
             seconds = Double.parseDouble(time);
         }
         return seconds;
+    }
+
+    /**
+     * Returns number of occurrences of string b in string a.
+     *
+     * @param a string in which to find occurrences.
+     * @param b input substring
+     * @return count
+     */
+    private static int countSubString(String a, String b) {
+        int lastIndex = 0;
+        int count = 0;
+        while (lastIndex != -1) {
+
+            lastIndex = a.indexOf(b, lastIndex);
+
+            if (lastIndex != -1) {
+                count++;
+                lastIndex += b.length();
+            }
+        }
+        return count;
     }
 }
