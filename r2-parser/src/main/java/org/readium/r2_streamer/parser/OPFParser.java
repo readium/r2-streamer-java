@@ -203,7 +203,7 @@ public class OPFParser {
                 }
             } else {
                 titleElement = (Element) titleNodes.item(0);
-                return titleElement.getTextContent();
+                return titleElement == null ? null : titleElement.getTextContent();
             }
         }
         return null;
