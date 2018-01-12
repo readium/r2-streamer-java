@@ -40,7 +40,7 @@ public class MediaOverlayParser {
                 if (document == null)
                     throw new EpubParserException("Error while parsing file " + link.href);
 
-                Element body = (Element) document.getDocumentElement().getElementsByTagName("body").item(0);
+                Element body = (Element) document.getDocumentElement().getElementsByTagNameNS("*", "body").item(0);
 
                 MediaOverlayNode node = new MediaOverlayNode();
                 node.role.add("section");
@@ -139,7 +139,7 @@ public class MediaOverlayParser {
      * @param node contains parsed <par></par> elements
      */
     private static void parseParameters(Element body, MediaOverlayNode node, String href) {
-        NodeList par = body.getElementsByTagName("par");
+        NodeList par = body.getElementsByTagNameNS("*", "par");
         if (par.getLength() == 0) {
             return;
         }
@@ -149,8 +149,8 @@ public class MediaOverlayParser {
                 Element e = (Element) n;
                 if (e.getTagName().equalsIgnoreCase("par")) {
                     MediaOverlayNode mediaOverlayNode = new MediaOverlayNode();
-                    Element text = (Element) e.getElementsByTagName("text").item(0);
-                    Element audio = (Element) e.getElementsByTagName("audio").item(0);
+                    Element text = (Element) e.getElementsByTagNameNS("*", "text").item(0);
+                    Element audio = (Element) e.getElementsByTagNameNS("*", "audio").item(0);
 
                     if (text != null) mediaOverlayNode.text = text.getAttribute("src");
                     if (audio != null) {

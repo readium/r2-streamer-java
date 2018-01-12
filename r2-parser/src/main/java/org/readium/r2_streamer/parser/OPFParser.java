@@ -11,7 +11,6 @@ import org.readium.r2_streamer.model.publication.rendition.RenditionLayout;
 import org.readium.r2_streamer.model.publication.rendition.RenditionOrientation;
 import org.readium.r2_streamer.model.publication.rendition.RenditionSpread;
 import org.readium.r2_streamer.model.publication.subject.Subject;
-
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,6 +30,14 @@ import java.util.Map;
 public class OPFParser {
 
     private static final String TAG = OPFParser.class.getSimpleName();
+    private static final String UTF8_BOM = "\uFEFF";
+
+    private static String removeUTF8BOM(String s) {
+        if (s.startsWith(UTF8_BOM)) {
+            s = s.substring(1);
+        }
+        return s;
+    }
 
     public static EpubPublication parseOpfFile(String rootFile, EpubPublication publication, Container container) throws EpubParserException {
         String opfData = container.rawData(rootFile);
@@ -38,6 +45,8 @@ public class OPFParser {
             System.out.println(TAG + "File is missing: " + rootFile);
             throw new EpubParserException("File is missing");
         }
+
+        opfData = removeUTF8BOM(opfData);
 
         Document document = EpubParser.xmlParser(opfData);
         if (document == null) {
@@ -53,13 +62,13 @@ public class OPFParser {
         metaData.identifier = parseUniqueIdentifier(document);
 
         //description
-        Element descriptionElement = (Element) ((Element) document.getDocumentElement().getElementsByTagName("metadata").item(0)).getElementsByTagName("dc:description").item(0);
+        Element descriptionElement = (Element) ((Element) document.getDocumentElement().getElementsByTagNameNS("*", "metadata").item(0)).getElementsByTagNameNS("*", "description").item(0);
         if (descriptionElement != null) {
             metaData.description = descriptionElement.getTextContent();
         }
 
         //modified date
-        Element dateElement = (Element) ((Element) document.getDocumentElement().getElementsByTagName("metadata").item(0)).getElementsByTagName("dc:date").item(0);
+        Element dateElement = (Element) ((Element) document.getDocumentElement().getElementsByTagNameNS("*", "metadata").item(0)).getElementsByTagNameNS("*", "date").item(0);
         if (dateElement != null) {
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -71,7 +80,7 @@ public class OPFParser {
         }
 
         //subject
-        NodeList subjectNodeList = document.getElementsByTagName("dc:subject");
+        NodeList subjectNodeList = document.getElementsByTagNameNS("*", "subject");
         if (subjectNodeList != null) {
             for (int i = 0; i < subjectNodeList.getLength(); i++) {
                 Element subjectElement = (Element) subjectNodeList.item(i);
@@ -80,7 +89,7 @@ public class OPFParser {
         }
 
         //language
-        NodeList languageNodeList = document.getElementsByTagName("dc:language");
+        NodeList languageNodeList = document.getElementsByTagNameNS("*", "language");
         if (languageNodeList != null) {
             for (int i = 0; i < languageNodeList.getLength(); i++) {
                 Element languageElement = (Element) languageNodeList.item(i);
@@ -89,7 +98,7 @@ public class OPFParser {
         }
 
         //rights
-        NodeList rightNodeList = document.getElementsByTagName("dc:rights");
+        NodeList rightNodeList = document.getElementsByTagNameNS("*", "rights");
         if (rightNodeList != null) {
             for (int i = 0; i < rightNodeList.getLength(); i++) {
                 Element rightElement = (Element) rightNodeList.item(i);
@@ -98,7 +107,7 @@ public class OPFParser {
         }
 
         //publisher
-        NodeList publisherNodeList = document.getElementsByTagName("dc:publisher");
+        NodeList publisherNodeList = document.getElementsByTagNameNS("*", "publisher");
         if (publisherNodeList != null) {
             for (int i = 0; i < publisherNodeList.getLength(); i++) {
                 Element publisherElement = (Element) publisherNodeList.item(i);
@@ -107,7 +116,7 @@ public class OPFParser {
         }
 
         //creator
-        NodeList authorNodeList = document.getElementsByTagName("dc:creator");
+        NodeList authorNodeList = document.getElementsByTagNameNS("*", "creator");
         if (authorNodeList != null) {
             for (int i = 0; i < authorNodeList.getLength(); i++) {
                 Element authorElement = (Element) authorNodeList.item(i);
@@ -116,7 +125,7 @@ public class OPFParser {
         }
 
         //contributor
-        NodeList contributorNodeList = document.getElementsByTagName("dc:contributor");
+        NodeList contributorNodeList = document.getElementsByTagNameNS("*", "contributor");
         if (contributorNodeList != null) {
             for (int i = 0; i < contributorNodeList.getLength(); i++) {
                 Element contributorElement = (Element) contributorNodeList.item(i);
@@ -125,7 +134,7 @@ public class OPFParser {
         }
 
         //rendition property
-        NodeList metaNodeList = document.getElementsByTagName("meta");
+        NodeList metaNodeList = document.getElementsByTagNameNS("*", "meta");
         if (metaNodeList != null) {
             for (int i = 0; i < metaNodeList.getLength(); i++) {
                 Element metaElement = (Element) metaNodeList.item(i);
@@ -157,7 +166,7 @@ public class OPFParser {
             }
         }
 
-        Element spineElement = (Element) document.getElementsByTagName("spine").item(0);
+        Element spineElement = (Element) document.getElementsByTagNameNS("*", "spine").item(0);
         if (spineElement != null) {
             metaData.direction = spineElement.getAttribute("page-progression-direction");
         }
@@ -181,13 +190,13 @@ public class OPFParser {
     //@Nullable
     private static String parseMainTitle(Document document) {
         Element titleElement;
-        NodeList titleNodes = document.getElementsByTagName("dc:title");
+        NodeList titleNodes = document.getElementsByTagNameNS("*", "title");
         if (titleNodes != null) {
             if (titleNodes.getLength() > 1) {
                 for (int i = 0; i < titleNodes.getLength(); i++) {
                     titleElement = (Element) titleNodes.item(i);
                     String titleId = titleElement.getAttribute("id");
-                    NodeList metaNodes = document.getElementsByTagName("meta");
+                    NodeList metaNodes = document.getElementsByTagNameNS("*", "meta");
                     if (metaNodes != null) {
                         for (int j = 0; j < metaNodes.getLength(); j++) {
                             Element metaElement = (Element) metaNodes.item(j);
@@ -212,19 +221,25 @@ public class OPFParser {
     //@Nullable
     private static String parseUniqueIdentifier(Document document) {
         Element identifierElement;
-        NodeList identifierNodes = document.getElementsByTagName("dc:identifier");
+        NodeList identifierNodes = document.getElementsByTagNameNS("*", "identifier");
         if (identifierNodes != null) {
             if (identifierNodes.getLength() > 1) {
                 for (int i = 0; i < identifierNodes.getLength(); i++) {
                     identifierElement = (Element) identifierNodes.item(i);
-                    String uniqueId = identifierElement.getAttribute("unique-identifier");
-                    if (identifierElement.getAttribute("id").equals(uniqueId)) {
-                        return identifierElement.getTextContent();
+
+                    if (identifierElement != null) {
+                        String uniqueId = identifierElement.getAttribute("unique-identifier");
+                        if (identifierElement.getAttribute("id").equals(uniqueId)) {
+                            return identifierElement.getTextContent();
+                        }
                     }
                 }
             } else {
                 identifierElement = (Element) identifierNodes.item(0);
-                return identifierElement.getTextContent();
+
+                if (identifierElement != null) {
+                    return identifierElement.getTextContent();
+                }
             }
         }
         return null;
@@ -265,7 +280,7 @@ public class OPFParser {
                         break;
                 }
             } else {
-                if (element.getTagName().equals("dc:creator")) {
+                if (element.getLocalName().equals("creator")) {
                     metaData.creators.add(contributor);
                 } else {
                     metaData.contributors.add(contributor);
@@ -278,14 +293,14 @@ public class OPFParser {
     private static Contributor createContributorFromElement(Element element, Document document) {
         Contributor contributor = new Contributor(element.getTextContent());
         if (contributor != null) {
-            if (element.hasAttribute("opf:role")) {
-                String role = element.getAttribute("opf:role");
+            if (element.hasAttributeNS("*", "role")) {
+                String role = element.getAttributeNS("*", "role");
                 if (role != null) {
                     contributor.role = role;
                 }
             }
-            if (element.hasAttribute("opf:file-as")) {
-                String sortAs = element.getAttribute("opf:file-as");
+            if (element.hasAttributeNS("*", "file-as")) {
+                String sortAs = element.getAttributeNS("*", "file-as");
                 if (sortAs != null) {
                     contributor.sortAs = sortAs;
                 }
@@ -293,7 +308,7 @@ public class OPFParser {
             if (element.hasAttribute("id")) {
                 String identifier = element.getAttribute("id");
                 if (identifier != null) {
-                    NodeList metas = document.getElementsByTagName("meta");
+                    NodeList metas = document.getElementsByTagNameNS("*", "meta");
                     if (metas != null) {
                         for (int i = 0; i < metas.getLength(); i++) {
                             Element metaElement = (Element) metas.item(i);
@@ -321,7 +336,7 @@ public class OPFParser {
         }
         Map<String, Link> manifestLinks = new HashMap<>();
 
-        NodeList itemNodes = document.getElementsByTagName("item");
+        NodeList itemNodes = document.getElementsByTagNameNS("*", "item");
         if (itemNodes != null) {
             for (int i = 0; i < itemNodes.getLength(); i++) {
                 Element itemElement = (Element) itemNodes.item(i);
@@ -375,7 +390,7 @@ public class OPFParser {
             }
         }
 
-        NodeList itemRefNodes = document.getElementsByTagName("itemref");
+        NodeList itemRefNodes = document.getElementsByTagNameNS("*", "itemref");
         if (itemRefNodes != null) {
             for (int i = 0; i < itemRefNodes.getLength(); i++) {
                 Element itemRefElement = (Element) itemRefNodes.item(i);
@@ -388,7 +403,7 @@ public class OPFParser {
         }
         publication.resources.addAll(manifestLinks.values());
 
-        NodeList referenceNodes = document.getElementsByTagName("reference");
+        NodeList referenceNodes = document.getElementsByTagNameNS("*", "reference");
         if (referenceNodes != null) {
             for (int i = 0; i < referenceNodes.getLength(); i++) {
                 Element referenceElement = (Element) referenceNodes.item(i);

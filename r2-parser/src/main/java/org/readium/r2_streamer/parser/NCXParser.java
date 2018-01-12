@@ -29,13 +29,13 @@ public class NCXParser {
             throw new EpubParserException("Error while parsing");
         }
 
-        Element navMapElement = (Element) document.getElementsByTagName("navMap").item(0);
+        Element navMapElement = (Element) document.getElementsByTagNameNS("*", "navMap").item(0);
         // Parse table of contents (toc) from ncx file
         if (navMapElement != null) {
             publication.tableOfContents = nodeArray(navMapElement, "navPoint", rootPath);
         }
 
-        Element pageList = (Element) document.getElementsByTagName("pageList").item(0);
+        Element pageList = (Element) document.getElementsByTagNameNS("*", "pageList").item(0);
         // Parse page list if exists from ncx file
         if (pageList != null) {
             publication.pageList = nodeArray(pageList, "pageTarget", rootPath);
@@ -80,13 +80,13 @@ public class NCXParser {
     private static TOCLink node(Element element, String type, String rootPath) {
         TOCLink newNode = new TOCLink();
 
-        Element content = (Element) element.getElementsByTagName("content").item(0);
-        Element navLabel = (Element) element.getElementsByTagName("navLabel").item(0);
+        Element content = (Element) element.getElementsByTagNameNS("*", "content").item(0);
+        Element navLabel = (Element) element.getElementsByTagNameNS("*", "navLabel").item(0);
         if (content != null) {
             newNode.href = rootPath + content.getAttribute("src");
         }
         if (navLabel != null) {
-            Element text = (Element) navLabel.getElementsByTagName("text").item(0);
+            Element text = (Element) navLabel.getElementsByTagNameNS("*", "text").item(0);
             if (text != null) {
                 newNode.bookTitle = text.getTextContent();
             }
