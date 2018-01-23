@@ -33,13 +33,13 @@ public class EncryptionParser {
             if (encryptionDocument == null) {
                 throw new EpubParserException("Error while paring META-INF/encryption.xml");
             }
-            NodeList element = encryptionDocument.getDocumentElement().getElementsByTagName("EncryptedData");
+            NodeList element = encryptionDocument.getDocumentElement().getElementsByTagNameNS("*", "EncryptedData");
 
             List<Encryption> encryptions = new ArrayList<>();
             for (int i = 0; i < element.getLength(); i++) {
                 Encryption encryption = new Encryption();
-                Element algorithmElement = (Element) ((Element) element.item(i)).getElementsByTagName("EncryptionMethod").item(0);
-                Element pathElement = (Element) ((Element) ((Element) element.item(i)).getElementsByTagName("CipherData").item(0)).getElementsByTagName("CipherReference").item(0);
+                Element algorithmElement = (Element) ((Element) element.item(i)).getElementsByTagNameNS("*", "EncryptionMethod").item(0);
+                Element pathElement = (Element) ((Element) ((Element) element.item(i)).getElementsByTagNameNS("*", "CipherData").item(0)).getElementsByTagNameNS("*", "CipherReference").item(0);
                 if (algorithmElement != null) {
                     if (algorithmElement.hasAttribute("Algorithm")) {
                         encryption.setAlgorithm(algorithmElement.getAttribute("Algorithm"));
