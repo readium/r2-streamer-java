@@ -3,7 +3,6 @@ package org.readium.r2_streamer.parser;
 import org.readium.r2_streamer.model.container.Container;
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -19,11 +18,22 @@ public class NCXParser {
 
     private static final String TAG = NCXParser.class.getSimpleName();
 
+    private static final String UTF8_BOM = "\uFEFF";
+
+    private static String removeUTF8BOM(String s) {
+        if (s.startsWith(UTF8_BOM)) {
+            s = s.substring(1);
+        }
+        return s;
+    }
+
     public static void parseNCXFile(String ncxFile, Container container, EpubPublication publication, String rootPath) throws EpubParserException {
         String ncxData = container.rawData(ncxFile);
         if (ncxData == null) {
             return; // File is missing
         }
+
+        ncxData = removeUTF8BOM(ncxData);
         Document document = EpubParser.xmlParser(ncxData);
         if (document == null) {
             throw new EpubParserException("Error while parsing");

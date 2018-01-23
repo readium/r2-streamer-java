@@ -140,32 +140,4 @@ public class EpubParser {
         return null;
     }
 
-
-    /* try {
-        // load the document from a file:
-        DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-
-
-
-        DocumentBuilder loader = factory.newDocumentBuilder();
-        Document document = loader.parse("sample.xml");
-
-        // here is our vendor URL used in namepace-related functions:
-        String docNS = "http://www.my-company.com";
-
-        Element order = document.getDocumentElement();
-
-        // here we get the attribute with namespace defined:
-        Attr date = order.getAttributeNodeNS(docNS, "date");
-        // .. do something ...
-
-        // here we get the attribute with namespace defined:
-        NodeList children = order.getElementsByTagNameNS(docNS, "item");
-        // .. do something ...
-
-    } catch (Exception ex) {
-        ex.printStackTrace();
-    }
-}*/
 }

@@ -369,6 +369,11 @@ public class OPFParser {
                             link.properties.add("resource:" + attr.getNodeValue());
                     }
                 }
+                String hrefFromItem = itemElement.getAttribute("href");
+                if (hrefFromItem.contains("ncx")) {
+                    NCXParser.parseNCXFile(link.getHref(), container, publication, packageName);
+                }
+
 
                 String id = itemElement.getAttribute("id");
                 if (id.contains("ncx")) {
