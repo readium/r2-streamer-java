@@ -2,7 +2,6 @@ package org.readium.r2_streamer.parser;
 
 import org.readium.r2_streamer.model.container.Container;
 import org.readium.r2_streamer.model.publication.EpubPublication;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -90,14 +89,18 @@ public class EpubParser {
             String xml = containerData.replaceAll("[^\\x20-\\x7e]", "").trim();         //in case encoding problem
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+
             DocumentBuilder builder = factory.newDocumentBuilder();
+
             Document document = builder.parse(new InputSource(new StringReader(xml)));
             document.getDocumentElement().normalize();
+
             if (document == null) {
                 throw new EpubParserException("Error while parsing container.xml");
             }
 
-            Element rootElement = (Element) ((Element) document.getDocumentElement().getElementsByTagName("rootfiles").item(0)).getElementsByTagName("rootfile").item(0);
+            Element rootElement = (Element) ((Element) document.getDocumentElement().getElementsByTagNameNS("*", "rootfiles").item(0)).getElementsByTagNameNS("*", "rootfile").item(0);
             if (rootElement != null) {
                 String opfFile = rootElement.getAttribute("full-path");
                 if (opfFile == null) {
@@ -117,9 +120,15 @@ public class EpubParser {
     public static Document xmlParser(String xmlData) throws EpubParserException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(xmlData)));
+
+            StringReader characterStream = new StringReader(xmlData);
+            InputSource inputSource = new InputSource(characterStream);
+            Document document = builder.parse(inputSource);
             document.getDocumentElement().normalize();
+
             if (document == null) {
                 throw new EpubParserException("Error while parsing xml file");
             }
@@ -130,4 +139,5 @@ public class EpubParser {
         }
         return null;
     }
+
 }

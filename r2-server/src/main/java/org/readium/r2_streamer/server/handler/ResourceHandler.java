@@ -54,6 +54,10 @@ public class ResourceHandler extends DefaultHandler {
         Method method = session.getMethod();
         String uri = session.getUri();
 
+        if (uri.contains("//")){
+            uri = session.getUri().replace("//", "/");
+        }
+
         System.out.println(TAG + " Method: " + method + ", Url: " + uri);
 
         try {
