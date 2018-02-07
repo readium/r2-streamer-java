@@ -119,6 +119,8 @@ public class EpubParser {
     //@Nullable
     public static Document xmlParser(String xmlData) throws EpubParserException {
         try {
+            xmlData = xmlData.replaceAll("[^\\x20-\\x7e]", "").trim();
+
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
 
