@@ -17,14 +17,14 @@ import java.util.List;
  * Created by Shrikant Badwaik on 25-Jan-17.
  */
 
-public class EpubPublication implements Serializable{
+public class EpubPublication implements Serializable {
     private static final long serialVersionUID = 3336472295622776147L;
 
     @JsonProperty("metadata")
     public MetaData metadata;
 
     @JsonIgnore
-    public HashMap<String,Link> linkMap;
+    public HashMap<String, Link> linkMap;
     @JsonProperty("links")
     public List<Link> links;
     @JsonIgnore
@@ -76,7 +76,7 @@ public class EpubPublication implements Serializable{
         this.spines = new ArrayList<>();
         this.encryptions = new ArrayList<>();
         this.resources = new ArrayList<>();
-        this.guides= new ArrayList<>();
+        this.guides = new ArrayList<>();
         this.internalData = new HashMap<>();
 
         this.linkMap = new HashMap<>();
@@ -107,7 +107,7 @@ public class EpubPublication implements Serializable{
     }
 
     public Link getResourceMimeType(String resourcePath) {
-        if(linkMap.containsKey(resourcePath)){
+        if (linkMap.containsKey(resourcePath)) {
             return linkMap.get(resourcePath);
         }
         return null;
