@@ -52,7 +52,7 @@ public class ResourceHandler extends DefaultHandler {
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Method method = session.getMethod();
-        String uri = session.getUri();
+        String uri = session.getUri().replaceAll("\\s", "%20");
 
         if (uri.contains("//")){
             uri = session.getUri().replace("//", "/");
