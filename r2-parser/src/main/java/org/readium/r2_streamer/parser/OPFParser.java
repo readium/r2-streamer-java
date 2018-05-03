@@ -348,6 +348,7 @@ public class OPFParser {
                     switch (attr.getNodeName()) {
                         case "href":
                             link.href = packageName + attr.getNodeValue();
+                            link.originalHref = attr.getNodeValue();
                             break;
                         case "media-type":
                             link.typeLink = attr.getNodeValue();
