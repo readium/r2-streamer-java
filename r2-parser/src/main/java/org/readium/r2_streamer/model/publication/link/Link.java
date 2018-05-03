@@ -13,6 +13,7 @@ import java.util.List;
 public class Link implements Serializable {
     private static final long serialVersionUID = 7612342295622776147L;
     public String id;
+    public String originalHref;
     public String href;
     public List<String> rel = new ArrayList<>();
     public String typeLink;
@@ -41,8 +42,9 @@ public class Link implements Serializable {
     public String toString() {
         return "Link{" +
                 "id='" + id + '\'' +
-                ", mediaOverlay=" + mediaOverlay +
+                ", originalHref='" + originalHref + '\'' +
                 ", href='" + href + '\'' +
+                ", mediaOverlay=" + mediaOverlay +
                 ", rel=" + rel +
                 ", typeLink='" + typeLink + '\'' +
                 ", height=" + height +
@@ -62,6 +64,14 @@ public class Link implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getOriginalHref() {
+        return originalHref;
+    }
+
+    public void setOriginalHref(String originalHref) {
+        this.originalHref = originalHref;
     }
 
     public String getHref() {
