@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class EncryptionParser {
         String containerPath = "META-INF/encryption.xml";
         try {
             String containerData = container.rawData(containerPath);
+            if (containerData == null || containerData.isEmpty())
+                throw new FileNotFoundException();
             Document encryptionDocument = EpubParser.xmlParser(containerData);
             if (encryptionDocument == null) {
                 throw new EpubParserException("Error while paring META-INF/encryption.xml");
@@ -58,7 +61,7 @@ public class EncryptionParser {
         } catch (EpubParserException e) {
             e.printStackTrace();
             return null;
-        } catch (NullPointerException e) {
+        } catch (FileNotFoundException | NullPointerException e) {
             System.out.println(TAG + " META-INF/encryption.xml not found " + e);
             return null;
         }
