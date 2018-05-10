@@ -1,5 +1,6 @@
 package org.readium.r2_streamer.model.container;
 
+import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
@@ -10,15 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Created by Shrikant Badwaik on 24-Jan-17.
@@ -27,12 +25,10 @@ import java.util.zip.ZipFile;
 public class EpubContainer implements Container {
     private final String TAG = "EpubContainer";
     private ZipFile zipFile;
-    private net.lingala.zip4j.core.ZipFile zipFile4J;
 
     public EpubContainer(String epubFilePath) throws IOException {
-        this.zipFile = new ZipFile(epubFilePath);
         try {
-            zipFile4J = new net.lingala.zip4j.core.ZipFile(epubFilePath);
+            zipFile = new net.lingala.zip4j.core.ZipFile(epubFilePath);
         } catch (ZipException e) {
             System.err.println(TAG + " -> " + e);
         }
@@ -44,33 +40,10 @@ public class EpubContainer implements Container {
     public String rawData(String relativePath) throws NullPointerException {
         System.out.println(TAG + " Reading file at path: " + relativePath);
         try {
-            ZipEntry zipEntry = zipFile.getEntry(relativePath);
-            if (zipEntry == null) {
-                return "";
-            }
-            InputStream is = zipFile.getInputStream(zipEntry);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                sb.append(line);        //.append('\n');
-            }
-
-            return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String newRawData(String relativePath) throws NullPointerException {
-        System.out.println(TAG + " Reading file at path: " + relativePath);
-        try {
-            FileHeader fileHeader = zipFile4J.getFileHeader(relativePath);
+            FileHeader fileHeader = zipFile.getFileHeader(relativePath);
             if (fileHeader == null)
                 return null;
-            InputStream is = zipFile4J.getInputStream(fileHeader);
+            InputStream is = zipFile.getInputStream(fileHeader);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line;
@@ -88,15 +61,10 @@ public class EpubContainer implements Container {
 
     @Override
     public int rawDataSize(String relativePath) {
-        ZipEntry zipEntry = zipFile.getEntry(relativePath);
-        return ((int) zipEntry.getSize());
-    }
-
-    public int newRawDataSize(String relativePath) {
 
         FileHeader fileHeader = null;
         try {
-            fileHeader = zipFile4J.getFileHeader(relativePath);
+            fileHeader = zipFile.getFileHeader(relativePath);
         } catch (ZipException e) {
             e.printStackTrace();
         }
@@ -107,21 +75,11 @@ public class EpubContainer implements Container {
 
     @Override
     public List<String> listFiles() {
-        List<String> files = new ArrayList<>();
-        Enumeration zipEntries = zipFile.entries();
-        while (zipEntries.hasMoreElements()) {
-            String fileName = ((ZipEntry) zipEntries.nextElement()).getName();
-            files.add(fileName);
-        }
-        return files;
-    }
-
-    public List<String> newListFiles() {
 
         List<String> files = new ArrayList<>();
         List<FileHeader> fileHeaderList;
         try {
-            fileHeaderList = zipFile4J.getFileHeaders();
+            fileHeaderList = zipFile.getFileHeaders();
         } catch (ZipException e) {
             e.printStackTrace();
             return files;
@@ -142,20 +100,8 @@ public class EpubContainer implements Container {
                 @Override
                 public ByteArrayInputStream call() throws Exception {
 
-                    System.out.println(" -> rawData -> " + (rawData(relativePath)
-                            .equals(newRawData(relativePath)) ? "equal" : "not equal"));
-
-                    System.out.println(" -> " + listFiles());
-                    System.out.println(" -> " + newListFiles());
-
-                    System.out.println(" -> dataSize -> " + (rawDataSize(relativePath) ==
-                            newRawDataSize(relativePath) ? "equal" : "not equal"));
-
-                    FileHeader fileHeader = zipFile4J.getFileHeader(relativePath);
-                    InputStream inputStream = zipFile4J.getInputStream(fileHeader);
-
-//                    ZipEntry zipEntry = zipFile.getEntry(relativePath);
-//                    InputStream inputStream = zipFile.getInputStream(zipEntry);
+                    FileHeader fileHeader = zipFile.getFileHeader(relativePath);
+                    InputStream inputStream = zipFile.getInputStream(fileHeader);
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     long BUFFER_SIZE = 16 * 1024;
