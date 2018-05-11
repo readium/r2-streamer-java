@@ -40,7 +40,8 @@ public class EpubContainer implements Container {
     public String rawData(String relativePath) throws NullPointerException {
         System.out.println(TAG + " Reading file at path: " + relativePath);
         try {
-            FileHeader fileHeader = zipFile.getFileHeader(relativePath);
+            String relativePathString = relativePath.replaceAll("%20", " ");
+            FileHeader fileHeader = zipFile.getFileHeader(relativePathString);
             if (fileHeader == null)
                 return null;
             InputStream is = zipFile.getInputStream(fileHeader);
@@ -62,9 +63,10 @@ public class EpubContainer implements Container {
     @Override
     public int rawDataSize(String relativePath) {
 
+        String relativePathString = relativePath.replaceAll("%20", " ");
         FileHeader fileHeader = null;
         try {
-            fileHeader = zipFile.getFileHeader(relativePath);
+            fileHeader = zipFile.getFileHeader(relativePathString);
         } catch (ZipException e) {
             e.printStackTrace();
         }
@@ -100,7 +102,8 @@ public class EpubContainer implements Container {
                 @Override
                 public ByteArrayInputStream call() throws Exception {
 
-                    FileHeader fileHeader = zipFile.getFileHeader(relativePath);
+                    String relativePathString = relativePath.replaceAll("%20", " ");
+                    FileHeader fileHeader = zipFile.getFileHeader(relativePathString);
                     InputStream inputStream = zipFile.getInputStream(fileHeader);
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
