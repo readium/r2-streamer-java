@@ -9,6 +9,8 @@ import org.readium.r2_streamer.server.ResponseStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -52,19 +54,27 @@ public class ResourceHandler extends DefaultHandler {
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Method method = session.getMethod();
-        String uri = session.getUri().replaceAll("\\s", "%20");
 
-        if (uri.contains("//")){
-            uri = session.getUri().replace("//", "/");
+        URI uri;
+        try {
+            uri = new URI(null, null, session.getUri(), null);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+        String encodedUri = uri.toString();
+
+        if (encodedUri.contains("//")){
+            encodedUri = session.getUri().replace("//", "/");
         }
 
-        System.out.println(TAG + " Method: " + method + ", Url: " + uri);
+        System.out.println(TAG + " Method: " + method + ", Url: " + encodedUri);
 
         try {
             EpubFetcher fetcher = uriResource.initParameter(EpubFetcher.class);
-            int offset = uri.indexOf("/", 0);
-            int startIndex = uri.indexOf("/", offset + 1);
-            String filePath = uri.substring(startIndex + 1);
+            int offset = encodedUri.indexOf("/", 0);
+            int startIndex = encodedUri.indexOf("/", offset + 1);
+            String filePath = encodedUri.substring(startIndex + 1);
             Link link = fetcher.publication.getResourceMimeType(filePath);
             String mimeType = link.getTypeLink();
 

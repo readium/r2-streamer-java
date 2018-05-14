@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -40,8 +42,8 @@ public class EpubContainer implements Container {
     public String rawData(String relativePath) throws NullPointerException {
         System.out.println(TAG + " Reading file at path: " + relativePath);
         try {
-            String relativePathString = relativePath.replaceAll("%20", " ");
-            FileHeader fileHeader = zipFile.getFileHeader(relativePathString);
+            String decodedRelativePath = new URI(relativePath).getPath();
+            FileHeader fileHeader = zipFile.getFileHeader(decodedRelativePath);
             if (fileHeader == null)
                 return null;
             InputStream is = zipFile.getInputStream(fileHeader);
@@ -54,7 +56,7 @@ public class EpubContainer implements Container {
             }
 
             return sb.toString();
-        } catch (ZipException | IOException e) {
+        } catch (URISyntaxException | ZipException | IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -63,10 +65,15 @@ public class EpubContainer implements Container {
     @Override
     public int rawDataSize(String relativePath) {
 
-        String relativePathString = relativePath.replaceAll("%20", " ");
+        String decodedRelativePath = null;
+        try {
+            decodedRelativePath = new URI(relativePath).getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         FileHeader fileHeader = null;
         try {
-            fileHeader = zipFile.getFileHeader(relativePathString);
+            fileHeader = zipFile.getFileHeader(decodedRelativePath);
         } catch (ZipException e) {
             e.printStackTrace();
         }
@@ -102,8 +109,8 @@ public class EpubContainer implements Container {
                 @Override
                 public ByteArrayInputStream call() throws Exception {
 
-                    String relativePathString = relativePath.replaceAll("%20", " ");
-                    FileHeader fileHeader = zipFile.getFileHeader(relativePathString);
+                    String decodedRelativePath = new URI(relativePath).getPath();
+                    FileHeader fileHeader = zipFile.getFileHeader(decodedRelativePath);
                     InputStream inputStream = zipFile.getInputStream(fileHeader);
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
