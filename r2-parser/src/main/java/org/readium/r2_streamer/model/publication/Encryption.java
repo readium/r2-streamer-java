@@ -30,9 +30,10 @@ public class Encryption implements Serializable {
                 '}';
     }
 
-    public static Encryption getEncryptionFormFontFilePath(
-            String path,
-            List<Encryption> encryptions) {
+    public static Encryption getEncryptionFormFontFilePath(String path,
+                                                           List<Encryption> encryptions) {
+        if (encryptions == null)
+            return null;
         for (Encryption encryption : encryptions) {
             if (encryption.getProfile().equalsIgnoreCase(path)) {
                 return encryption;

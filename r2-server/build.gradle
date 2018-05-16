@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/readium/r2-streamer-java'
     gitUrl = 'https://github.com/readium/r2-streamer-java.git'
 
-    libraryVersion = '0.1.4'
+    libraryVersion = '0.1.5'
 
     developerId = 'mobisystech'
     developerName = 'CodeToArt'
