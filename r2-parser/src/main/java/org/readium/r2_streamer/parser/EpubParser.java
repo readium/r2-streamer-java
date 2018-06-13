@@ -59,7 +59,7 @@ public class EpubParser {
     private boolean isMimeTypeValid() throws EpubParserException {
         String mimeTypeData = container.rawData("mimetype");
 
-        if (mimeTypeData.equals("application/epub+zip")) {
+        if (mimeTypeData != null && mimeTypeData.equals("application/epub+zip")) {
             return true;
         } else {
             System.out.println(TAG + "Invalid MIME type: " + mimeTypeData);
