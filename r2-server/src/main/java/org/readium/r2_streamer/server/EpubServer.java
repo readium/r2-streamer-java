@@ -65,10 +65,13 @@ public class EpubServer extends RouterNanoHTTPD {
      */
     private void addLinks(EpubPublication publication, String filePath) {
         containsMediaOverlay = false;
-        for (Link link : publication.links) {
-            if (link.rel.contains("media-overlay")) {
-                containsMediaOverlay = true;
-                link.href = link.href.replace("port", "localhost:" + getListeningPort() + filePath);
+
+        if (publication.links != null) {
+            for (Link link : publication.links) {
+                if (link.rel.contains("media-overlay")) {
+                    containsMediaOverlay = true;
+                    link.href = link.href.replace("port", "localhost:" + getListeningPort() + filePath);
+                }
             }
         }
 
