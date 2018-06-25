@@ -52,8 +52,11 @@ public class EpubContainer implements Container {
             String line;
 
             while ((line = br.readLine()) != null) {
-                sb.append(line);        //.append('\n');
+                sb.append(line).append('\n');
             }
+
+            if (sb.length() > 0)
+                sb.deleteCharAt(sb.length() - 1);
 
             return sb.toString();
         } catch (URISyntaxException | ZipException | IOException e) {
