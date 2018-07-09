@@ -4,6 +4,8 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
+import org.readium.r2_streamer.parser.UnicodeBOMInputStream;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,8 +48,13 @@ public class EpubContainer implements Container {
             FileHeader fileHeader = zipFile.getFileHeader(decodedRelativePath);
             if (fileHeader == null)
                 return null;
+
             InputStream is = zipFile.getInputStream(fileHeader);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+            UnicodeBOMInputStream ubis = new UnicodeBOMInputStream(is);
+            ubis.skipBOM();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(ubis));
             StringBuilder sb = new StringBuilder();
             String line;
 
