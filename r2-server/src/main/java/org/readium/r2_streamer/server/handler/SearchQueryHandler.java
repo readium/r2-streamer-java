@@ -92,13 +92,8 @@ public class SearchQueryHandler extends DefaultHandler {
                     searchResult.setMatchString(match);
                     searchResult.setTextBefore(prev);
                     searchResult.setTextAfter(next);
+                    searchResult.setTitle(parseChapterTitle(htmlText));
 
-                    String title = parseChapterTitle(htmlText);
-                    if (title != null) {
-                        searchResult.setTitle(title);
-                    } else {
-                        searchResult.setTitle("Title not available");
-                    }
                     searchQueryResults.searchResultList.add(searchResult);
                 }
             }
@@ -114,54 +109,47 @@ public class SearchQueryHandler extends DefaultHandler {
         }
     }
 
-    //@Nullable
     private String parseChapterTitle(String searchData) {
+
         Document document = Jsoup.parse(searchData);
+
         Element h1Element = document.select("h1").first();
-        if (h1Element != null) {
+        if (h1Element != null)
             return h1Element.text();
-        } else {
-            Element h2Element = document.select("h2").first();
-            if (h2Element != null) {
-                return h2Element.text();
-            } else {
-                Element titleElement = document.select("title").first();
-                if (titleElement != null) {
-                    return titleElement.text();
-                }
-            }
-        }
+
+        Element h2Element = document.select("h2").first();
+        if (h2Element != null)
+            return h2Element.text();
+
+        Element titleElement = document.select("title").first();
+        if (titleElement != null)
+            return titleElement.text();
+
         return null;
     }
 
     private String getTextBefore(String text, Matcher matcher, int noOfWords) {
 
-        int noOfWordsFound = -1;
+        int noOfWordsFound = 0;
         int i = matcher.start() - 1;
-        Boolean lastCharLetterOrDigit = null;
+        Boolean lastCharSpace = null;
 
-        while (i >= 0) {
+        for (; i >= 0; i--) {
 
-            if (!Character.isLetterOrDigit(text.charAt(i))) {
+            if (Character.isSpaceChar(text.charAt(i))) {
 
-                if (lastCharLetterOrDigit == null || lastCharLetterOrDigit) {
+                if (lastCharSpace != null)
                     noOfWordsFound++;
-                    lastCharLetterOrDigit = false;
-                }
+                lastCharSpace = true;
 
             } else {
-
-                if (lastCharLetterOrDigit == null)
-                    noOfWordsFound++;
-                lastCharLetterOrDigit = true;
+                lastCharSpace = false;
             }
 
             if (noOfWordsFound == noOfWords) {
                 i++;
                 break;
             }
-
-            i--;
         }
 
         if (i < 0) {
@@ -173,18 +161,30 @@ public class SearchQueryHandler extends DefaultHandler {
 
     private String getTextAfter(String text, Matcher matcher, int noOfWords) {
 
-        String textAfter = text.substring(matcher.start(), text.length());
-        Pattern pattern = Pattern.compile("^" + matcher.group() + "\\W*(\\w*\\W*){" + (noOfWords - 1) + "}\\w*");
-        Matcher afterTextMatcher = pattern.matcher(textAfter);
+        int noOfWordsFound = 0;
+        int i = matcher.end();
+        Boolean lastCharSpace = null;
 
-        String result = null;
+        for (; i < text.length(); i++) {
 
-        if (afterTextMatcher.find()) {
-            result = afterTextMatcher.group().substring(matcher.group().length());
-            if (afterTextMatcher.end() != textAfter.length())
-                result += "...";
+            if (Character.isSpaceChar(text.charAt(i))) {
+
+                if (lastCharSpace != null)
+                    noOfWordsFound++;
+                lastCharSpace = true;
+
+            } else {
+                lastCharSpace = false;
+            }
+
+            if (noOfWordsFound == noOfWords)
+                break;
         }
 
-        return result;
+        if (i == text.length()) {
+            return text.substring(matcher.end(), text.length());
+        } else {
+            return text.substring(matcher.end(), i) + "...";
+        }
     }
 }
