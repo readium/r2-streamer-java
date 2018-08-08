@@ -1,20 +1,17 @@
 package org.readium.r2_streamer.server.handler;
 
-//import android.support.annotation.Nullable;
-//import android.util.Log;
-
-import org.readium.r2_streamer.fetcher.EpubFetcher;
-import org.readium.r2_streamer.fetcher.EpubFetcherException;
-import org.readium.r2_streamer.model.publication.link.Link;
-import org.readium.r2_streamer.model.searcher.SearchQueryResults;
-import org.readium.r2_streamer.model.searcher.SearchResult;
-import org.readium.r2_streamer.server.ResponseStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.readium.r2_streamer.fetcher.EpubFetcher;
+import org.readium.r2_streamer.fetcher.EpubFetcherException;
+import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2_streamer.model.searcher.SearchQueryResults;
+import org.readium.r2_streamer.model.searcher.SearchResult;
+import org.readium.r2_streamer.server.ResponseStatus;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -68,22 +65,24 @@ public class SearchQueryHandler extends DefaultHandler {
             String queryParameter = session.getQueryParameterString();
             int startIndex = queryParameter.indexOf("=");
             String searchQueryPath = queryParameter.substring(startIndex + 1);
+            if (searchQueryPath.contains("%20")) {
+                searchQueryPath = searchQueryPath.replaceAll("%20", " ");
+            }
+            Pattern pattern = Pattern.compile(searchQueryPath, Pattern.CASE_INSENSITIVE);
 
             SearchQueryResults searchQueryResults = new SearchQueryResults();
-            for (Link link : fetcher.publication.spines) {
-                String htmlText = fetcher.getData(link.getHref());
-                if (searchQueryPath.contains("%20")) {
-                    searchQueryPath = searchQueryPath.replaceAll("%20", " ");
-                }
-                Pattern pattern = Pattern.compile(searchQueryPath, Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(htmlText);
-                while (matcher.find()) {
-                    int start = matcher.start();
 
-                    String prev = getTextBefore(start, htmlText);
-                    //String prev = htmlText.substring(start - 20, start);
-                    String next = getTextAfter(start, searchQueryPath, htmlText);
-                    //String next = htmlText.substring(start + searchQueryPath.length(), (start + searchQueryPath.length()) + 20);
+            for (Link link : fetcher.publication.spines) {
+
+                String htmlText = fetcher.getData(link.getHref());
+                String bodyText = Jsoup.parse(htmlText).body().text();
+                Matcher matcher = pattern.matcher(bodyText);
+
+                while (matcher.find()) {
+
+                    int start = matcher.start();
+                    String prev = getTextBefore(bodyText, matcher, 15);
+                    String next = getTextAfter(bodyText, matcher, 15);
                     String match = prev.concat(searchQueryPath).concat(next);
 
                     SearchResult searchResult = new SearchResult();
@@ -103,10 +102,12 @@ public class SearchQueryHandler extends DefaultHandler {
                     searchQueryResults.searchResultList.add(searchResult);
                 }
             }
+
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(searchQueryResults);
             response = NanoHTTPD.newFixedLengthResponse(Status.OK, getMimeType(), json);
             return response;
+
         } catch (EpubFetcherException | JsonProcessingException e) {
             e.printStackTrace();
             return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
@@ -133,21 +134,57 @@ public class SearchQueryHandler extends DefaultHandler {
         return null;
     }
 
-    private String getTextBefore(int start, String htmlString) {
-        int beginIndex = start - 20;
-        if (beginIndex >= 0 && beginIndex < htmlString.length()) {
-            return htmlString.substring(beginIndex, start);
+    private String getTextBefore(String text, Matcher matcher, int noOfWords) {
+
+        int noOfWordsFound = -1;
+        int i = matcher.start() - 1;
+        Boolean lastCharLetterOrDigit = null;
+
+        while (i >= 0) {
+
+            if (!Character.isLetterOrDigit(text.charAt(i))) {
+
+                if (lastCharLetterOrDigit == null || lastCharLetterOrDigit) {
+                    noOfWordsFound++;
+                    lastCharLetterOrDigit = false;
+                }
+
+            } else {
+
+                if (lastCharLetterOrDigit == null)
+                    noOfWordsFound++;
+                lastCharLetterOrDigit = true;
+            }
+
+            if (noOfWordsFound == noOfWords) {
+                i++;
+                break;
+            }
+
+            i--;
+        }
+
+        if (i < 0) {
+            return text.substring(0, matcher.start());
         } else {
-            return htmlString.substring(0, start);
+            return "..." + text.substring(i, matcher.start());
         }
     }
 
-    private String getTextAfter(int start, String searchQueryPath, String htmlString) {
-        int beginIndex = start + searchQueryPath.length();
-        if ((beginIndex + 20) > htmlString.length()) {
-            return htmlString.substring(beginIndex);
-        } else {
-            return htmlString.substring(beginIndex, beginIndex + 20);
+    private String getTextAfter(String text, Matcher matcher, int noOfWords) {
+
+        String textAfter = text.substring(matcher.start(), text.length());
+        Pattern pattern = Pattern.compile("^" + matcher.group() + "\\W*(\\w*\\W*){" + (noOfWords - 1) + "}\\w*");
+        Matcher afterTextMatcher = pattern.matcher(textAfter);
+
+        String result = null;
+
+        if (afterTextMatcher.find()) {
+            result = afterTextMatcher.group().substring(matcher.group().length());
+            if (afterTextMatcher.end() != textAfter.length())
+                result += "...";
         }
+
+        return result;
     }
 }
