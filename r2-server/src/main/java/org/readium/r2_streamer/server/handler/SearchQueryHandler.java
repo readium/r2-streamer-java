@@ -54,6 +54,7 @@ public class SearchQueryHandler extends DefaultHandler {
 
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
+
         Method method = session.getMethod();
         String uri = session.getUri();
 
