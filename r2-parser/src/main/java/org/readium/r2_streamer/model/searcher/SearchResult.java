@@ -6,7 +6,8 @@ package org.readium.r2_streamer.model.searcher;
 
 public class SearchResult {
     private int searchIndex;
-    private String resource;
+    private String href;
+    private String originalHref;
     private String title;
     private String searchQuery;
     private String matchString;
@@ -16,9 +17,12 @@ public class SearchResult {
     public SearchResult() {
     }
 
-    public SearchResult(int searchIndex, String resource, String title, String searchQuery, String matchString, String textBefore, String textAfter) {
+    public SearchResult(int searchIndex, String href, String originalHref, String title,
+                        String searchQuery, String matchString, String textBefore,
+                        String textAfter) {
         this.searchIndex = searchIndex;
-        this.resource = resource;
+        this.href = href;
+        this.originalHref = originalHref;
         this.title = title;
         this.searchQuery = searchQuery;
         this.matchString = matchString;
@@ -34,12 +38,20 @@ public class SearchResult {
         this.searchIndex = searchIndex;
     }
 
-    public String getResource() {
-        return resource;
+    public String getHref() {
+        return href;
     }
 
-    public void setResource(String resource) {
-        this.resource = resource;
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+    public String getOriginalHref() {
+        return originalHref;
+    }
+
+    public void setOriginalHref(String originalHref) {
+        this.originalHref = originalHref;
     }
 
     public String getTitle() {

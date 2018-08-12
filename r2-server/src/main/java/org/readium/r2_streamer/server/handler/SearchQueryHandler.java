@@ -88,7 +88,8 @@ public class SearchQueryHandler extends DefaultHandler {
 
                     SearchResult searchResult = new SearchResult();
                     searchResult.setSearchIndex(start);
-                    searchResult.setResource(link.getHref());
+                    searchResult.setHref(link.getHref());
+                    searchResult.setOriginalHref(link.getOriginalHref());
                     searchResult.setSearchQuery(searchQueryPath);
                     searchResult.setMatchString(match);
                     searchResult.setTextBefore(prev);
