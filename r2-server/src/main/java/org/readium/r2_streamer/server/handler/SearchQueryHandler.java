@@ -13,6 +13,8 @@ import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 import org.readium.r2_streamer.model.searcher.SearchResult;
 import org.readium.r2_streamer.server.ResponseStatus;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,11 +67,9 @@ public class SearchQueryHandler extends DefaultHandler {
 
             String queryParameter = session.getQueryParameterString();
             int startIndex = queryParameter.indexOf("=");
-            String searchQueryPath = queryParameter.substring(startIndex + 1);
-            if (searchQueryPath.contains("%20")) {
-                searchQueryPath = searchQueryPath.replaceAll("%20", " ");
-            }
-            Pattern pattern = Pattern.compile(searchQueryPath, Pattern.CASE_INSENSITIVE);
+            String searchQueryEncoded = queryParameter.substring(startIndex + 1);
+            String searchQuery = URLDecoder.decode(searchQueryEncoded, "UTF-8");
+            Pattern pattern = Pattern.compile(searchQuery, Pattern.CASE_INSENSITIVE);
 
             SearchQueryResults searchQueryResults = new SearchQueryResults();
 
@@ -78,23 +78,26 @@ public class SearchQueryHandler extends DefaultHandler {
                 String htmlText = fetcher.getData(link.getHref());
                 String bodyText = Jsoup.parse(htmlText).body().text();
                 Matcher matcher = pattern.matcher(bodyText);
+                int occurrenceInChapter = 0;
 
                 while (matcher.find()) {
 
                     int start = matcher.start();
                     String prev = getTextBefore(bodyText, matcher, 15);
                     String next = getTextAfter(bodyText, matcher, 15);
-                    String match = prev.concat(searchQueryPath).concat(next);
+                    String sentence = prev.concat(matcher.group()).concat(next);
 
                     SearchResult searchResult = new SearchResult();
                     searchResult.setSearchIndex(start);
                     searchResult.setHref(link.getHref());
                     searchResult.setOriginalHref(link.getOriginalHref());
-                    searchResult.setSearchQuery(searchQueryPath);
-                    searchResult.setMatchString(match);
+                    searchResult.setSearchQuery(searchQuery);
+                    searchResult.setMatchQuery(matcher.group());
+                    searchResult.setSentence(sentence);
                     searchResult.setTextBefore(prev);
                     searchResult.setTextAfter(next);
                     searchResult.setTitle(parseChapterTitle(htmlText));
+                    searchResult.setOccurrenceInChapter(++occurrenceInChapter);
 
                     searchQueryResults.searchResultList.add(searchResult);
                 }
@@ -105,9 +108,10 @@ public class SearchQueryHandler extends DefaultHandler {
             response = NanoHTTPD.newFixedLengthResponse(Status.OK, getMimeType(), json);
             return response;
 
-        } catch (EpubFetcherException | JsonProcessingException e) {
+        } catch (EpubFetcherException | JsonProcessingException | UnsupportedEncodingException e) {
             e.printStackTrace();
-            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(), ResponseStatus.FAILURE_RESPONSE);
+            return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, getMimeType(),
+                    ResponseStatus.FAILURE_RESPONSE);
         }
     }
 
