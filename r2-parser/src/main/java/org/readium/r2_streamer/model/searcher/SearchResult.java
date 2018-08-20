@@ -5,25 +5,34 @@ package org.readium.r2_streamer.model.searcher;
  */
 
 public class SearchResult {
+
     private int searchIndex;
-    private String resource;
+    private String href;
+    private String originalHref;
     private String title;
     private String searchQuery;
-    private String matchString;
+    private String matchQuery;
+    private String sentence;
     private String textBefore;
     private String textAfter;
+    private int occurrenceInChapter;
 
     public SearchResult() {
     }
 
-    public SearchResult(int searchIndex, String resource, String title, String searchQuery, String matchString, String textBefore, String textAfter) {
+    public SearchResult(int searchIndex, String href, String originalHref, String title,
+                        String searchQuery, String matchQuery, String sentence, String textBefore,
+                        String textAfter, int occurrenceInChapter) {
         this.searchIndex = searchIndex;
-        this.resource = resource;
+        this.href = href;
+        this.originalHref = originalHref;
         this.title = title;
         this.searchQuery = searchQuery;
-        this.matchString = matchString;
+        this.matchQuery = matchQuery;
+        this.sentence = sentence;
         this.textBefore = textBefore;
         this.textAfter = textAfter;
+        this.occurrenceInChapter = occurrenceInChapter;
     }
 
     public int getSearchIndex() {
@@ -34,12 +43,20 @@ public class SearchResult {
         this.searchIndex = searchIndex;
     }
 
-    public String getResource() {
-        return resource;
+    public String getHref() {
+        return href;
     }
 
-    public void setResource(String resource) {
-        this.resource = resource;
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+    public String getOriginalHref() {
+        return originalHref;
+    }
+
+    public void setOriginalHref(String originalHref) {
+        this.originalHref = originalHref;
     }
 
     public String getTitle() {
@@ -58,12 +75,20 @@ public class SearchResult {
         this.searchQuery = searchQuery;
     }
 
-    public String getMatchString() {
-        return matchString;
+    public String getMatchQuery() {
+        return matchQuery;
     }
 
-    public void setMatchString(String matchString) {
-        this.matchString = matchString;
+    public void setMatchQuery(String matchQuery) {
+        this.matchQuery = matchQuery;
+    }
+
+    public String getSentence() {
+        return sentence;
+    }
+
+    public void setSentence(String sentence) {
+        this.sentence = sentence;
     }
 
     public String getTextBefore() {
@@ -80,5 +105,13 @@ public class SearchResult {
 
     public void setTextAfter(String textAfter) {
         this.textAfter = textAfter;
+    }
+
+    public int getOccurrenceInChapter() {
+        return occurrenceInChapter;
+    }
+
+    public void setOccurrenceInChapter(int occurrenceInChapter) {
+        this.occurrenceInChapter = occurrenceInChapter;
     }
 }
