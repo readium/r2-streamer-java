@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 
 ext {
     bintrayRepo = 'maven'
@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/readium/r2-streamer-java'
     gitUrl = 'https://github.com/readium/r2-streamer-java.git'
 
-    libraryVersion = '0.1.7'
+    libraryVersion = '0.1.8'
 
     developerId = 'mobisystech'
     developerName = 'CodeToArt'
@@ -25,12 +25,12 @@ ext {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':r2-fetcher')
+    api project(':r2-fetcher')
 
-    compile 'org.nanohttpd:nanohttpd:2.3.1'
-    compile 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+    api 'org.nanohttpd:nanohttpd:2.3.1'
+    api 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
 }
 
 sourceCompatibility = "1.7"

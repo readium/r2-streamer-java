@@ -165,6 +165,9 @@ public class ResourceHandler extends DefaultHandler {
                     response.addHeader("ETag", etag);
                 }
             }
+
+            inputStream.close();
+
         } catch (IOException | NullPointerException ioe) {
             response = getResponse("Forbidden: Reading file failed");
         }

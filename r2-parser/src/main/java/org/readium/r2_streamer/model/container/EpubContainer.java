@@ -4,6 +4,8 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
+import org.readium.r2_streamer.parser.UnicodeBOMInputStream;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,13 +43,18 @@ public class EpubContainer implements Container {
     @Override
     public String rawData(String relativePath) throws NullPointerException {
         System.out.println(TAG + " Reading file at path: " + relativePath);
+
         try {
             String decodedRelativePath = new URI(relativePath).getPath();
             FileHeader fileHeader = zipFile.getFileHeader(decodedRelativePath);
             if (fileHeader == null)
                 return null;
-            InputStream is = zipFile.getInputStream(fileHeader);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+            InputStream inputStream = zipFile.getInputStream(fileHeader);
+            UnicodeBOMInputStream ubis = new UnicodeBOMInputStream(inputStream);
+            ubis.skipBOM();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(ubis));
             StringBuilder sb = new StringBuilder();
             String line;
 
@@ -58,10 +65,14 @@ public class EpubContainer implements Container {
             if (sb.length() > 0)
                 sb.deleteCharAt(sb.length() - 1);
 
+            inputStream.close();
+            ubis.close();
             return sb.toString();
+
         } catch (URISyntaxException | ZipException | IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -123,6 +134,7 @@ public class EpubContainer implements Container {
                     while ((bytesRead = inputStream.read(byteArray)) != -1) {
                         byteArrayOutputStream.write(byteArray, 0, bytesRead);
                     }
+                    inputStream.close();
 
                     byteArrayOutputStream.flush();
                     byte[] streamArray = byteArrayOutputStream.toByteArray();
