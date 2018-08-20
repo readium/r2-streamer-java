@@ -83,8 +83,8 @@ public class SearchQueryHandler extends DefaultHandler {
                 while (matcher.find()) {
 
                     int start = matcher.start();
-                    String prev = getTextBefore(bodyText, matcher, 15);
-                    String next = getTextAfter(bodyText, matcher, 15);
+                    String prev = getTextBefore(bodyText, matcher, 15, 150);
+                    String next = getTextAfter(bodyText, matcher, 15, 150);
                     String sentence = prev.concat(matcher.group()).concat(next);
 
                     SearchResult searchResult = new SearchResult();
@@ -134,13 +134,16 @@ public class SearchQueryHandler extends DefaultHandler {
         return null;
     }
 
-    private String getTextBefore(String text, Matcher matcher, int noOfWords) {
+    private String getTextBefore(String text, Matcher matcher, int noOfWords,
+                                 int noOfCharacters) {
 
         int noOfWordsFound = 0;
         int i = matcher.start() - 1;
         Boolean lastCharSpace = null;
+        int tillIndex = matcher.start() - noOfCharacters + 1;
+        tillIndex = tillIndex >= 0 ? tillIndex : 0;
 
-        for (; i >= 0; i--) {
+        for (; i >= tillIndex; i--) {
 
             if (Character.isSpaceChar(text.charAt(i))) {
 
@@ -165,13 +168,16 @@ public class SearchQueryHandler extends DefaultHandler {
         }
     }
 
-    private String getTextAfter(String text, Matcher matcher, int noOfWords) {
+    private String getTextAfter(String text, Matcher matcher, int noOfWords,
+                                int noOfCharacters) {
 
         int noOfWordsFound = 0;
         int i = matcher.end();
         Boolean lastCharSpace = null;
+        int tillIndex = matcher.end() + noOfCharacters - 1;
+        tillIndex = tillIndex <= text.length() - 1 ? tillIndex : text.length() - 1;
 
-        for (; i < text.length(); i++) {
+        for (; i <= tillIndex; i++) {
 
             if (Character.isSpaceChar(text.charAt(i))) {
 
