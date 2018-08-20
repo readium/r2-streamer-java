@@ -51,7 +51,7 @@ public class SearchListAdapter extends ArrayAdapter<String> {
 
         SearchResult searchResult = list.get(position);
         view_1.setText(searchResult.getTitle());
-        view_2.setText(stripHtmlTags(searchResult.getMatchString()));
+        view_2.setText(stripHtmlTags(searchResult.getMatchQuery()));
 
         return layout;
     }
